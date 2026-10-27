@@ -447,7 +447,7 @@ internal static class Program
                 var parts = g.Tag.Split('|');
                 var anchor = parts[1];
                 var sideCode = parts[2];
-                if (!graph.TryGetCell(anchor, out var acell))
+                if (!graph.Cells.TryGetValue(anchor, out var acell))
                 {
                     failures.Add(sc.Tag + ": ghost anchor ไม่มี cell: " + g.Tag);
                     continue;
