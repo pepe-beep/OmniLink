@@ -382,7 +382,7 @@ internal static class Program
             win.UpdateLayout();
             Pump(150);
 
-            var graph = host.Kvm.Topology;
+            var graph = host.Kvm.TopologyView;
             var canvas = win.TopologyCanvas;
             Console.WriteLine($"[dbg] {sc.Tag}: matrix=({win.MapMatrix.M11:0.00},{win.MapMatrix.OffsetX:0},{win.MapMatrix.OffsetY:0}) canvas={canvas.Width:0}x{canvas.Height:0} grid={win.MapHostGrid.ActualWidth:0}x{win.MapHostGrid.ActualHeight:0} visible={canvas.IsVisible}");
 
