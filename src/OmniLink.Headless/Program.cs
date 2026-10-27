@@ -421,21 +421,6 @@ internal static class Program
     private static void ShutdownParity() { }
 #endif
 
-    private static bool KvmPortInUse()
-    {
-        try
-        {
-            var probe = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, OmniProtocol.KvmTcpPort);
-            probe.Start();
-            probe.Stop();
-            return false;
-        }
-        catch (System.Net.Sockets.SocketException)
-        {
-            return true;
-        }
-    }
-
     private static bool AgentPortInUse()
     {
         try
