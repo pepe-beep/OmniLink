@@ -36,7 +36,7 @@ public partial class MainWindow : Window, ISettingsHost
 
     private readonly OmniConfig _config;
     private readonly IOmniEventHub _eventHub;
-    private readonly bool _dashboard; // S3: ui_role=dashboard — UI เป็น client ของ engine (hostd)
+    private bool _dashboard; // S3: ui_role=dashboard — UI เป็น client ของ engine (hostd) · godclass-G2: อาจถูกตั้งอัตโนมัติเมื่อ engine ถูกครอง
     private readonly IClipboardBridge _clipboardBridge;
     private readonly OmniLink.Platform.Windows.WindowsHostInput _hostInput = null!;
     private OmniLink.Core.NodeAgentServer? _subServer;
@@ -91,7 +91,22 @@ public partial class MainWindow : Window, ISettingsHost
         }
         else
         {
-            _kvm = new KvmHostService(_config, ScheduleUiRefresh, _eventHub, _hostInput);
+            // godclass-G2: ครองสิทธิ์ engine เดียวของเครื่อง — ถ้า hostd (autostart) รันอยู่ ให้กลับเป็น dashboard อัตโนมัติ
+            if (!EngineSingleton.TryAcquire())
+            {
+                OmniLog.Warn("[role] ui_role=engine แต่มี engine อีกตัวรันอยู่ (hostd?) → ทำงานเป็น dashboard แทน");
+                _dashboard = true;
+                var ipcf = new IpcKvmClient();
+                ipcf.StateChanged += () => ScheduleUiRefresh();
+                ipcf.ConnectedChanged += () => Dispatcher.BeginInvoke(() => SetBanner(ipcf.IsConnected
+                    ? Loc.T("banner.dashboard.connected", "โหมด dashboard: เชื่อม engine (hostd) สำเร็จ")
+                    : Loc.T("banner.dashboard.offline", "โหมด dashboard: engine ไม่ตอบ — กำลังลองเชื่อมต่อใหม่...")));
+                _kvm = ipcf;
+            }
+            else
+            {
+                _kvm = new KvmHostService(_config, ScheduleUiRefresh, _eventHub, _hostInput);
+            }
         }
 
         // v2.0 เฟส 3: โหมด sub ฝัง — เครื่องนี้ถูกคุมโดย host ตัวอื่นได้ (กันลูปผ่าน SubActiveFocusProbe)
@@ -970,6 +985,7 @@ public partial class MainWindow : Window, ISettingsHost
             catch { }
             try { _discovery.Dispose(); } catch { }
             try { _kvm.Dispose(); } catch { } // engine: unhook+ปิด sessions · dashboard: ปิดท่อ IPC
+            if (!_dashboard) EngineSingleton.Release(); // godclass-G2
             try { _audio?.Dispose(); } catch { }
         });
 

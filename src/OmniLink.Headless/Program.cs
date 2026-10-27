@@ -138,10 +138,10 @@ internal static class Program
         {
             OmniLog.Write("boot", "auto_start_kvm=false → engine ไม่ทำงาน (โหมด KVM ปิด — parity กับ UI)");
         }
-        else if (KvmPortInUse())
+        else if (!EngineSingleton.TryAcquire())
         {
-            // S4 กันชน: UI (ui_role=engine) หรือ hostd อีกตัวถือพอร์ต KVM อยู่ — ออกเงียบ ๆ ให้ autostart ไม่กลายเป็น engine ซ้อน
-            OmniLog.Warn("[hostd] พอร์ต 24801 ถูก engine ตัวอื่นถืออยู่ (UI โหมด engine?) → hostd ออก (กัน engine ซ้อน)");
+            // godclass-G2: ตรวจด้วย named mutex (engine เป็น TCP client ไม่ bind 24801 — เช็คพอร์ตเดิมไม่มีวันเจอ)
+            OmniLog.Warn("[hostd] มี engine อีกตัวรันอยู่ (WPF ui_role=engine หรือ hostd อีก instance) → hostd ออก (กัน engine ซ้อน)");
             return 0;
         }
         else
@@ -160,6 +160,9 @@ internal static class Program
         Console.WriteLine("omnilink-hostd running — Ctrl+C เพื่อหยุด");
 
         // S2: เปิดท่อ IPC รอ dashboard ตามสัญญา S0 (Core ล้วน — ทำได้ทั้ง Linux/Windows)
+        // godclass-G3: pipe ใช้ default security ของ Windows (เขียนได้เฉพาะ same-user + admin/SYSTEM) —
+        // ACL ชัดเจนถูกเลื่อนออก: .NET 10 ref pack ไม่มี System.IO.Pipes.AccessControl surface แล้ว
+        // (จดใน BUGS-SEEN 27 ต.ค. ดึก) · IpcHostServer.StreamFactoryOverride ว่างไว้ inject ภายหลังได้
         if (cfg.IpcEnabled && cfg.AutoStartKvm)
         {
             _ipc = new IpcHostServer(_kvm, cfg, _audio);
