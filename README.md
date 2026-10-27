@@ -1,4 +1,5 @@
 # OmniLink
+[![CI](https://github.com/pepe-beep/OmniLink/actions/workflows/ci.yml/badge.svg)](https://github.com/pepe-beep/OmniLink/actions/workflows/ci.yml)
 
 KVM ระหว่างเครื่องผ่าน LAN: ควบคุมเมาส์/คีย์บอร์ดข้ามเครื่อง, clipboard สองทิศ (ข้อความ/รูป/ไฟล์), สตรีมเสียงสองทาง (GStreamer RTP), topology map, จับคู่แบบ TLS+TOFU+PIN
 Windows host (WPF) · Linux host daemon (headless) · Windows/Linux node agent (Python, ไม่มี dependency)

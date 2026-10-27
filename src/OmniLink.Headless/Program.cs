@@ -134,13 +134,19 @@ internal static class Program
             EnablePreventSleep(); // v1.9 C4: เธรด keeper ค้าง ES_CONTINUOUS ตลอดที่เปิดใช้ (Windows เท่านั้น)
         }
 
-        if (cfg.AutoStartKvm)
+        if (!cfg.AutoStartKvm)
         {
-            _kvm.Start();
+            OmniLog.Write("boot", "auto_start_kvm=false → engine ไม่ทำงาน (โหมด KVM ปิด — parity กับ UI)");
+        }
+        else if (KvmPortInUse())
+        {
+            // S4 กันชน: UI (ui_role=engine) หรือ hostd อีกตัวถือพอร์ต KVM อยู่ — ออกเงียบ ๆ ให้ autostart ไม่กลายเป็น engine ซ้อน
+            OmniLog.Warn("[hostd] พอร์ต 24801 ถูก engine ตัวอื่นถืออยู่ (UI โหมด engine?) → hostd ออก (กัน engine ซ้อน)");
+            return 0;
         }
         else
         {
-            OmniLog.Write("boot", "auto_start_kvm=false → engine ไม่ทำงาน (โหมด KVM ปิด — parity กับ UI)");
+            _kvm.Start();
         }
 
         // สถานะสำหรับ omnilink-hostd status / การวัดของจริง (เขียนทุก 5 วิ — I/O น้อยมาก)
@@ -411,6 +417,21 @@ internal static class Program
 
     private static void ShutdownParity() { }
 #endif
+
+    private static bool KvmPortInUse()
+    {
+        try
+        {
+            var probe = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, OmniProtocol.KvmTcpPort);
+            probe.Start();
+            probe.Stop();
+            return false;
+        }
+        catch (System.Net.Sockets.SocketException)
+        {
+            return true;
+        }
+    }
 
     private static bool AgentPortInUse()
     {
