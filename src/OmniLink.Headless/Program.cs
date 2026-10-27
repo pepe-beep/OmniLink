@@ -2,6 +2,7 @@ using System.Text.Json;
 using OmniLink.Core;
 using OmniLink.Core.Abstractions;
 using OmniLink.Core.Events;
+using OmniLink.Core.Ipc;
 
 namespace OmniLink.Headless;
 
@@ -18,8 +19,9 @@ internal static class Program
     private static KvmHostService? _kvm;
     private static OmniLink.Core.NodeAgentServer? _sub;
     private static System.Threading.Timer? _statusTimer;
+    private static AudioHubService? _audio;          // Windows parity wiring เท่านั้น (Linux = null)
+    private static IpcHostServer? _ipc;              // S2: ท่อควบคุมของ dashboard
 #if OMNILINK_WINDOWS
-    private static AudioHubService? _audio;
     private static OmniDiscoveryService? _discovery;
 #endif
 
@@ -151,6 +153,13 @@ internal static class Program
         OmniLog.Write("boot", $"omnilink-hostd v{typeof(KvmHostService).Assembly.GetName().Version?.ToString(3) ?? "?"} ready — nodes ใน config จะถูกเชื่อมตาม lifecycle (hot/cold/freeze)");
         Console.WriteLine("omnilink-hostd running — Ctrl+C เพื่อหยุด");
 
+        // S2: เปิดท่อ IPC รอ dashboard ตามสัญญา S0 (Core ล้วน — ทำได้ทั้ง Linux/Windows)
+        if (cfg.IpcEnabled && cfg.AutoStartKvm)
+        {
+            _ipc = new IpcHostServer(_kvm, cfg, _audio);
+            _ipc.Start();
+        }
+
         // S1: boot sequence หลัง Start (deploy + auto audio + calibrate) — เดินหลังบูตเสมอ ไม่บล็อก main loop
         RunBootSequence(cfg);
 
@@ -161,6 +170,7 @@ internal static class Program
 
         OmniLog.Write("boot", "omnilink-hostd กำลังปิดตัว...");
         _statusTimer.Dispose();
+        try { _ipc?.Dispose(); } catch { }
         ShutdownParity(); // S1: หยุด audio ก่อนปิด session (D1: exit ต้องหยุด remote เสียงด้วย)
         _sub?.Dispose();
         _kvm.Dispose();

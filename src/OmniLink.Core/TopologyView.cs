@@ -27,6 +27,20 @@ public sealed class TopologyView
         }
     }
 
+    /// <summary>S2: snapshot edges ให้ฝั่ง server แพ็กลงท่อ</summary>
+    public IReadOnlyDictionary<string, IReadOnlyDictionary<ScreenEdge, string>> EdgesView
+    {
+        get
+        {
+            var copy = new Dictionary<string, IReadOnlyDictionary<ScreenEdge, string>>(_edges.Count);
+            foreach (var kv in _edges)
+            {
+                copy[kv.Key] = new Dictionary<ScreenEdge, string>(kv.Value);
+            }
+            return copy;
+        }
+    }
+
     public string? GetNeighbor(string? nodeId, ScreenEdge edge)
     {
         var id = string.IsNullOrWhiteSpace(nodeId) ? TopologyHost.Id : nodeId;

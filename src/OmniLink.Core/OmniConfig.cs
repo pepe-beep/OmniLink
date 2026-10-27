@@ -63,6 +63,13 @@ public sealed class OmniConfig
     [JsonPropertyName("sub_mode_enabled")]
     public bool SubModeEnabled { get; set; } = false; // v2.0 เฟส 3: ให้เครื่องนี้ถูกคุมโดย host ตัวอื่นได้ (โหมด sub ฝัง)
 
+    // ─── v2.1 S3 (Engine/UI split): บทบาทของแอป ───
+    [JsonPropertyName("ui_role")]
+    public string UiRole { get; set; } = "engine"; // "engine" = UI รัน engine ในตัว (เดิม) · "dashboard" = UI เป็น client ของ hostd
+
+    [JsonPropertyName("ipc_enabled")]
+    public bool IpcEnabled { get; set; } = true; // hostd เปิด pipe รอ dashboard ตามสัญญา S0
+
     [JsonPropertyName("theme_mode")]
     public int ThemeMode { get; set; } = 0; // v2.0: 0 = ตามปัจจุบัน (น้ำเงินเข้ม), 1 = สีดำ, 2 = สว่าง — แทน backdrop ที่ถอนออกแล้ว
 
