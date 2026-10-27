@@ -1,0 +1,577 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══ v1.9 English string table (used when Windows language is not Thai) ═══
+         Every key here must have a twin in Strings.th-TH.xaml — enforced by LocalizationTests -->
+
+    <!-- App / chrome -->
+    <sys:String x:Key="Loc.app.subtitle">Mesh KVM Matrix &amp; Two-Way Low-Latency Audio Engine</sys:String>
+    <sys:String x:Key="Loc.app.exit">Exit OmniLink</sys:String>
+    <sys:String x:Key="Loc.app.running.host">Running as Host</sys:String>
+    <sys:String x:Key="Loc.status.boot">Mesh LAN: Ready</sys:String>
+    <sys:String x:Key="Loc.top.bar.kbd">Keyboard:</sys:String>
+    <sys:String x:Key="Loc.top.bar.kbd.tip">Switch keyboard layout on all machines (Win+Space or `) — not the UI language (change it in Settings → General)</sys:String>
+    <sys:String x:Key="Loc.tab.topology">Topology &amp; Devices</sys:String>
+    <sys:String x:Key="Loc.tab.audio">Audio Matrix</sys:String>
+    <sys:String x:Key="Loc.tab.files">Files &amp; Clipboard</sys:String>
+    <sys:String x:Key="Loc.tab.settings">Settings</sys:String>
+
+    <!-- Tab 1: Devices -->
+    <sys:String x:Key="Loc.devices.connected">Connected Devices</sys:String>
+    <sys:String x:Key="Loc.devices.scan">Scan LAN</sys:String>
+    <sys:String x:Key="Loc.devices.switch">Switch Mouse to Node</sys:String>
+    <sys:String x:Key="Loc.devices.rename">Rename</sys:String>
+    <sys:String x:Key="Loc.devices.rename.tip">Rename Device Alias</sys:String>
+    <sys:String x:Key="Loc.devices.reset">Reset</sys:String>
+    <sys:String x:Key="Loc.devices.remove">Remove</sys:String>
+    <sys:String x:Key="Loc.devices.deploy.tip">Only works for Linux machines reachable via SSH (key auth) — for a Windows neighbor, use the "Add your first computer" button on the map</sys:String>
+    <sys:String x:Key="Loc.devices.deploy">Sync / Deploy Node Agent</sys:String>
+    <sys:String x:Key="Loc.devices.policy">Node Policy:</sys:String>
+    <sys:String x:Key="Loc.policy.full">Full Control (default)</sys:String>
+    <sys:String x:Key="Loc.policy.clipboard">Clipboard + Files only (no input)</sys:String>
+    <sys:String x:Key="Loc.policy.view">View only (telemetry/audio)</sys:String>
+    <sys:String x:Key="Loc.devices.target">Managing:</sys:String>
+    <sys:String x:Key="Loc.devices.target.none">(no device selected)</sys:String>
+    <sys:String x:Key="Loc.devices.devicetype">Device Type:</sys:String>
+    <sys:String x:Key="Loc.devices.devicetype.tip">Icon and layout role of the selected machine — laptop, desktop PC or headless server</sys:String>
+    <sys:String x:Key="Loc.devtype.laptop">Laptop (Notebook)</sys:String>
+    <sys:String x:Key="Loc.devtype.desktop">Desktop PC</sys:String>
+    <sys:String x:Key="Loc.devtype.server">Server (Headless)</sys:String>
+
+    <!-- Spatial map -->
+    <sys:String x:Key="Loc.map.title">Spatial Screen Arrangement</sys:String>
+    <sys:String x:Key="Loc.map.desc">Drag and drop screens to arrange spatial topology, or push mouse against edges to switch</sys:String>
+    <sys:String x:Key="Loc.map.activetopology">Selected device position:</sys:String>
+    <sys:String x:Key="Loc.map.pos.right">Right Display</sys:String>
+    <sys:String x:Key="Loc.map.pos.left">Left Display</sys:String>
+    <sys:String x:Key="Loc.map.pos.top">Top (Above Host)</sys:String>
+    <sys:String x:Key="Loc.map.pos.bottom">Bottom (Below Host)</sys:String>
+    <sys:String x:Key="Loc.map.place.top">Place Above</sys:String>
+    <sys:String x:Key="Loc.map.place.left">Place Left</sys:String>
+    <sys:String x:Key="Loc.map.place.right">Place Right</sys:String>
+    <sys:String x:Key="Loc.map.place.bottom">Place Below</sys:String>
+    <sys:String x:Key="Loc.map.focus.active">Active Cursor</sys:String>
+    <sys:String x:Key="Loc.map.focus.client">Client Controlled</sys:String>
+    <sys:String x:Key="Loc.map.info">Seamless Transition Active: Cursor glides between monitors at 0ms latency. Press Scroll Lock to lock cursor to the active display.</sys:String>
+    <sys:String x:Key="Loc.map.cursor.active">Active Cursor</sys:String>
+    <sys:String x:Key="Loc.map.connected">Connected</sys:String>
+    <sys:String x:Key="Loc.map.offline">Offline</sys:String>
+    <sys:String x:Key="Loc.map.disabled">Disabled</sys:String>
+    <sys:String x:Key="Loc.map.lang.th">Layout: TH (Thai)</sys:String>
+    <sys:String x:Key="Loc.map.lang.en">Layout: ENG (US)</sys:String>
+
+    <!-- Node rows -->
+    <sys:String x:Key="Loc.node.focus">FOCUS</sys:String>
+    <sys:String x:Key="Loc.node.online">ONLINE</sys:String>
+    <sys:String x:Key="Loc.node.offline">OFFLINE</sys:String>
+    <sys:String x:Key="Loc.node.disabled">DISABLED</sys:String>
+    <sys:String x:Key="Loc.node.awaiting">Awaiting hardware handshake...</sys:String>
+    <sys:String x:Key="Loc.node.client">Client</sys:String>
+    <sys:String x:Key="Loc.node.host">Host</sys:String>
+    <sys:String x:Key="Loc.node.console">Console</sys:String>
+    <sys:String x:Key="Loc.badge.paired">PAIRED</sys:String>
+    <sys:String x:Key="Loc.badge.ready">READY TO PAIR</sys:String>
+
+    <!-- Tab 2: Audio -->
+    <sys:String x:Key="Loc.audio.title">Two-Way Low-Latency Audio Matrix</sys:String>
+    <sys:String x:Key="Loc.audio.desc">Opus 48kHz Stereo streaming between the host and nodes in the mesh</sys:String>
+    <sys:String x:Key="Loc.audio.stream.title">Remote Speaker Stream</sys:String>
+    <sys:String x:Key="Loc.audio.stream.ready">Speaker Stream: Ready</sys:String>
+    <sys:String x:Key="Loc.audio.stream.start">Start Speaker Stream</sys:String>
+    <sys:String x:Key="Loc.audio.dest.label">Audio Playback Destination:</sys:String>
+    <sys:String x:Key="Loc.audio.dest.value">Default System Audio Device</sys:String>
+    <sys:String x:Key="Loc.audio.dest.tech">Opus 48kHz Stereo | Jitter Buffer: Adaptive | Smart Standby</sys:String>
+    <sys:String x:Key="Loc.audio.mic.title">Microphone Bridge</sys:String>
+    <sys:String x:Key="Loc.audio.mic.ready">Microphone Bridge: Ready</sys:String>
+    <sys:String x:Key="Loc.audio.mic.label">Host Input Microphone:</sys:String>
+    <sys:String x:Key="Loc.audio.mic.start">Start Microphone</sys:String>
+    <sys:String x:Key="Loc.audio.mic.tech">Opus 48kHz Mono | On-Demand (Audiodg-safe) | Auto Mute</sys:String>
+    <sys:String x:Key="Loc.audio.reset">Reset Audio Stack</sys:String>
+    <sys:String x:Key="Loc.audio.trouble.title">Troubleshooting</sys:String>
+    <sys:String x:Key="Loc.audio.trouble.desc">If network latency spikes or audio becomes unsynchronized, click Reset Audio Stack to re-initialize sockets.</sys:String>
+    <sys:String x:Key="Loc.audio.active">ACTIVE</sys:String>
+    <sys:String x:Key="Loc.audio.standby">STANDBY</sys:String>
+    <sys:String x:Key="Loc.common.refresh">Refresh</sys:String>
+
+    <!-- Tab 3: Files & Clipboard -->
+    <sys:String x:Key="Loc.files.title">Cross-Machine File Exchange</sys:String>
+    <sys:String x:Key="Loc.files.idle">Idle</sys:String>
+    <sys:String x:Key="Loc.files.hint">Copy files on one machine and paste (Ctrl+V) on another to transfer</sys:String>
+    <sys:String x:Key="Loc.files.openfolder">Open Folder</sys:String>
+    <sys:String x:Key="Loc.files.transferring">Transferring file...</sys:String>
+    <sys:String x:Key="Loc.files.completed">Transfer Completed ({0} files)</sys:String>
+    <sys:String x:Key="Loc.files.savedto">Saved {0}</sys:String>
+    <sys:String x:Key="Loc.files.failed">Transfer Failed</sys:String>
+    <sys:String x:Key="Loc.files.interrupted">Network transfer interrupted</sys:String>
+    <sys:String x:Key="Loc.clip.title">Cross-Machine Clipboard History</sys:String>
+    <sys:String x:Key="Loc.clip.desc">Recent items copied across connected nodes (Last 20 entries)</sys:String>
+    <sys:String x:Key="Loc.clip.clear">Clear All</sys:String>
+    <sys:String x:Key="Loc.clip.copy">Copy</sys:String>
+
+    <!-- Settings rail / footer -->
+    <sys:String x:Key="Loc.settings.rail.title">Settings</sys:String>
+    <sys:String x:Key="Loc.settings.restore">Restore page defaults</sys:String>
+    <sys:String x:Key="Loc.settings.restore.tip">Reset every setting on this page to factory values</sys:String>
+    <sys:String x:Key="Loc.settings.livehint">Every change saves and applies instantly as you type — no Save button needed</sys:String>
+    <sys:String x:Key="Loc.settings.hint.number">Numbers only — values outside the safe range are clamped automatically</sys:String>
+
+    <!-- Section titles -->
+    <sys:String x:Key="Loc.settings.section.general">General</sys:String>
+    <sys:String x:Key="Loc.settings.section.switching">Switching</sys:String>
+    <sys:String x:Key="Loc.settings.section.network">Network &amp; Ports</sys:String>
+    <sys:String x:Key="Loc.settings.section.security">Security &amp; Pairing</sys:String>
+    <sys:String x:Key="Loc.settings.section.audio">Audio</sys:String>
+    <sys:String x:Key="Loc.settings.section.clipboard">Clipboard</sys:String>
+    <sys:String x:Key="Loc.settings.section.logging">Logging</sys:String>
+    <sys:String x:Key="Loc.settings.section.advanced">Advanced</sys:String>
+    <sys:String x:Key="Loc.submode.block.port">Cannot enable Sub-mode: port 24801 is already in use (likely the OmniLink node agent on this machine).&#10;&#10;The node agent and Sub-mode share the same port and must not run together.&#10;Stop the node agent (or disable its autostart) first, then enable Sub-mode.</sys:String>
+    <sys:String x:Key="Loc.submode.block.installed">Cannot enable Sub-mode: the OmniLink node agent is installed on this machine (~/omnilink/omnilink_agent.py).&#10;&#10;The agent autostarts at boot and uses the same port as Sub-mode — they must not run together.&#10;Uninstall the agent (remove ~/omnilink and its Startup shortcut) first, then enable Sub-mode.</sys:String>
+
+    <sys:String x:Key="Loc.settings.section.danger">Danger Zone</sys:String>
+
+    <!-- General page -->
+    <sys:String x:Key="Loc.settings.general">General</sys:String>
+    <sys:String x:Key="Loc.settings.general.desc">Language, window material and startup behavior</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.title">Sub mode (controlled by another host)</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.desc">Allow other hosts to add this machine as a node and control its mouse/keyboard — enables two-way host-to-host. Emergency escape on this machine: Ctrl+Alt+Shift+Q</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.check">Enable sub mode (this machine can be controlled)</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.pin">Pairing PIN: {0} · Fingerprint: {1}..</sys:String>
+    <sys:String x:Key="Loc.sub.started">Sub mode on — other hosts can add this machine as a node (pairing PIN: {0})</sys:String>
+    <sys:String x:Key="Loc.sub.controlled">This machine is being controlled by a host ({0}) — emergency escape: Ctrl+Alt+Shift+Q</sys:String>
+    <sys:String x:Key="Loc.sub.released">This machine is back to local control</sys:String>
+    <sys:String x:Key="Loc.sub.stopped">Sub mode turned off</sys:String>
+    <sys:String x:Key="Loc.settings.theme.title">Color theme</sys:String>
+    <sys:String x:Key="Loc.settings.theme.desc">Change the app color scheme (windows are always solid — no transparency effects)</sys:String>
+    <sys:String x:Key="Loc.settings.theme.current">Current (dark blue)</sys:String>
+    <sys:String x:Key="Loc.settings.theme.black">Black</sys:String>
+    <sys:String x:Key="Loc.settings.theme.light">Light</sys:String>
+    <sys:String x:Key="Loc.settings.theme.tip">Three color schemes, applied instantly across the app</sys:String>
+    <sys:String x:Key="Loc.settings.lang.title">App language</sys:String>
+    <sys:String x:Key="Loc.settings.lang.desc">Applies instantly, no restart needed</sys:String>
+    <sys:String x:Key="Loc.settings.lang.auto">Follow system language (Auto)</sys:String>
+    <sys:String x:Key="Loc.settings.lang.th">Thai (ไทย)</sys:String>
+    <sys:String x:Key="Loc.settings.lang.en">English</sys:String>
+    <sys:String x:Key="Loc.settings.lang.tip">Auto uses Thai when the system is set to Thai, and English for anything else</sys:String>
+    <sys:String x:Key="Loc.settings.close.title">When clicking the close button</sys:String>
+    <sys:String x:Key="Loc.settings.close.desc">Choose between hiding to the tray or really exiting</sys:String>
+    <sys:String x:Key="Loc.settings.close.tray">Hide to system tray (recommended)</sys:String>
+    <sys:String x:Key="Loc.settings.close.exit">Exit the application</sys:String>
+    <sys:String x:Key="Loc.settings.close.tip">Hide-to-tray keeps audio streaming and machine switching alive while the window is closed</sys:String>
+    <sys:String x:Key="Loc.settings.autokvm.title">Start the KVM engine on launch</sys:String>
+    <sys:String x:Key="Loc.settings.autokvm.desc">Turn off if you do not want keyboard/mouse hooks right away at startup</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.title">Keyboard layout sync (TH/EN)</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.desc">Client machines follow the host's Thai/English layout automatically</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.target">Only the controlled machine</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.all">All machines together</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.tip">Configures the layout-switch hotkey and sync scope — the ENG/Thai pills at the top do the same thing</sys:String>
+
+    <!-- Switching page -->
+    <sys:String x:Key="Loc.settings.switching">Switching</sys:String>
+    <sys:String x:Key="Loc.settings.switching.desc">Edge-crossing timing, dead corners and lock hotkeys</sys:String>
+    <sys:String x:Key="Loc.settings.switch.delay">Switch delay (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.delay.tip">Wait before the mouse may cross a screen edge (0 = instant) — higher values prevent accidental switches</sys:String>
+    <sys:String x:Key="Loc.settings.switch.doubletap">Double-tap window (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.doubletap.tip">Hitting an edge twice within this time forces an immediate switch past the delay</sys:String>
+    <sys:String x:Key="Loc.settings.switch.corner">Corner dead zone (px):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.corner.tip">Radius around each screen corner where switching is blocked — stops the mouse escaping while aiming at corner buttons</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lockout">Blocked corners:</sys:String>
+    <sys:String x:Key="Loc.corner.tl">Top-Left</sys:String>
+    <sys:String x:Key="Loc.corner.tr">Top-Right</sys:String>
+    <sys:String x:Key="Loc.corner.bl">Bottom-Left</sys:String>
+    <sys:String x:Key="Loc.corner.br">Bottom-Right</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock">Lock cursor to screen (Scroll Lock)</sys:String>
+    <sys:String x:Key="Loc.settings.switch.fullscreen">Block switching on full-screen games</sys:String>
+    <sys:String x:Key="Loc.settings.switch.grave">Switch layout with ` (Grave Accent)</sys:String>
+
+    <!-- Network page -->
+    <sys:String x:Key="Loc.settings.network">Network &amp; Ports</sys:String>
+    <sys:String x:Key="Loc.settings.network.desc">Transport ports and the system firewall rule</sys:String>
+    <sys:String x:Key="Loc.settings.ports.title">Transport ports</sys:String>
+    <sys:String x:Key="Loc.settings.ports.desc">Change only when a port collides with another program — every machine (host + agent) must use the same values</sys:String>
+    <sys:String x:Key="Loc.settings.ports.tcp">KVM command (TCP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.udp">KVM input (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.disc">LAN discovery (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.rtp">Audio RTP (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.err.format">Ports must be numbers between 1024 and 65535 — invalid fields keep their previous value</sys:String>
+    <sys:String x:Key="Loc.settings.ports.err.dup">Each port must be unique — nothing is saved until the duplicates are fixed</sys:String>
+    <sys:String x:Key="Loc.settings.ports.deploy">Client agent install: use "Sync / Deploy Node Agent" on the Topology tab (automatic over SSH)</sys:String>
+    <sys:String x:Key="Loc.settings.ports.deploy.tip">Installs/updates the agent on client machines without typing commands — requires an SSH key to be set up</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.title">Subnet allowlist (CIDR)</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.desc">Empty = allow everywhere, e.g. 192.168.99.0/24 — separate entries with commas or new lines</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.tip">Agent-side firewall: when set, only hosts inside these ranges can discover or connect</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.err">Not an IP/CIDR entry (not saved): {0}</sys:String>
+
+    <!-- Security & pairing page -->
+    <sys:String x:Key="Loc.settings.security">Security &amp; Pairing</sys:String>
+    <sys:String x:Key="Loc.settings.security.desc">Every connection uses TLS + HMAC-signed UDP (TOFU) — pair devices and verify fingerprints here</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.title">Discover and pair new machines</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.idle">Scan the local subnet for OmniLink agents (port 24800)</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.scanning">Broadcasting discovery beacons across the local subnet...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.found">Found {0} device(s) — select one to pair</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.none">No devices responded. Ensure the OmniLink agent is running on the client machine.</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.count0">No devices found yet</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.count">{0} devices found</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.searching">Searching...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.scan">Broadcast Discovery</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.scanning">Scanning...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.manual">Add by IP</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.manual.tip">Enter the agent machine's IP directly — works even where broadcast discovery cannot (VPN, multi-NIC)</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.target.none">Target: None selected</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.target">Target: {0} ({1}) — Screen {2}x{3}</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.hint">Select a device above and enter the 6-digit PIN</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.pair">Pair &amp; Connect Device</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.repair">Update / Re-Pair Device</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.err.target">Please select an OmniLink node from the list above first.</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.err.pin">Please enter the 6-digit PIN displayed on the remote device screen.</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.connecting">Connecting to {0} ({1}) and verifying PIN...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.connecting.manual">Connecting to {0}:{1} (manual entry) and verifying PIN...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.fp.ok">Fingerprint approved — sending PIN to the client...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.success">Paired successfully with {0}! Node added to topology.</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.failed">Pairing failed: {0}</sys:String>
+    <sys:String x:Key="Loc.pairing.fingerprint.title">Verify Fingerprint — Trust On First Use</sys:String>
+    <sys:String x:Key="Loc.pairing.fingerprint.body">Client fingerprint (TLS SHA-256):&#10;&#10;{0}&#10;&#10;Compare it with the fingerprint shown on the client screen (the 'OmniLink Pairing' notification on Linux).&#10;&#10;Match → click Yes · Mismatch → click No to cancel immediately (possible man-in-the-middle)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.title">Paired fingerprints</sys:String>
+    <sys:String x:Key="Loc.settings.fp.desc">TLS fingerprints of every trusted machine — they always match the client screen</sys:String>
+    <sys:String x:Key="Loc.settings.fp.tip">Trust On First Use: the first pairing pins the client's fingerprint — a later mismatch means something changed on the wire</sys:String>
+    <sys:String x:Key="Loc.settings.fp.empty">No paired machines yet</sys:String>
+    <sys:String x:Key="Loc.settings.fp.none">(no fingerprint — the host refuses this machine until it is re-paired)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke">Revoke</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.tip">Forget this fingerprint — the machine cannot connect again until you re-pair it (use after reinstalling or swapping hardware)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.title">Confirm fingerprint revocation</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.confirm">Remove the fingerprint of '{0}'?&#10;&#10;The host will immediately refuse this machine until it is re-paired (TOFU)</sys:String>
+    <sys:String x:Key="Loc.settings.policy.title">Per-machine policy</sys:String>
+    <sys:String x:Key="Loc.settings.policy.desc">Change it on the Topology tab → "Node Policy" box under the selected device</sys:String>
+    <sys:String x:Key="Loc.settings.policy.empty">No paired machines yet</sys:String>
+
+    <!-- Audio page -->
+    <sys:String x:Key="Loc.settings.audio">Audio</sys:String>
+    <sys:String x:Key="Loc.settings.audio.desc">Auto-start and power saving for the audio streams</sys:String>
+    <sys:String x:Key="Loc.settings.audio.autostream">Auto-start speaker stream</sys:String>
+    <sys:String x:Key="Loc.settings.audio.autommic">Auto-start microphone</sys:String>
+    <sys:String x:Key="Loc.settings.audio.standby">Smart audio standby on silence</sys:String>
+    <sys:String x:Key="Loc.settings.audio.focusmic">Mic only while controlling a client (Focus-Aware)</sys:String>
+    <sys:String x:Key="Loc.settings.audio.idle">Audio idle timeout (sec):</sys:String>
+    <sys:String x:Key="Loc.settings.audio.idle.tip">After this much silence the stream parks to save CPU — it restarts instantly on new audio</sys:String>
+    <sys:String x:Key="Loc.settings.audio.micidle">Mic idle timeout (sec):</sys:String>
+
+    <!-- Clipboard page -->
+    <sys:String x:Key="Loc.settings.clipboard">Clipboard</sys:String>
+    <sys:String x:Key="Loc.settings.clipboard.desc">Text/image/file sync across machines, per direction</sys:String>
+    <sys:String x:Key="Loc.settings.clip.master.title">Enable cross-machine clipboard</sys:String>
+    <sys:String x:Key="Loc.settings.clip.master.desc">Turning this off disables cross-machine copying entirely</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.title">Push from host to clients</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.desc">Copy on the host, paste on the client machine</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.tip">Enabling only this direction keeps client-side copies from ever reaching the host</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.title">Accept from clients into host</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.desc">Copy on the client machine, paste on the host</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.tip">Turn off to stop client content from overwriting the host clipboard</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.title">Max size per item (bytes):</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.desc">Larger items are dropped to keep the LAN snappy</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.tip">Default is 1,000,000 bytes (~1MB) — raise it if you copy big images often</sys:String>
+    <sys:String x:Key="Loc.settings.clip.err">Must be a number between 1,000 and 5,000,000 bytes — invalid input keeps the previous value</sys:String>
+
+    <!-- Logging page -->
+    <sys:String x:Key="Loc.settings.logging">Logging</sys:String>
+    <sys:String x:Key="Loc.settings.logging.desc">Daily log files live in the project's logs/ folder</sys:String>
+    <sys:String x:Key="Loc.settings.log.title">Log level</sys:String>
+    <sys:String x:Key="Loc.settings.log.desc">Keep INFO normally — lower it only if files grow too fast</sys:String>
+    <sys:String x:Key="Loc.settings.log.tip">OFF = write nothing, ERROR = fatal only, WARN = errors + warnings, INFO = everything (recommended)</sys:String>
+    <sys:String x:Key="Loc.settings.log.off">Off (write nothing)</sys:String>
+    <sys:String x:Key="Loc.settings.log.error">Errors only</sys:String>
+    <sys:String x:Key="Loc.settings.log.warn">Errors + warnings</sys:String>
+    <sys:String x:Key="Loc.settings.log.info">Everything (recommended)</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.title">Max file size per day (KB):</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.desc">Beyond this the file rotates to .1 automatically</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.tip">Default is about 5,000 KB per file</sys:String>
+    <sys:String x:Key="Loc.settings.log.err">Must be a number between 500 and 50,000 KB — invalid input keeps the previous value</sys:String>
+    <sys:String x:Key="Loc.settings.log.open">Open logs folder</sys:String>
+
+    <!-- Advanced page -->
+    <sys:String x:Key="Loc.settings.advanced">Advanced</sys:String>
+    <sys:String x:Key="Loc.settings.advanced.desc">Tuning for low-RAM machines and fine adjustments — most people never need this</sys:String>
+    <sys:String x:Key="Loc.settings.advanced.badge">TLS + HMAC · Encrypted LAN</sys:String>
+    <sys:String x:Key="Loc.settings.res.title">Low-memory profile</sys:String>
+    <sys:String x:Key="Loc.settings.res.desc">For machines with ≤ 4GB RAM — parts apply after a restart</sys:String>
+    <sys:String x:Key="Loc.settings.res.lowmem">Enable Low-Memory profile (applies after restart)</sys:String>
+    <sys:String x:Key="Loc.settings.res.software">SoftwareOnly rendering</sys:String>
+    <sys:String x:Key="Loc.settings.res.threadpool">Cap thread pool at 2-8</sys:String>
+    <sys:String x:Key="Loc.settings.res.gcbatch">Batch-mode GC</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.auto">● ACTIVE (auto — RAM ≤ 4GB, cannot be disabled, applies after restart)</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.manual">● ACTIVE (manual — applies after restart)</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.off">○ OFF (RAM > 4GB · enable with this checkbox, applies after restart)</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.title">Audio pipeline deep tuning</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.desc">Touch only when audio actually misbehaves — defaults are already optimal</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.latency">Playback latency (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.latency.tip">Receive-side audio buffer — lower feels snappier but glitches more easily (default 20ms)</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.buffer">UDP buffer (bytes):</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.buffer.tip">Socket buffer size — raise it on lossy LANs (65536-4194304)</sys:String>
+    <sys:String x:Key="Loc.settings.ping.title">Heartbeat ping intervals</sys:String>
+    <sys:String x:Key="Loc.settings.ping.desc">Pings run fast while active and slow down while idle</sys:String>
+    <sys:String x:Key="Loc.settings.ping.adaptive">Adaptive heartbeat ping (recommended)</sys:String>
+    <sys:String x:Key="Loc.settings.ping.active">Active (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.ping.idle">Idle (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.ping.tray">Hidden in tray (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.title">Automatic behaviors</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.desc">Switches that used to be hidden or mislabeled — every one is explained now</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.autoeng">Auto-switch keyboard to ENG when controlling a client</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.stopdeskflow">Stop Deskflow/Synergy at startup</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.diag">Enable extra diagnostics logging</sys:String>
+
+    <!-- Danger page -->
+    <sys:String x:Key="Loc.settings.danger">Danger Zone</sys:String>
+    <sys:String x:Key="Loc.settings.danger.desc">These actions really delete data — a config backup is made automatically every time</sys:String>
+    <sys:String x:Key="Loc.settings.danger.warn.title">Everything below is irreversible</sys:String>
+    <sys:String x:Key="Loc.settings.danger.warn.desc">An omnilink_config.json.backup-… file is always written first</sys:String>
+    <sys:String x:Key="Loc.settings.danger.pairings">Clear all pairings...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.pairings.desc">Every client is disconnected and must pair again with PIN + fingerprint</sys:String>
+    <sys:String x:Key="Loc.settings.danger.allowlist">Clear subnet allowlist...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.allowlist.desc">The agent returns to allow-everywhere mode (effective after redeploy)</sys:String>
+    <sys:String x:Key="Loc.settings.danger.factory">Factory reset...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.factory.desc">Wipes everything back to defaults, then the app closes itself</sys:String>
+    <sys:String x:Key="Loc.danger.title">Confirm — Danger Zone</sys:String>
+    <sys:String x:Key="Loc.danger.backup.note">A config backup is made automatically before proceeding&#10;Continue?</sys:String>
+    <sys:String x:Key="Loc.danger.pairings.none">No paired nodes</sys:String>
+    <sys:String x:Key="Loc.danger.pairings.confirm">Permanently remove all {0} pairings? (the host disconnects every machine immediately)</sys:String>
+    <sys:String x:Key="Loc.danger.allowlist.none">The allowlist is already empty (allow-everywhere mode)</sys:String>
+    <sys:String x:Key="Loc.danger.allowlist.confirm">Delete the whole allowlist? (the agent returns to allow-everywhere mode — effective after redeploy)</sys:String>
+    <sys:String x:Key="Loc.danger.factory.confirm">Factory reset = wipe nodes/tokens/allowlist and every setting&#10;The app closes itself afterwards (relaunch from the Desktop)</sys:String>
+    <sys:String x:Key="Loc.danger.done">Done (backup: {0})</sys:String>
+
+    <!-- Banners -->
+    <sys:String x:Key="Loc.banner.boot.connecting">Connecting to client machines and starting the LAN audio system...</sys:String>
+    <sys:String x:Key="Loc.banner.boot.ready">Ready — drag the mouse across screens or press Win+Space / ~ to switch language layouts instantly</sys:String>
+    <sys:String x:Key="Loc.banner.theme.changed">Theme changed</sys:String>
+    <sys:String x:Key="Loc.banner.lang.changed">UI language changed</sys:String>
+    <sys:String x:Key="Loc.banner.autokvm.on">The KVM engine will start automatically on next launch</sys:String>
+    <sys:String x:Key="Loc.banner.autokvm.off">The KVM engine will not start on next launch</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.general">General page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.switching">Switching page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.network">Network page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.audio">Audio page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.clipboard">Clipboard page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.logging">Logging page restored to defaults</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.advanced">Advanced page restored to defaults (some values apply after restart)</sys:String>
+    <sys:String x:Key="Loc.banner.select.first">Select a machine from the Connected Devices list first</sys:String>
+    <sys:String x:Key="Loc.banner.select.delete">Select the device you want to remove from the Connected Devices list</sys:String>
+    <sys:String x:Key="Loc.banner.renamed">Device renamed to "{0}"</sys:String>
+    <sys:String x:Key="Loc.banner.namerest">Device name reset to default "{0}"</sys:String>
+    <sys:String x:Key="Loc.banner.deleted">Removed device '{0}' from the system</sys:String>
+    <sys:String x:Key="Loc.banner.devicetype">Updated device type of {0}</sys:String>
+    <sys:String x:Key="Loc.banner.slot.moved">Moved screen {0} to position {1}</sys:String>
+    <sys:String x:Key="Loc.banner.positioned">Placed screen {0} at {1}</sys:String>
+    <sys:String x:Key="Loc.banner.policy">Policy of '{0}' set to '{1}' — effective on both sides immediately</sys:String>
+    <sys:String x:Key="Loc.banner.kb.eng">Synced every machine to ENG (US) layout</sys:String>
+    <sys:String x:Key="Loc.banner.kb.th">Synced every machine to TH (Thai) layout</sys:String>
+    <sys:String x:Key="Loc.banner.deploying">Uploading and restarting the Node Agent over SSH...</sys:String>
+    <sys:String x:Key="Loc.banner.pairing.ok">Paired with {0} — ready to use immediately</sys:String>
+    <sys:String x:Key="Loc.banner.fp.revoked">Revoked the fingerprint of {0} — re-pairing is required before use</sys:String>
+    <sys:String x:Key="Loc.banner.stream.stopping">Stopping the speaker stream...</sys:String>
+    <sys:String x:Key="Loc.banner.stream.stopped">Speaker stream stopped</sys:String>
+    <sys:String x:Key="Loc.banner.stream.starting">Starting the speaker stream (client → host)...</sys:String>
+    <sys:String x:Key="Loc.banner.stream.running">Speaker stream is running</sys:String>
+    <sys:String x:Key="Loc.banner.mic.stopping">Stopping the microphone bridge...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.stopped">Microphone bridge stopped</sys:String>
+    <sys:String x:Key="Loc.banner.mic.starting">Starting the microphone bridge (host → client)...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.running">Microphone bridge is running</sys:String>
+    <sys:String x:Key="Loc.banner.mic.scanning">Scanning WASAPI2 microphone devices...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.found">Found {0} microphone device(s)</sys:String>
+    <sys:String x:Key="Loc.banner.audio.resetting">Resetting both the Stream and Mic audio pipelines...</sys:String>
+    <sys:String x:Key="Loc.banner.audio.resetdone">Both audio directions reset successfully</sys:String>
+    <sys:String x:Key="Loc.banner.log.openfail">Failed to open the log folder: </sys:String>
+    <sys:String x:Key="Loc.banner.danger.pairings">All pairings cleared — pair again via Security &amp; Pairing</sys:String>
+    <sys:String x:Key="Loc.banner.danger.allowlist">Allowlist cleared (allow-everywhere mode — redeploy to enforce on agents)</sys:String>
+    <sys:String x:Key="Loc.banner.danger.factory">Factory reset complete — the app closes in 3 seconds, relaunch from the Desktop</sys:String>
+    <sys:String x:Key="Loc.banner.exit.quick">Shutting down quickly (session ending)...</sys:String>
+    <sys:String x:Key="Loc.banner.exit.slow">Stopping audio and restoring the client machines...</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="Loc.delete.confirm.title">Confirm device removal</sys:String>
+    <sys:String x:Key="Loc.delete.confirm.body">Remove '{0}' ({1}) from OmniLink?&#10;&#10;Its KVM connection is cut immediately and its data is deleted from the settings</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="Loc.tray.tooltip">OmniLink — LAN KVM &amp; Audio Hub</sys:String>
+    <sys:String x:Key="Loc.tray.open">Open OmniLink Dashboard</sys:String>
+    <sys:String x:Key="Loc.tray.kb.eng">Sync keyboard on all machines → ENG (US)</sys:String>
+    <sys:String x:Key="Loc.tray.kb.th">Sync keyboard on all machines → TH (Thai)</sys:String>
+    <sys:String x:Key="Loc.tray.reset">Reset audio Stream + Mic</sys:String>
+    <sys:String x:Key="Loc.tray.exit">Exit</sys:String>
+    <sys:String x:Key="Loc.tray.host">Host ({0})</sys:String>
+    <sys:String x:Key="Loc.tray.remote">Remote ({0})</sys:String>
+    <!-- ═══ v1.9.1 additions: crash dialog / VM / service banners / deploy / pairing results / footer reset ═══ -->
+    <sys:String x:Key="Loc.crash.hung.body">OmniLink is running but not responding&#10;&#10;Please close the old process from Task Manager and relaunch the app</sys:String>
+    <sys:String x:Key="Loc.banner.internalerror">⚠ Internal error (see the log for details): {0}</sys:String>
+    <sys:String x:Key="Loc.vm.host.ready">Ready</sys:String>
+    <sys:String x:Key="Loc.vm.node.host">Controlling the host machine</sys:String>
+    <sys:String x:Key="Loc.vm.node.host.lock">Controlling the host machine [cursor locked]</sys:String>
+    <sys:String x:Key="Loc.vm.node.client">Controlling client: {0}</sys:String>
+    <sys:String x:Key="Loc.vm.node.client.lock">Controlling client: {0} [cursor locked]</sys:String>
+    <sys:String x:Key="Loc.vm.connected">Connected to {0}</sys:String>
+    <sys:String x:Key="Loc.vm.disconnected">Node {0} lost connection</sys:String>
+    <sys:String x:Key="Loc.banner.clip.received">Clipboard received from client ({0} chars)</sys:String>
+    <sys:String x:Key="Loc.banner.image.received">Image received from client ({0} KB)</sys:String>
+    <sys:String x:Key="Loc.banner.files.receiving">Receiving {0} file(s) ({1} KB) from the client...</sys:String>
+    <sys:String x:Key="Loc.banner.files.received">Received {0} file(s) from the client (paste with Ctrl+V)</sys:String>
+    <sys:String x:Key="Loc.banner.files.sending">Offering to send {0} file(s) ({1} KB) to the client...</sys:String>
+    <sys:String x:Key="Loc.deploy.nofile">node_agent/omnilink_agent.py not found</sys:String>
+    <sys:String x:Key="Loc.deploy.nossh">Could not launch ssh.exe</sys:String>
+    <sys:String x:Key="Loc.deploy.nostart">Could not start the agent over SSH</sys:String>
+    <sys:String x:Key="Loc.deploy.ok">Agent installed and running on {0} (connection verified)</sys:String>
+    <sys:String x:Key="Loc.deploy.noresponse">Deployed but the agent does not respond (an old process may be holding the port)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.nocert">The client offered no TLS certificate (agent older than v1.6, or a man-in-the-middle)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.nocert.reject">The client offered no TLS certificate (agent older than v1.6, or a man-in-the-middle) — pairing refused</sys:String>
+    <sys:String x:Key="Loc.pairing.err.fingerprint.mismatch">Pairing cancelled — the fingerprint on the client screen does not match what was received (never pair on a mismatch!)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.dropped">The connection dropped while waiting for PIN confirmation</sys:String>
+    <sys:String x:Key="Loc.pairing.err.badreply">Received a malformed reply</sys:String>
+    <sys:String x:Key="Loc.pairing.err.incomplete">The reply was incomplete</sys:String>
+    <sys:String x:Key="Loc.pairing.err.badcert">Pairing refused — the certificate data from the client is not trustworthy</sys:String>
+    <sys:String x:Key="Loc.pairing.ok">Device paired successfully</sys:String>
+    <sys:String x:Key="Loc.pairing.reason.rejected">The remote user rejected the connection</sys:String>
+    <sys:String x:Key="Loc.pairing.err.rejected">Pairing was rejected: {0}</sys:String>
+    <sys:String x:Key="Loc.settings.reset">Discard changes</sys:String>
+    <sys:String x:Key="Loc.settings.reset.tip">Revert every value on this page to the last loaded state — enabled only while edits are pending (changes apply instantly as you type; discard reloads the previous values)</sys:String>
+    <sys:String x:Key="Loc.banner.reset.page">Changes discarded — page reloaded with the last loaded values</sys:String>
+    <!-- ═══ v1.9 Phase C: hotkeys / modifier map / prevent sleep / first-run ═══ -->
+    <sys:String x:Key="Loc.common.save">Save</sys:String>
+    <sys:String x:Key="Loc.common.edit">Edit</sys:String>
+    <sys:String x:Key="Loc.common.cancel">Cancel</sys:String>
+    <sys:String x:Key="Loc.settings.section.hotkeys">Shortcuts</sys:String>
+    <sys:String x:Key="Loc.settings.hotkeys">Shortcuts (Hotkey → Action)</sys:String>
+    <sys:String x:Key="Loc.settings.hotkeys.desc">Bind keys to actions like switching machines or toggling audio — works on the host and while controlling a client</sys:String>
+    <sys:String x:Key="Loc.hotkey.add">Add shortcut</sys:String>
+    <sys:String x:Key="Loc.hotkey.list.title">Configured rules</sys:String>
+    <sys:String x:Key="Loc.hotkey.list.desc">Pressing the key runs every action in the rule (the key is swallowed, not passed to the OS or other apps)</sys:String>
+    <sys:String x:Key="Loc.hotkey.empty">No shortcuts yet — click "Add shortcut" to start</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.title">Edit shortcut</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.subtitle">Click the key box and press the combination on your real keyboard</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key">Shortcut:</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key.tip">Requires at least one of Ctrl/Alt/Shift — Win is not accepted (it clashes with the language-sync system)</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key.invalid">This key cannot be used — include at least one of Ctrl/Alt/Shift, and Win is not accepted (it clashes with language sync)</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.action">Actions (several per rule):</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.action.add">Add action</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.err.node">Pick a target machine before adding a switch action</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.scrolllock">Clashes with Scroll Lock (cursor lock) — this rule takes over the key</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.emergency">Clashes with the emergency Ctrl+Alt+Backspace — consider changing it</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.duplicate">This key is used by another rule — all matching rules run together</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.header">⚠ Conflicting shortcuts:</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.duplicate.list">Key {0} is used by several rules — all of them fire together when pressed</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.scrolllock.list">{0} clashes with Scroll Lock (cursor lock) — this rule takes over the key</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.emergency.list">{0} clashes with the emergency Ctrl+Alt+Backspace — consider changing it</sys:String>
+    <sys:String x:Key="Loc.action.switch_node">Switch to selected machine</sys:String>
+    <sys:String x:Key="Loc.action.switch_node.named">Switch to: {0}</sys:String>
+    <sys:String x:Key="Loc.action.toggle_lock">Toggle cursor lock</sys:String>
+    <sys:String x:Key="Loc.action.toggle_stream">Toggle client speaker stream</sys:String>
+    <sys:String x:Key="Loc.action.toggle_mic">Toggle microphone bridge</sys:String>
+    <sys:String x:Key="Loc.action.calibrate_en">Sync all keyboards to ENG</sys:String>
+    <sys:String x:Key="Loc.action.calibrate_th">Sync all keyboards to Thai</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.switched">Shortcut: switched to {0}</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.lock">Shortcut: {0}</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.added">Added shortcut {0} — effective immediately</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.updated">Updated shortcut {0} — effective immediately</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.removed">Removed shortcut {0}</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.hotkeys">All shortcuts cleared (defaults restored)</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock.on">Cursor locked to the current screen</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock.off">Cursor unlocked</sys:String>
+    <sys:String x:Key="Loc.devices.modmap">Modifier remap (advanced)</sys:String>
+    <sys:String x:Key="Loc.devices.modmap.tip">Rebind Ctrl/Alt/Shift to other keys only while controlling this machine, e.g. Alt → AltGr for multi-layout users</sys:String>
+    <sys:String x:Key="Loc.devices.modmap.desc">Only when needed (special layouts/keyboards) — other machines are unaffected; normal keys and Thai keyspace are never touched</sys:String>
+    <sys:String x:Key="Loc.modmap.default">No remap (normal)</sys:String>
+    <sys:String x:Key="Loc.modmap.shift">Shift:</sys:String>
+    <sys:String x:Key="Loc.modmap.ctrl">Ctrl:</sys:String>
+    <sys:String x:Key="Loc.modmap.alt">Alt:</sys:String>
+    <sys:String x:Key="Loc.modmap.super">Super:</sys:String>
+    <sys:String x:Key="Loc.modmap.altgr">AltGr:</sys:String>
+    <sys:String x:Key="Loc.modmap.to.shift">→ to Shift</sys:String>
+    <sys:String x:Key="Loc.modmap.to.ctrl">→ to Ctrl</sys:String>
+    <sys:String x:Key="Loc.modmap.to.alt">→ to Alt</sys:String>
+    <sys:String x:Key="Loc.modmap.to.super">→ to Super (Win)</sys:String>
+    <sys:String x:Key="Loc.modmap.to.altgr">→ to AltGr</sys:String>
+    <sys:String x:Key="Loc.modmap.to.none">Swallow key (disable)</sys:String>
+    <sys:String x:Key="Loc.banner.modmap">Modifier remap updated for {0} — applies immediately while controlling this machine</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.title">Prevent this machine from sleeping</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.desc">For machines that act as an always-on host — applies instantly, no restart</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.tip">Keeps the machine awake while enabled — turning it off lets the machine sleep per system settings again</sys:String>
+    <sys:String x:Key="Loc.banner.sleep.on">Sleep prevention ON — this machine will not sleep while the app is running</sys:String>
+    <sys:String x:Key="Loc.banner.sleep.off">Sleep prevention OFF — the machine follows system sleep settings again</sys:String>
+    <sys:String x:Key="Loc.wizard.title">Add your first computer</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle">What system is the computer next to this one?</sys:String>
+    <sys:String x:Key="Loc.wizard.title2">Prepare the other computer</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle2">Follow the short steps, then continue</sys:String>
+    <sys:String x:Key="Loc.wizard.title3">Pair with the new computer</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle3">Scan → select → enter the PIN shown on that machine</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.windows">The other computer runs Windows</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.windows.desc">Prepare installer files to copy over (USB / share) — nothing to install on that machine</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.linux">The other computer runs Linux with SSH</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.linux.desc">Enter IP + SSH username and OmniLink installs and starts the agent for you</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.ready">Agent already installed / other</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.ready.desc">The agent is already running (any OS) — jump straight to PIN pairing</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step1">1) Click "Open installer folder" below, then copy the zip to the other computer (USB or file share)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step2">2) On that machine: extract the zip → double-click start-node.bat (nothing else to install)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step3">3) Note the PIN (format xxx-xxx) shown in the agent window — then press the blue button to pair</sys:String>
+    <sys:String x:Key="Loc.wizard.win.mode.portable">This folder contains OmniLink-Node-Win-Portable.zip — copy that file to the other machine (Python embedded, nothing to install)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.mode.manual">This build has no portable zip — use install_node.bat in this folder instead (target machine needs Python 3.8+)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.open">Open installer folder</sys:String>
+    <sys:String x:Key="Loc.wizard.next.scan">Next: scan for it →</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.ip">IP of the Linux machine</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.user">SSH username</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.note">SSH key auth (no password prompt) must work from this machine — same as a normal ssh command</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.deploy">Install it for me</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.deploying">Installing over SSH (may take ~10 seconds)...</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.err.fields">Enter the IP and SSH username first</sys:String>
+    <sys:String x:Key="Loc.wizard.ready.desc">As long as the agent is running on the other computer (its window stays open), press next to scan and pair</sys:String>
+    <sys:String x:Key="Loc.wizard.scan.again">Rescan</sys:String>
+    <sys:String x:Key="Loc.wizard.scan.none">Nothing found — check the agent is running there, then rescan</sys:String>
+    <sys:String x:Key="Loc.wizard.manual.add">Add by IP</sys:String>
+    <sys:String x:Key="Loc.wizard.back">← Back</sys:String>
+    <sys:String x:Key="Loc.wizard.close">Close</sys:String>
+    <sys:String x:Key="Loc.hero.empty.title">No computers in your mesh yet</sys:String>
+    <sys:String x:Key="Loc.hero.empty.desc">Add the computer next to this one, then move the mouse across screens like one display</sys:String>
+    <sys:String x:Key="Loc.hero.empty.button">＋ Add your first computer</sys:String>
+    <sys:String x:Key="Loc.firstrun.title">Welcome to OmniLink</sys:String>
+    <sys:String x:Key="Loc.firstrun.subtitle">4 things to know before you start</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip1">🚨 Emergency: press Ctrl+Alt+Shift+Q to grab the mouse back instantly (always works, even if a screen seems stuck)</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip2">🖱️ Switch machines: push the mouse against a screen edge per the Topology map — tune timing in Settings → Switching</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip3">🔗 Add a new computer: press the "＋ Add your first computer" button in the middle of the map (a wizard walks you through, pairing with a PIN)</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip4">🌐 App language: switch Thai/English in Settings → General (the ENG/Thai pills up top switch keyboards, not the UI language)</sys:String>
+    <sys:String x:Key="Loc.firstrun.addnow">Add a computer now</sys:String>
+    <sys:String x:Key="Loc.firstrun.ok">Got it</sys:String>
+    <sys:String x:Key="Loc.firstrun.dontshow">Don't show again</sys:String>
+    <!-- ═══ v1.9.1: Add/Rename dialogs — last hardcoded-English spots ═══ -->
+    <sys:String x:Key="Loc.dialog.add.title">Add Node Manually</sys:String>
+    <sys:String x:Key="Loc.dialog.add.subtitle">Enter the agent machine's IP directly — works even where broadcast discovery cannot (VPN, multi-NIC)</sys:String>
+    <sys:String x:Key="Loc.dialog.add.ip">Agent IP Address:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.port">Port:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.position">Screen Position:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.right">Right of host</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.left">Left of host</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.top">Top of host</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.bottom">Bottom of host</sys:String>
+    <sys:String x:Key="Loc.dialog.add.name">Display Name (optional):</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pin">Pairing PIN (6-digit shown on the remote machine):</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.ip">Invalid IP — example: 192.168.99.2</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.port">Port must be a number 1-65535</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.pin">Please enter the 6-digit PIN shown on the client screen</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.title">Rename Device</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.subtitle">Customize display alias or revert to native machine hostname</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.hostname">Detected Hostname:</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.alias">Display Name / Alias:</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.hint">Leave empty or click Reset to use the machine's real hostname</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.save">Save Alias</sys:String>
+    <!-- ═══ v1.9.1: chain topology + corner diagonal ═══ -->
+    <sys:String x:Key="Loc.devices.anchor">Anchored to:</sys:String>
+    <sys:String x:Key="Loc.devices.anchor.tip">Switching layout: this machine sits on the chosen side of the chosen machine — chains unlimited (e.g. a display above L440) · switch from this tab, the map, or screen corners</sys:String>
+    <sys:String x:Key="Loc.devices.anchor.host">Host (main machine)</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.set">{0} anchored to {1} ({2}) — edge switching follows the new layout instantly</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.cycle">Rejected — this anchor would create a cycle</sys:String>
+    <sys:String x:Key="Loc.banner.corner.switched">Corner-switched to {0}</sys:String>
+    <sys:String x:Key="Loc.banner.corner.on">Corner diagonal switching ON — pushing into a corner zone with a diagonal machine switches instantly</sys:String>
+    <sys:String x:Key="Loc.banner.corner.off">Corner diagonal switching OFF — corners are plain dead zones again</sys:String>
+    <sys:String x:Key="Loc.settings.corner.title">Corner diagonal switching</sys:String>
+    <sys:String x:Key="Loc.settings.corner.desc">When a machine sits "diagonally" (e.g. A above L440 which is right of the host) — pushing the mouse into the host's corner zone hops to it instantly</sys:String>
+    <sys:String x:Key="Loc.settings.corner.tip">When enabled, corners become active switch zones (size = px) but ONLY where a diagonal machine actually exists — otherwise they stay plain dead zones</sys:String>
+    <sys:String x:Key="Loc.settings.corner.px">Corner zone radius (px):</sys:String>
+    <sys:String x:Key="Loc.map.arrow.drop.tip">Drag a machine from the list onto this arrow = chain on this side (swaps with any previous occupant)</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.moved">Moved {0} to {1} ({2}) — edge switching updated instantly</sys:String>
+    <sys:String x:Key="Loc.map.resetview">Reset view</sys:String>
+    <sys:String x:Key="Loc.map.resetview.tip">Back to fit view (drag empty space = pan · mouse wheel = zoom · double-click empty = fit)</sys:String>
+</ResourceDictionary>

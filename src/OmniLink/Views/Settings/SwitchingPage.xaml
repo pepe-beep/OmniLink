@@ -1,0 +1,52 @@
+<UserControl x:Class="OmniLink.Views.Settings.SwitchingPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="{DynamicResource Loc.settings.switching}" FontSize="16" FontWeight="Bold"
+                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,2"/>
+        <TextBlock Text="{DynamicResource Loc.settings.switching.desc}" Style="{StaticResource SettingDesc}" Margin="0,0,0,14"/>
+
+        <Border Style="{StaticResource SettingsCardStyle}" Margin="0,0,0,12">
+            <StackPanel>
+                <WrapPanel Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,22,8">
+                        <TextBlock Text="{DynamicResource Loc.settings.switch.delay}" Style="{StaticResource SettingLabel}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="SwitchDelayBox" Style="{StaticResource SettingBox}" TextChanged="OnBoxChanged"/>
+                        <Button Style="{StaticResource InfoIconButton}" ToolTip="{DynamicResource Loc.settings.switch.delay.tip}">
+                            <TextBlock Style="{StaticResource InfoIconGlyph}"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,22,8">
+                        <TextBlock Text="{DynamicResource Loc.settings.switch.doubletap}" Style="{StaticResource SettingLabel}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="DoubleTapBox" Style="{StaticResource SettingBox}" TextChanged="OnBoxChanged"/>
+                        <Button Style="{StaticResource InfoIconButton}" ToolTip="{DynamicResource Loc.settings.switch.doubletap.tip}">
+                            <TextBlock Style="{StaticResource InfoIconGlyph}"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,22,8">
+                        <TextBlock Text="{DynamicResource Loc.settings.switch.corner}" Style="{StaticResource SettingLabel}" Margin="0,0,8,0"/>
+                        <TextBox x:Name="CornerSizeBox" Style="{StaticResource SettingBox}" TextChanged="OnBoxChanged"/>
+                        <Button Style="{StaticResource InfoIconButton}" ToolTip="{DynamicResource Loc.settings.switch.corner.tip}">
+                            <TextBlock Style="{StaticResource InfoIconGlyph}"/>
+                        </Button>
+                    </StackPanel>
+                </WrapPanel>
+                <TextBlock x:Name="ErrorText" Style="{StaticResource SettingError}" Visibility="Collapsed"/>
+
+                <TextBlock Text="{DynamicResource Loc.settings.switch.lockout}" Style="{StaticResource SettingDesc}" Margin="0,0,0,6"/>
+                <WrapPanel Margin="0,0,0,10">
+                    <CheckBox x:Name="CornerTLBox" Content="{DynamicResource Loc.corner.tl}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                    <CheckBox x:Name="CornerTRBox" Content="{DynamicResource Loc.corner.tr}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                    <CheckBox x:Name="CornerBLBox" Content="{DynamicResource Loc.corner.bl}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                    <CheckBox x:Name="CornerBRBox" Content="{DynamicResource Loc.corner.br}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                </WrapPanel>
+
+                <WrapPanel>
+                    <CheckBox x:Name="ChkLockToScreen" Content="{DynamicResource Loc.settings.switch.lock}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                    <CheckBox x:Name="ChkBlockFullscreen" Content="{DynamicResource Loc.settings.switch.fullscreen}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                    <CheckBox x:Name="ChkGraveSwitch" Content="{DynamicResource Loc.settings.switch.grave}" Style="{StaticResource SettingCheck}" Checked="OnCheckChanged" Unchecked="OnCheckChanged"/>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

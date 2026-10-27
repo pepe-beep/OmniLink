@@ -1,0 +1,156 @@
+<Window x:Class="OmniLink.Views.AddFirstNodeWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        Width="600" SizeToContent="Height" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False" Title="OmniLink Wizard">
+    <Border CornerRadius="10" Background="{DynamicResource FluentCardBrush}" BorderBrush="{DynamicResource FluentBorderSubtleBrush}" BorderThickness="1" Padding="22,18">
+        <StackPanel>
+            <!-- ═══ หัวเรื่อง + ตัวบอกขั้น ═══ -->
+            <DockPanel Margin="0,0,0,12">
+                <Border DockPanel.Dock="Right" CornerRadius="9" Background="{DynamicResource FluentCardSelectedBrush}" Padding="9,3" VerticalAlignment="Center">
+                    <TextBlock x:Name="StepBadge" Text="1 / 3" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource FluentAccentLightBrush}"/>
+                </Border>
+                <StackPanel>
+                    <TextBlock x:Name="TitleText" Text="{DynamicResource Loc.wizard.title}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock x:Name="SubtitleText" Text="{DynamicResource Loc.wizard.subtitle}" FontSize="11.5" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- ═══ ขั้น 1: เครื่องข้างๆ เป็นอะไร ═══ -->
+            <StackPanel x:Name="Step1Panel">
+                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,8" Click="OnChooseWindows" Cursor="Hand" AutomationProperties.Name="Choose Windows">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" CornerRadius="8" Background="{DynamicResource FluentCardDeepBrush}" BorderBrush="{DynamicResource FluentBorderSubtleBrush}" BorderThickness="1" Padding="14,10">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🪟" FontSize="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Loc.wizard.opt.windows}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{DynamicResource Loc.wizard.opt.windows.desc}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="24,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FluentAccentPrimaryBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,8" Click="OnChooseLinux" Cursor="Hand" AutomationProperties.Name="Choose Linux SSH">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" CornerRadius="8" Background="{DynamicResource FluentCardDeepBrush}" BorderBrush="{DynamicResource FluentBorderSubtleBrush}" BorderThickness="1" Padding="14,10">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🐧" FontSize="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Loc.wizard.opt.linux}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{DynamicResource Loc.wizard.opt.linux.desc}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="24,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FluentAccentPrimaryBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,4" Click="OnChooseReady" Cursor="Hand" AutomationProperties.Name="Choose Ready">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bd" CornerRadius="8" Background="{DynamicResource FluentCardDeepBrush}" BorderBrush="{DynamicResource FluentBorderSubtleBrush}" BorderThickness="1" Padding="14,10">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="✅" FontSize="15" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Loc.wizard.opt.ready}" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Text="{DynamicResource Loc.wizard.opt.ready.desc}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="24,2,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource FluentAccentPrimaryBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+
+            <!-- ═══ ขั้น 2A: Windows — เตรียมตัวติดตั้งให้ ═══ -->
+            <StackPanel x:Name="WinPanel" Visibility="Collapsed">
+                <Border CornerRadius="6" Padding="14,10" Background="{DynamicResource FluentCardDeepBrush}" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Loc.wizard.win.step1}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Loc.wizard.win.step2}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                        <TextBlock Text="{DynamicResource Loc.wizard.win.step3}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <TextBlock x:Name="WinModeNote" Text="" FontSize="10.5" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" Margin="2,0,0,10"/>
+                <DockPanel>
+                    <Button DockPanel.Dock="Left" Content="{DynamicResource Loc.wizard.win.open}" Style="{StaticResource AppleSecondaryButton}" Padding="14,5" Margin="0,0,8,0" Click="OnOpenInstallersFolder"/>
+                    <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.wizard.next.scan}" Style="{StaticResource ApplePrimaryButton}" Padding="16,5" Click="OnGoScan"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- ═══ ขั้น 2B: Linux + SSH — ติดตั้งให้เลย ═══ -->
+            <StackPanel x:Name="LinuxPanel" Visibility="Collapsed">
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                        <TextBlock Text="{DynamicResource Loc.wizard.linux.ip}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="2,0,0,3"/>
+                        <TextBox x:Name="SshIpBox" Style="{StaticResource FluentCompactTextBox}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                        <TextBlock Text="{DynamicResource Loc.wizard.linux.user}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" Margin="2,0,0,3"/>
+                        <TextBox x:Name="SshUserBox" Style="{StaticResource FluentCompactTextBox}"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="{DynamicResource Loc.wizard.linux.note}" FontSize="10.5" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" Margin="2,0,0,10"/>
+                <DockPanel>
+                    <TextBlock x:Name="DeployStatusText" DockPanel.Dock="Left" Text="" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.wizard.linux.deploy}" Style="{StaticResource ApplePrimaryButton}" Padding="16,5" Margin="12,0,0,0" Click="OnDeployLinux"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- ═══ ขั้น 2C: พร้อมแล้ว ═══ -->
+            <StackPanel x:Name="ReadyPanel" Visibility="Collapsed">
+                <Border CornerRadius="6" Padding="14,10" Background="{DynamicResource FluentCardDeepBrush}" Margin="0,0,0,10">
+                    <TextBlock Text="{DynamicResource Loc.wizard.ready.desc}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
+                </Border>
+                <Button HorizontalAlignment="Right" Content="{DynamicResource Loc.wizard.next.scan}" Style="{StaticResource ApplePrimaryButton}" Padding="16,5" Click="OnGoScan"/>
+            </StackPanel>
+
+            <!-- ═══ ขั้น 3: สแกน + PIN ═══ -->
+            <StackPanel x:Name="Step3Panel" Visibility="Collapsed">
+                <DockPanel Margin="0,0,0,8">
+                    <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.wizard.scan.again}" Style="{StaticResource AppleSecondaryButton}" Padding="12,4" Click="OnRescan"/>
+                    <TextBlock x:Name="ScanStatusText" Text="" FontSize="11.5" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                </DockPanel>
+                <ListBox x:Name="FoundList" MinHeight="90" MaxHeight="170" SelectionChanged="OnFoundSelectionChanged"/>
+                <TextBlock x:Name="TargetLabel" Text="{DynamicResource Loc.settings.pairing.target.none}" FontSize="11.5" Foreground="{DynamicResource TextMutedBrush}" Margin="2,8,0,6"/>
+                <DockPanel Margin="0,0,0,8">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button x:Name="BtnManualAdd" Content="{DynamicResource Loc.wizard.manual.add}" Style="{StaticResource AppleSecondaryButton}" Padding="12,4" Margin="0,0,8,0" Click="OnManualAdd"/>
+                        <Button x:Name="BtnWizardPair" Content="{DynamicResource Loc.settings.pairing.pair}" Style="{StaticResource ApplePrimaryButton}" Padding="16,5" Click="OnPairClick"/>
+                    </StackPanel>
+                    <TextBox x:Name="PinBox" Width="130" Style="{StaticResource FluentCompactTextBox}" VerticalAlignment="Center"/>
+                </DockPanel>
+                <TextBlock x:Name="FeedbackText" Text="" FontSize="11" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="2,0,0,4"/>
+            </StackPanel>
+
+            <!-- ═══ ท้าย: ย้อนกลับ / ปิด ═══ -->
+            <DockPanel Margin="0,12,0,0">
+                <Button x:Name="BtnBack" DockPanel.Dock="Left" Content="{DynamicResource Loc.wizard.back}" Style="{StaticResource AppleSecondaryButton}" Padding="14,4" Visibility="Collapsed" Click="OnBack"/>
+                <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.wizard.close}" Style="{StaticResource AppleSecondaryButton}" Padding="14,4" Click="OnCloseClick"/>
+            </DockPanel>
+        </StackPanel>
+    </Border>
+</Window>

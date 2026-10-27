@@ -1,0 +1,577 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══ v1.9 คลังข้อความภาษาไทย (ค่าเริ่มต้นเมื่อ Windows เป็นภาษาไทย) ═══
+         กฎ: ทุก key ต้องมีคู่ใน Strings.en-US.xaml เสมอ — ตรวจโดย LocalizationTests -->
+
+    <!-- App / chrome -->
+    <sys:String x:Key="Loc.app.subtitle">Mesh KVM Matrix และระบบเสียงสองทางหน่วงต่ำ</sys:String>
+    <sys:String x:Key="Loc.app.exit">ออกจาก OmniLink</sys:String>
+    <sys:String x:Key="Loc.app.running.host">ทำงานเป็น Host (เครื่องหลัก)</sys:String>
+    <sys:String x:Key="Loc.status.boot">Mesh LAN: พร้อมใช้งาน</sys:String>
+    <sys:String x:Key="Loc.top.bar.kbd">คีย์บอร์ด:</sys:String>
+    <sys:String x:Key="Loc.top.bar.kbd.tip">สลับ layout คีย์บอร์ดทุกเครื่อง (Win+Space หรือปุ่ม `) — ไม่ใช่การเปลี่ยนภาษาโปรแกรม (เปลี่ยนได้ที่ Settings → General)</sys:String>
+    <sys:String x:Key="Loc.tab.topology">Topology &amp; อุปกรณ์</sys:String>
+    <sys:String x:Key="Loc.tab.audio">ระบบเสียง</sys:String>
+    <sys:String x:Key="Loc.tab.files">ไฟล์ &amp; คลิปบอร์ด</sys:String>
+    <sys:String x:Key="Loc.tab.settings">ตั้งค่า</sys:String>
+
+    <!-- Tab 1: Devices -->
+    <sys:String x:Key="Loc.devices.connected">อุปกรณ์ที่เชื่อมต่อ</sys:String>
+    <sys:String x:Key="Loc.devices.scan">สแกน LAN</sys:String>
+    <sys:String x:Key="Loc.devices.switch">สลับเมาส์ไปเครื่องนี้</sys:String>
+    <sys:String x:Key="Loc.devices.rename">เปลี่ยนชื่อ</sys:String>
+    <sys:String x:Key="Loc.devices.rename.tip">เปลี่ยนชื่อแสดงของเครื่อง</sys:String>
+    <sys:String x:Key="Loc.devices.reset">รีเซ็ตชื่อ</sys:String>
+    <sys:String x:Key="Loc.devices.remove">ลบ</sys:String>
+    <sys:String x:Key="Loc.devices.deploy.tip">ใช้ได้กับเครื่อง Linux ที่ SSH (แบบคีย์) ได้เท่านั้น — เครื่อง Windows ข้างๆ ใช้ปุ่ม "＋ เพิ่มเครื่องแรก" บนแผนที่แทน</sys:String>
+    <sys:String x:Key="Loc.devices.deploy">ซิงค์ / ติดตั้ง Node Agent</sys:String>
+    <sys:String x:Key="Loc.devices.policy">สิทธิ์การใช้งาน:</sys:String>
+    <sys:String x:Key="Loc.policy.full">ควบคุมเต็มสิทธิ์ (ค่าเริ่มต้น)</sys:String>
+    <sys:String x:Key="Loc.policy.clipboard">คลิปบอร์ด + ไฟล์เท่านั้น (ส่ง input ไม่ได้)</sys:String>
+    <sys:String x:Key="Loc.policy.view">ดูอย่างเดียว (telemetry/เสียง)</sys:String>
+    <sys:String x:Key="Loc.devices.target">กำลังจัดการ:</sys:String>
+    <sys:String x:Key="Loc.devices.target.none">(ยังไม่ได้เลือกเครื่อง)</sys:String>
+    <sys:String x:Key="Loc.devices.devicetype">ประเภทเครื่อง:</sys:String>
+    <sys:String x:Key="Loc.devices.devicetype.tip">ใช้เลือกไอคอนและวิธีจัดวาง — เครื่องลูกเป็นโน้ตบุ๊ก เดสก์ท็อป หรือเซิร์ฟเวอร์ (headless)</sys:String>
+    <sys:String x:Key="Loc.devtype.laptop">โน้ตบุ๊ก (Notebook)</sys:String>
+    <sys:String x:Key="Loc.devtype.desktop">เดสก์ท็อป PC</sys:String>
+    <sys:String x:Key="Loc.devtype.server">เซิร์ฟเวอร์ (Headless)</sys:String>
+
+    <!-- Spatial map -->
+    <sys:String x:Key="Loc.map.title">ผังจอเชิงพื้นที่</sys:String>
+    <sys:String x:Key="Loc.map.desc">ลากวางจอเพื่อจัดตำแหน่ง หรือเลื่อนเมาส์ชนขอบเพื่อสลับเครื่อง</sys:String>
+    <sys:String x:Key="Loc.map.activetopology">ตำแหน่งของเครื่องที่เลือก:</sys:String>
+    <sys:String x:Key="Loc.map.pos.right">จอขวา</sys:String>
+    <sys:String x:Key="Loc.map.pos.left">จอซ้าย</sys:String>
+    <sys:String x:Key="Loc.map.pos.top">ด้านบน (เหนือ Host)</sys:String>
+    <sys:String x:Key="Loc.map.pos.bottom">ด้านล่าง (ใต้ Host)</sys:String>
+    <sys:String x:Key="Loc.map.place.top">วางด้านบน</sys:String>
+    <sys:String x:Key="Loc.map.place.left">วางด้านซ้าย</sys:String>
+    <sys:String x:Key="Loc.map.place.right">วางด้านขวา</sys:String>
+    <sys:String x:Key="Loc.map.place.bottom">วางด้านล่าง</sys:String>
+    <sys:String x:Key="Loc.map.focus.active">เมาส์กำลังควบคุม</sys:String>
+    <sys:String x:Key="Loc.map.focus.client">เครื่องลูกกำลังควบคุม</sys:String>
+    <sys:String x:Key="Loc.map.info">สลับข้ามจอได้ทันที — กด Scroll Lock เพื่อล็อกเมาส์ไว้กับจอปัจจุบัน</sys:String>
+    <sys:String x:Key="Loc.map.cursor.active">เมาส์กำลังควบคุม</sys:String>
+    <sys:String x:Key="Loc.map.connected">เชื่อมต่อแล้ว</sys:String>
+    <sys:String x:Key="Loc.map.offline">ออฟไลน์</sys:String>
+    <sys:String x:Key="Loc.map.disabled">ถูกปิดใช้งาน</sys:String>
+    <sys:String x:Key="Loc.map.lang.th">Layout: ไทย (TH)</sys:String>
+    <sys:String x:Key="Loc.map.lang.en">Layout: ENG (US)</sys:String>
+
+    <!-- Node rows -->
+    <sys:String x:Key="Loc.node.focus">FOCUS</sys:String>
+    <sys:String x:Key="Loc.node.online">ONLINE</sys:String>
+    <sys:String x:Key="Loc.node.offline">OFFLINE</sys:String>
+    <sys:String x:Key="Loc.node.disabled">ปิดใช้งาน</sys:String>
+    <sys:String x:Key="Loc.node.awaiting">กำลังรอ handshake จากเครื่อง...</sys:String>
+    <sys:String x:Key="Loc.node.client">เครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.node.host">Host</sys:String>
+    <sys:String x:Key="Loc.node.console">เครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.badge.paired">จับคู่แล้ว</sys:String>
+    <sys:String x:Key="Loc.badge.ready">พร้อมจับคู่</sys:String>
+
+    <!-- Tab 2: Audio -->
+    <sys:String x:Key="Loc.audio.title">ระบบเสียงสองทางหน่วงต่ำ</sys:String>
+    <sys:String x:Key="Loc.audio.desc">สตรีม Opus 48kHz Stereo ระหว่างเครื่องหลักกับเครื่องลูกใน mesh</sys:String>
+    <sys:String x:Key="Loc.audio.stream.title">เสียงจากเครื่องลูก (ลำโพง)</sys:String>
+    <sys:String x:Key="Loc.audio.stream.ready">ขารับเสียง: พร้อม</sys:String>
+    <sys:String x:Key="Loc.audio.stream.start">เริ่มรับเสียงจากเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.audio.dest.label">ปลายทางเล่นเสียง:</sys:String>
+    <sys:String x:Key="Loc.audio.dest.value">อุปกรณ์เสียงเริ่มต้นของระบบ</sys:String>
+    <sys:String x:Key="Loc.audio.dest.tech">Opus 48kHz Stereo | Jitter Buffer: ปรับอัตโนมัติ | Smart Standby</sys:String>
+    <sys:String x:Key="Loc.audio.mic.title">สะพานไมโครโฟน</sys:String>
+    <sys:String x:Key="Loc.audio.mic.ready">ไมโครโฟน: พร้อม</sys:String>
+    <sys:String x:Key="Loc.audio.mic.label">ไมโครโฟนฝั่ง Host:</sys:String>
+    <sys:String x:Key="Loc.audio.mic.start">เริ่มส่งไมโครโฟน</sys:String>
+    <sys:String x:Key="Loc.audio.mic.tech">Opus 48kHz Mono | On-Demand (Audiodg-safe) | ปิดอัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.audio.reset">รีเซ็ตระบบเสียง</sys:String>
+    <sys:String x:Key="Loc.audio.trouble.title">แก้ปัญหา</sys:String>
+    <sys:String x:Key="Loc.audio.trouble.desc">ถ้าเสียงกระตุกหรือไม่ตรงจังหวะ ให้กดรีเซ็ตระบบเสียงเพื่อสร้าง socket ใหม่</sys:String>
+    <sys:String x:Key="Loc.audio.active">ทำงานอยู่</sys:String>
+    <sys:String x:Key="Loc.audio.standby">พักอยู่</sys:String>
+    <sys:String x:Key="Loc.common.refresh">รีเฟรช</sys:String>
+
+    <!-- Tab 3: Files & Clipboard -->
+    <sys:String x:Key="Loc.files.title">โอนไฟล์ข้ามเครื่อง</sys:String>
+    <sys:String x:Key="Loc.files.idle">ว่าง</sys:String>
+    <sys:String x:Key="Loc.files.hint">คัดลอกไฟล์ที่เครื่องหนึ่ง แล้ววาง (Ctrl+V) ที่อีกเครื่องเพื่อโอน</sys:String>
+    <sys:String x:Key="Loc.files.openfolder">เปิดโฟลเดอร์</sys:String>
+    <sys:String x:Key="Loc.files.transferring">กำลังโอนไฟล์...</sys:String>
+    <sys:String x:Key="Loc.files.completed">โอนไฟล์สำเร็จ ({0} ไฟล์)</sys:String>
+    <sys:String x:Key="Loc.files.savedto">บันทึกแล้ว {0}</sys:String>
+    <sys:String x:Key="Loc.files.failed">โอนไฟล์ไม่สำเร็จ</sys:String>
+    <sys:String x:Key="Loc.files.interrupted">การโอนถูกขัดจังหวะ</sys:String>
+    <sys:String x:Key="Loc.clip.title">ประวัติคลิปบอร์ดข้ามเครื่อง</sys:String>
+    <sys:String x:Key="Loc.clip.desc">รายการที่คัดลอกข้ามเครื่องล่าสุด (20 รายการ)</sys:String>
+    <sys:String x:Key="Loc.clip.clear">ล้างทั้งหมด</sys:String>
+    <sys:String x:Key="Loc.clip.copy">คัดลอก</sys:String>
+
+    <!-- Settings rail / footer -->
+    <sys:String x:Key="Loc.settings.rail.title">หมวดการตั้งค่า</sys:String>
+    <sys:String x:Key="Loc.settings.restore">คืนค่าเริ่มต้นหน้านี้</sys:String>
+    <sys:String x:Key="Loc.settings.restore.tip">คืนค่าทุกตัวในหน้านี้กลับเป็นค่าโรงงาน</sys:String>
+    <sys:String x:Key="Loc.settings.livehint">ค่าทุกตัวบันทึกและใช้งานทันทีระหว่างพิมพ์ — ไม่ต้องกดบันทึก</sys:String>
+    <sys:String x:Key="Loc.settings.hint.number">กรอกตัวเลขเท่านั้น — ค่าที่เกินช่วงจะถูกจำกัดให้อยู่ในช่วงที่ปลอดภัยอัตโนมัติ</sys:String>
+
+    <!-- Section titles -->
+    <sys:String x:Key="Loc.settings.section.general">ทั่วไป</sys:String>
+    <sys:String x:Key="Loc.settings.section.switching">การสลับจอ</sys:String>
+    <sys:String x:Key="Loc.settings.section.network">เครือข่าย &amp; พอร์ต</sys:String>
+    <sys:String x:Key="Loc.settings.section.security">ความปลอดภัย &amp; จับคู่</sys:String>
+    <sys:String x:Key="Loc.settings.section.audio">เสียง</sys:String>
+    <sys:String x:Key="Loc.settings.section.clipboard">คลิปบอร์ด</sys:String>
+    <sys:String x:Key="Loc.settings.section.logging">Log</sys:String>
+    <sys:String x:Key="Loc.settings.section.advanced">ขั้นสูง</sys:String>
+    <sys:String x:Key="Loc.submode.block.port">เปิด Sub-mode ไม่ได้: มีโปรแกรมถือพอร์ต 24801 อยู่แล้ว (น่าจะเป็น OmniLink node agent บนเครื่องนี้)&#10;&#10;Node agent กับ Sub-mode ใช้พอร์ตเดียวกัน ห้ามเปิดพร้อมกัน&#10;หยุด node agent (หรือปิด autostart ของมัน) ก่อน แล้วจึงเปิด Sub-mode ได้</sys:String>
+    <sys:String x:Key="Loc.submode.block.installed">เปิด Sub-mode ไม่ได้: เครื่องนี้ติดตั้ง OmniLink node agent ไว้ (~/omnilink/omnilink_agent.py)&#10;&#10;Agent ตั้งเปิดอัตโนมัติตอนบูต และใช้พอร์ตเดียวกับ Sub-mode — ห้ามเปิดพร้อมกัน&#10;ถอนการติดตั้ง agent (ลบ ~/omnilink + ลบ shortcut ใน Startup) ก่อน แล้วจึงเปิด Sub-mode ได้</sys:String>
+
+    <sys:String x:Key="Loc.settings.section.danger">Danger Zone</sys:String>
+
+    <!-- General page -->
+    <sys:String x:Key="Loc.settings.general">ทั่วไป</sys:String>
+    <sys:String x:Key="Loc.settings.general.desc">ภาษา, หน้าต่าง, และพฤติกรรมเริ่มต้นของโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.title">โหมด sub (ถูกคุมโดย host เครื่องอื่น)</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.desc">เปิดให้เครื่องหลักเครื่องอื่นเพิ่มเครื่องนี้เป็น node แล้วคุมเมาส์/คีย์บอร์ดได้ — host↔host สองทิศทำงานได้ทันที ทางหนีฉุกเฉินบนเครื่องนี้คือ Ctrl+Alt+Shift+Q</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.check">เปิดโหมด sub (เครื่องนี้ถูกคุมได้)</sys:String>
+    <sys:String x:Key="Loc.sub.toggle.pin">PIN จับคู่: {0} · Fingerprint: {1}..</sys:String>
+    <sys:String x:Key="Loc.sub.started">โหมด sub เปิดแล้ว — เครื่องหลักเครื่องอื่นเพิ่มเครื่องนี้เป็น node ได้ (PIN จับคู่: {0})</sys:String>
+    <sys:String x:Key="Loc.sub.controlled">เครื่องนี้กำลังถูกคุมโดย host ({0}) — หนีฉุกเฉิน Ctrl+Alt+Shift+Q</sys:String>
+    <sys:String x:Key="Loc.sub.released">เครื่องนี้กลับมาใช้งานเองแล้ว</sys:String>
+    <sys:String x:Key="Loc.sub.stopped">ปิดโหมด sub แล้ว</sys:String>
+    <sys:String x:Key="Loc.settings.theme.title">ธีมสี</sys:String>
+    <sys:String x:Key="Loc.settings.theme.desc">เปลี่ยนโทนสีของโปรแกรม (หน้าต่างทึบตลอด — ไม่มีเอฟเฟกต์โปร่งแสง)</sys:String>
+    <sys:String x:Key="Loc.settings.theme.current">ตามปัจจุบัน (น้ำเงินเข้ม)</sys:String>
+    <sys:String x:Key="Loc.settings.theme.black">สีดำ</sys:String>
+    <sys:String x:Key="Loc.settings.theme.light">สว่าง</sys:String>
+    <sys:String x:Key="Loc.settings.theme.tip">เลือกโทนสีได้ 3 แบบ มีผลทันทีทั้งโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.lang.title">ภาษาของโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.lang.desc">เปลี่ยนได้ทันทีไม่ต้องปิดโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.lang.auto">ตามภาษาของระบบ (อัตโนมัติ)</sys:String>
+    <sys:String x:Key="Loc.settings.lang.th">ไทย</sys:String>
+    <sys:String x:Key="Loc.settings.lang.en">อังกฤษ (English)</sys:String>
+    <sys:String x:Key="Loc.settings.lang.tip">โหมดอัตโนมัติจะใช้ภาษาไทยเมื่อระบบตั้งเป็นภาษาไทย และใช้อังกฤษสำหรับภาษาอื่น</sys:String>
+    <sys:String x:Key="Loc.settings.close.title">เมื่อกดปุ่มปิดหน้าต่าง</sys:String>
+    <sys:String x:Key="Loc.settings.close.desc">เลือกว่าจะซ่อนลง tray หรือออกจากโปรแกรมจริง</sys:String>
+    <sys:String x:Key="Loc.settings.close.tray">ซ่อนลง system tray (แนะนำ)</sys:String>
+    <sys:String x:Key="Loc.settings.close.exit">ออกจากโปรแกรมทันที</sys:String>
+    <sys:String x:Key="Loc.settings.close.tip">แบบซ่อนลง tray จะช่วยให้เสียงและการสลับจอยังทำงานต่อเนื่องขณะหน้าต่างปิด</sys:String>
+    <sys:String x:Key="Loc.settings.autokvm.title">เปิดระบบ KVM ตั้งแต่เริ่มโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.autokvm.desc">ปิดไว้ได้ถ้ายังไม่อยากให้จับ keyboard/mouse ทันทีตอนเปิด</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.title">ซิงค์ layout คีย์บอร์ด (ไทย/อังกฤษ)</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.desc">เครื่องลูกจะสลับ layout ไทย/อังกฤษตามเครื่องแม่อัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.target">เฉพาะเครื่องที่ควบคุมอยู่</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.all">ทุกเครื่องพร้อมกัน</sys:String>
+    <sys:String x:Key="Loc.settings.kbsync.tip">ตั้งค่าปุ่มลัดสลับ layout และขอบเขตการซิงค์ — ปุ่ม ENG/ไทย บนหัวจอก็ทำงานนี้เช่นกัน</sys:String>
+
+    <!-- Switching page -->
+    <sys:String x:Key="Loc.settings.switching">การสลับจอ</sys:String>
+    <sys:String x:Key="Loc.settings.switching.desc">จังหวะการเลื่อนเมาส์ข้ามจอ มุมกันพลาด และปุ่มล็อก</sys:String>
+    <sys:String x:Key="Loc.settings.switch.delay">ดีเลย์ก่อนสลับ (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.delay.tip">หน่วงก่อนยอมให้เมาส์ข้ามจอ (0 = สลับทันที) — ค่ามากช่วยกันสลับมั่วตอนเมาส์วิ่งชนขอบบ่อย</sys:String>
+    <sys:String x:Key="Loc.settings.switch.doubletap">หน้าต่างแตะ 2 ครั้ง (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.doubletap.tip">ชนขอบ 2 ครั้งภายในเวลานี้ = บังคับสลับทันทีข้ามดีเลย์</sys:String>
+    <sys:String x:Key="Loc.settings.switch.corner">มุมกันพลาด (px):</sys:String>
+    <sys:String x:Key="Loc.settings.switch.corner.tip">รัศมีบริเวณมุมจอที่ห้ามสลับ — กันเมาส์หลุดจอตอนเล็งปุ่มมุมจอ</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lockout">มุมที่ห้ามสลับ:</sys:String>
+    <sys:String x:Key="Loc.corner.tl">บน-ซ้าย</sys:String>
+    <sys:String x:Key="Loc.corner.tr">บน-ขวา</sys:String>
+    <sys:String x:Key="Loc.corner.bl">ล่าง-ซ้าย</sys:String>
+    <sys:String x:Key="Loc.corner.br">ล่าง-ขวา</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock">ล็อกเมาส์ไว้จอปัจจุบัน (Scroll Lock)</sys:String>
+    <sys:String x:Key="Loc.settings.switch.fullscreen">ห้ามสลับจอเมื่อเกมเต็มจอ</sys:String>
+    <sys:String x:Key="Loc.settings.switch.grave">สลับ layout ด้วยปุ่ม ` (Grave)</sys:String>
+
+    <!-- Network page -->
+    <sys:String x:Key="Loc.settings.network">เครือข่าย &amp; พอร์ต</sys:String>
+    <sys:String x:Key="Loc.settings.network.desc">พอร์ตทรานสปอร์ตและไฟร์วอลล์เฉพาะของระบบ</sys:String>
+    <sys:String x:Key="Loc.settings.ports.title">พอร์ตทรานสปอร์ต</sys:String>
+    <sys:String x:Key="Loc.settings.ports.desc">แก้เมื่อพอร์ตชนกับโปรแกรมอื่นเท่านั้น — ทุกเครื่อง (host + agent) ต้องใช้ค่าเดียวกัน</sys:String>
+    <sys:String x:Key="Loc.settings.ports.tcp">KVM คำสั่ง (TCP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.udp">KVM input (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.disc">จับคู่อัตโนมัติ (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.rtp">เสียง RTP (UDP):</sys:String>
+    <sys:String x:Key="Loc.settings.ports.err.format">พอร์ตต้องเป็นตัวเลข 1024-65535 — ช่องที่กรอกผิดจะยังใช้ค่าเดิม</sys:String>
+    <sys:String x:Key="Loc.settings.ports.err.dup">พอร์ตแต่ละตัวต้องไม่ซ้ำกัน — ยังไม่บันทึกจนกว่าจะแก้ให้ไม่ซ้ำ</sys:String>
+    <sys:String x:Key="Loc.settings.ports.deploy">ติดตั้ง agent เครื่องลูก: กดปุ่ม "ซิงค์ / ติดตั้ง Node Agent" บนแท็บ Topology (ทำงานผ่าน SSH อัตโนมัติ)</sys:String>
+    <sys:String x:Key="Loc.settings.ports.deploy.tip">ติดตั้ง/อัปเดต agent บนเครื่องลูกโดยไม่ต้องพิมพ์คำสั่งเอง — ต้องตั้ง SSH key ไว้ก่อน</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.title">อนุญาตเฉพาะ subnet (CIDR)</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.desc">เว้นว่าง = อนุญาตทุกที่ เช่น 192.168.99.0/24 คั่นด้วยจุลภาคหรือขึ้นบรรทัดใหม่</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.tip">ไฟร์วอลล์ฝั่ง agent: ถ้าระบุไว้ อุปกรณ์อื่นในวง LAN จะมองไม่เห็นและต่อไม่ได้ นอกจาก IP ในช่วงนี้</sys:String>
+    <sys:String x:Key="Loc.settings.allowlist.err">รายการไม่ใช่ IP/CIDR (ยังไม่บันทึก): {0}</sys:String>
+
+    <!-- Security & pairing page -->
+    <sys:String x:Key="Loc.settings.security">ความปลอดภัย &amp; การจับคู่</sys:String>
+    <sys:String x:Key="Loc.settings.security.desc">ทุกการเชื่อมต่อเข้ารหัส TLS + เซ็น UDP ด้วย HMAC ตามแบบ TOFU — จับคู่และตรวจ fingerprint ที่นี่</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.title">ค้นหาและจับคู่เครื่องใหม่</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.idle">สแกนหา OmniLink agent ใน LAN (พอร์ต 24800)</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.scanning">กำลัง broadcast หา OmniLink agent ใน subnet...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.found">พบ {0} เครื่อง — เลือกเครื่องที่ต้องการจับคู่</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.status.none">ไม่มีเครื่องตอบกลับ — ตรวจว่า OmniLink agent รันอยู่บนเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.count0">ยังไม่พบเครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.count">พบ {0} เครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.searching">กำลังค้นหา...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.scan">Broadcast Discovery</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.scanning">กำลังสแกน...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.manual">เพิ่มด้วย IP</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.manual.tip">กรอก IP เครื่องลูกตรงๆ — ใช้ได้แม้ broadcast หาไม่เจอ (VPN / หลายการ์ดเน็ต)</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.target.none">เป้าหมาย: ยังไม่ได้เลือกเครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.target">เป้าหมาย: {0} ({1}) — จอ {2}x{3}</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.hint">เลือกเครื่องจากรายการด้านบน แล้วกรอก PIN 6 หลัก</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.pair">จับคู่และเชื่อมต่อ</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.repair">จับคู่ใหม่ / อัปเดตเครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.err.target">เลือกเครื่องจากรายการด้านบนก่อน</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.err.pin">กรอก PIN 6 หลักที่แสดงบนจอเครื่องลูกก่อน</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.connecting">กำลังเชื่อมต่อ {0} ({1}) และตรวจ PIN...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.connecting.manual">กำลังเชื่อมต่อ {0}:{1} (เพิ่มเอง) และตรวจ PIN...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.fp.ok">ยืนยัน fingerprint แล้ว — กำลังส่ง PIN ไปยังเครื่องลูก...</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.success">จับคู่กับ {0} สำเร็จ! เพิ่มเข้า topology แล้ว</sys:String>
+    <sys:String x:Key="Loc.settings.pairing.failed">จับคู่ไม่สำเร็จ: {0}</sys:String>
+    <sys:String x:Key="Loc.pairing.fingerprint.title">ยืนยัน Fingerprint — Trust On First Use</sys:String>
+    <sys:String x:Key="Loc.pairing.fingerprint.body">Fingerprint ของเครื่องลูก (TLS SHA-256):&#10;&#10;{0}&#10;&#10;กรุณาเทียบกับตัวเลข Fingerprint ที่แสดงบนจอเครื่องลูก (notification 'OmniLink Pairing')&#10;&#10;ตรงกัน → กด Yes · ไม่ตรง → กด No เพื่อยกเลิกทันที (อาจมีผู้แทรกกลาง)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.title">Fingerprint ที่จับคู่ไว้</sys:String>
+    <sys:String x:Key="Loc.settings.fp.desc">ลายนิ้วมือ TLS ของทุกเครื่องที่เชื่อถือ — ตรงกับบนจอเครื่องลูกเสมอ</sys:String>
+    <sys:String x:Key="Loc.settings.fp.tip">Trust On First Use: จับคู่ครั้งแรกจะบันทึก fingerprint ของเครื่องลูกไว้ — ถ้าถูกแก้ไขภายหลังแปลว่ามีบางอย่างผิดปกติ</sys:String>
+    <sys:String x:Key="Loc.settings.fp.empty">ยังไม่มีเครื่องที่จับคู่ไว้</sys:String>
+    <sys:String x:Key="Loc.settings.fp.none">(ยังไม่มี fingerprint — host จะปฏิเสธการเชื่อมจนกว่าจะจับคู่ใหม่)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke">เพิกถอน</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.tip">ลบความจำ fingerprint นี้ — เครื่องนี้จะต่อไม่ได้จนกว่าจะจับคู่ใหม่ (ใช้เมื่อติดตั้งระบบใหม่/สลับเครื่อง)</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.title">ยืนยันการเพิกถอน fingerprint</sys:String>
+    <sys:String x:Key="Loc.settings.fp.revoke.confirm">ลบ fingerprint ของ '{0}'?&#10;&#10;host จะปฏิเสธการเชื่อมต่อเครื่องนี้ทันที จนกว่าจะจับคู่ใหม่ (TOFU)</sys:String>
+    <sys:String x:Key="Loc.settings.policy.title">สิทธิ์ของแต่ละเครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.policy.desc">แก้ได้จากแท็บ Topology → กล่อง "สิทธิ์การใช้งาน" ใต้ชื่อเครื่องที่เลือก</sys:String>
+    <sys:String x:Key="Loc.settings.policy.empty">ยังไม่มีเครื่องที่จับคู่ไว้</sys:String>
+
+    <!-- Audio page -->
+    <sys:String x:Key="Loc.settings.audio">เสียง</sys:String>
+    <sys:String x:Key="Loc.settings.audio.desc">การเริ่มอัตโนมัติและโหมดประหยัดพลังงานของสตรีมเสียง</sys:String>
+    <sys:String x:Key="Loc.settings.audio.autostream">เริ่มรับเสียงเครื่องลูกอัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.settings.audio.autommic">เริ่มส่งไมโครโฟนอัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.settings.audio.standby">พักเสียงอัตโนมัติเมื่อเงียบ (Smart Standby)</sys:String>
+    <sys:String x:Key="Loc.settings.audio.focusmic">ไมค์ทำงานเมื่อคุมเครื่องลูกเท่านั้น (Focus-Aware)</sys:String>
+    <sys:String x:Key="Loc.settings.audio.idle">เสียงเงียบนานเท่าไรค่อยพัก (วินาที):</sys:String>
+    <sys:String x:Key="Loc.settings.audio.idle.tip">ถ้าไม่มีเสียงนานเท่านี้ สตรีมจะพักเพื่อประหยัด CPU — เสียงใหม่จะเริ่มเองทันที</sys:String>
+    <sys:String x:Key="Loc.settings.audio.micidle">ไมค์เงียบนานเท่าไรค่อยปิด (วินาที):</sys:String>
+
+    <!-- Clipboard page -->
+    <sys:String x:Key="Loc.settings.clipboard">คลิปบอร์ด</sys:String>
+    <sys:String x:Key="Loc.settings.clipboard.desc">ซิงค์ข้อความ/รูป/ไฟล์ข้ามเครื่อง แยกทิศทางได้</sys:String>
+    <sys:String x:Key="Loc.settings.clip.master.title">เปิดใช้คลิปบอร์ดข้ามเครื่อง</sys:String>
+    <sys:String x:Key="Loc.settings.clip.master.desc">ปิดเมื่อไหน คัดลอกข้ามเครื่องจะไม่ทำงานทั้งระบบ</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.title">ส่งจากเครื่องแม่ไปเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.desc">คัดลอกบนเครื่องหลักแล้ววางบนเครื่องลูกได้</sys:String>
+    <sys:String x:Key="Loc.settings.clip.push.tip">เปิดเฉพาะทิศนี้ = เครื่องลูกคัดลอกอะไรก็ไม่หลุดมาที่เครื่องหลัก</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.title">รับจากเครื่องลูกเข้าเครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.desc">คัดลอกบนเครื่องลูกแล้ววางบนเครื่องหลักได้</sys:String>
+    <sys:String x:Key="Loc.settings.clip.accept.tip">ปิดไว้เพื่อกันเนื้อหาจากเครื่องลูกทับคลิปบอร์ดเครื่องหลัก</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.title">ขนาดใหญ่สุดต่อรายการ (bytes):</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.desc">ตัดข้อความ/รูปที่ใหญ่กว่านี้ทิ้งเพื่อกัน LAN ล่าช้า</sys:String>
+    <sys:String x:Key="Loc.settings.clip.max.tip">ค่าเริ่มต้น 1,000,000 bytes (~1MB) — เพิ่มได้ถ้าต้องคัดลอกรูปใหญ่บ่อย</sys:String>
+    <sys:String x:Key="Loc.settings.clip.err">ต้องเป็นตัวเลข 1,000 - 5,000,000 bytes — ช่องที่กรอกผิดจะยังใช้ค่าเดิม</sys:String>
+
+    <!-- Logging page -->
+    <sys:String x:Key="Loc.settings.logging">Log</sys:String>
+    <sys:String x:Key="Loc.settings.logging.desc">ไฟล์ log รายวันในโฟลเดอร์ logs/ ของโปรเจกต์</sys:String>
+    <sys:String x:Key="Loc.settings.log.title">ระดับ log ที่บันทึก</sys:String>
+    <sys:String x:Key="Loc.settings.log.desc">เลือก INFO ไว้ตามปกติ — ลดลงเมื่อไฟล์โตเร็ว</sys:String>
+    <sys:String x:Key="Loc.settings.log.tip">OFF = ไม่บันทึก, ERROR = เฉพาะปัญหาร้ายแรง, WARN = ปัญหา + เตือน, INFO = บันทึกครบ (แนะนำ)</sys:String>
+    <sys:String x:Key="Loc.settings.log.off">ปิด (ไม่บันทึก)</sys:String>
+    <sys:String x:Key="Loc.settings.log.error">เฉพาะข้อผิดพลาด</sys:String>
+    <sys:String x:Key="Loc.settings.log.warn">ข้อผิดพลาด + เตือน</sys:String>
+    <sys:String x:Key="Loc.settings.log.info">ครบทุกเหตุการณ์ (แนะนำ)</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.title">ขนาดไฟล์สูงสุดต่อวัน (KB):</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.desc">เกินแล้วไฟล์เก่าจะถูกเลื่อนเป็น .1 อัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.settings.log.max.tip">ค่าเริ่มต้น ~5,000 KB ต่อไฟล์</sys:String>
+    <sys:String x:Key="Loc.settings.log.err">ต้องเป็นตัวเลข 500 - 50,000 KB — ช่องที่กรอกผิดจะยังใช้ค่าเดิม</sys:String>
+    <sys:String x:Key="Loc.settings.log.open">เปิดโฟลเดอร์ logs</sys:String>
+
+    <!-- Advanced page -->
+    <sys:String x:Key="Loc.settings.advanced">ขั้นสูง</sys:String>
+    <sys:String x:Key="Loc.settings.advanced.desc">ปรับแต่งสำหรับเครื่องแรมน้อยและงานละเอียด — คนทั่วไปไม่ต้องแตะ</sys:String>
+    <sys:String x:Key="Loc.settings.advanced.badge">TLS + HMAC · เข้ารหัสทั้ง LAN</sys:String>
+    <sys:String x:Key="Loc.settings.res.title">โหมดประหยัดหน่วยความจำ (Low-Memory)</sys:String>
+    <sys:String x:Key="Loc.settings.res.desc">สำหรับเครื่องแรม ≤ 4GB — บางส่วนมีผลหลังรีสตาร์ตโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.res.lowmem">เปิดโหมด Low-Memory (หลักรีสตาร์ต)</sys:String>
+    <sys:String x:Key="Loc.settings.res.software">เรนเดอร์แบบ SoftwareOnly</sys:String>
+    <sys:String x:Key="Loc.settings.res.threadpool">จำกัด thread pool 2-8</sys:String>
+    <sys:String x:Key="Loc.settings.res.gcbatch">GC แบบ batch</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.auto">● ACTIVE (auto — RAM ≤ 4GB, ปิดไม่ได้ มีผลหลังรีสตาร์ต)</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.manual">● ACTIVE (manual — มีผลหลังรีสตาร์ต)</sys:String>
+    <sys:String x:Key="Loc.settings.res.status.off">○ OFF (RAM > 4GB · เปิดด้วย checkbox นี้ มีผลหลังรีสตาร์ต)</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.title">ปรับแต่งท่อเสียงลึก</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.desc">แตะเมื่อเสียงมีปัญหาจริงเท่านั้น — ค่าเริ่มต้นคือค่าที่ดีที่สุดแล้ว</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.latency">ความหน่วงเล่นเสียง (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.latency.tip">buffer ของเสียงฝั่งรับ — ลด = เสียงตามภาพไวขึ้นแต่กระตุกง่าย (ค่าเริ่มต้น 20ms)</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.buffer">UDP buffer (bytes):</sys:String>
+    <sys:String x:Key="Loc.settings.audiodeep.buffer.tip">ขนาด socket buffer — เพิ่มได้ถ้า LAN พรุงง่าย (65536-4194304)</sys:String>
+    <sys:String x:Key="Loc.settings.ping.title">จังหวะ heartbeat ping</sys:String>
+    <sys:String x:Key="Loc.settings.ping.desc">ยิง ping ถี่เมื่อกำลังใช้งาน ห่างเมื่อพัก</sys:String>
+    <sys:String x:Key="Loc.settings.ping.adaptive">ปรับจังหวะ ping อัตโนมัติ (แนะนำ)</sys:String>
+    <sys:String x:Key="Loc.settings.ping.active">ขณะใช้งาน (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.ping.idle">ขณะพัก (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.ping.tray">ขณะซ่อนใน tray (ms):</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.title">พฤติกรรมอัตโนมัติ</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.desc">สวิตช์เสริมที่เดิมซ่อนหรือติดป้ายผิด — อธิบายชัดทุกตัวแล้ว</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.autoeng">สลับคีย์บอร์ดเป็น ENG อัตโนมัติเมื่อคุมเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.stopdeskflow">ปิด Deskflow/Synergy เดิมตอนเริ่มโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.settings.behavior.diag">เปิด diagnostics logging เพิ่มเติม</sys:String>
+
+    <!-- Danger page -->
+    <sys:String x:Key="Loc.settings.danger">Danger Zone</sys:String>
+    <sys:String x:Key="Loc.settings.danger.desc">การกระทำเหล่านี้ลบข้อมูลจริง — สำรอง config ให้อัตโนมัติทุกครั้งก่อนทำ</sys:String>
+    <sys:String x:Key="Loc.settings.danger.warn.title">ทุกปุ่มด้านล่างใช้แล้วย้อนไม่ได้</sys:String>
+    <sys:String x:Key="Loc.settings.danger.warn.desc">ระบบจะเขียนไฟล์สำรอง omnilink_config.json.backup-… ก่อนเสมอ</sys:String>
+    <sys:String x:Key="Loc.settings.danger.pairings">ล้างการจับคู่ทั้งหมด...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.pairings.desc">เครื่องลูกทุกเครื่องถูกตัดและต้องจับคู่ใหม่ด้วย PIN + fingerprint</sys:String>
+    <sys:String x:Key="Loc.settings.danger.allowlist">ล้าง Subnet Allowlist...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.allowlist.desc">agent กลับไปโหมดอนุญาตทุกที่ (มีผลหลัง redeploy)</sys:String>
+    <sys:String x:Key="Loc.settings.danger.factory">คืนค่าโรงงาน (Factory Reset)...</sys:String>
+    <sys:String x:Key="Loc.settings.danger.factory.desc">ล้างทุกอย่างกลับค่าเริ่มต้น แล้วโปรแกรมจะปิดตัวเอง</sys:String>
+    <sys:String x:Key="Loc.danger.title">ยืนยัน — Danger Zone</sys:String>
+    <sys:String x:Key="Loc.danger.backup.note">ระบบจะสำรอง config อัตโนมัติก่อนดำเนินการ&#10;ดำเนินการต่อหรือไม่?</sys:String>
+    <sys:String x:Key="Loc.danger.pairings.none">ไม่มี node ที่จับคู่ไว้</sys:String>
+    <sys:String x:Key="Loc.danger.pairings.confirm">ลบการจับคู่ทั้งหมด {0} เครื่องถาวร (host จะตัดการเชื่อมต่อทุกเครื่องทันที)?</sys:String>
+    <sys:String x:Key="Loc.danger.allowlist.none">Allowlist ว่างอยู่แล้ว (โหมดอนุญาตทุกที่)</sys:String>
+    <sys:String x:Key="Loc.danger.allowlist.confirm">ลบ allowlist ทั้งหมด? (agent จะกลับไปโหมดอนุญาตทุกที่ — มีผลหลัง redeploy)</sys:String>
+    <sys:String x:Key="Loc.danger.factory.confirm">คืนค่าโรงงาน = ล้าง node/token/allowlist/การตั้งค่าทั้งหมด&#10;แอปจะปิดตัวหลังคืนค่า (เปิดใหม่ได้จาก Desktop)</sys:String>
+    <sys:String x:Key="Loc.danger.done">เสร็จแล้ว (backup: {0})</sys:String>
+
+    <!-- Banners -->
+    <sys:String x:Key="Loc.banner.boot.connecting">กำลังเชื่อมต่อเครื่องลูกข่ายและเริ่มระบบเสียง LAN...</sys:String>
+    <sys:String x:Key="Loc.banner.boot.ready">พร้อมทำงาน — ลากเมาส์ข้ามจอหรือกด Win+Space / ~ เพื่อสลับภาษาได้ทันที</sys:String>
+    <sys:String x:Key="Loc.banner.theme.changed">เปลี่ยนธีมเรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.lang.changed">เปลี่ยนภาษาหน้าจอเรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.autokvm.on">โหมด KVM จะทำงานตั้งแต่เปิดโปรแกรมครั้งถัดไป</sys:String>
+    <sys:String x:Key="Loc.banner.autokvm.off">โหมด KVM จะไม่ทำงานตอนเปิดโปรแกรมครั้งถัดไป</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.general">คืนค่าเริ่มต้นหน้า General แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.switching">คืนค่าเริ่มต้นหน้า Switching แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.network">คืนค่าเริ่มต้นหน้า Network แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.audio">คืนค่าเริ่มต้นหน้า Audio แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.clipboard">คืนค่าเริ่มต้นหน้า Clipboard แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.logging">คืนค่าเริ่มต้นหน้า Logging แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.advanced">คืนค่าเริ่มต้นหน้า Advanced แล้ว (บางค่ามีผลหลังรีสตาร์ต)</sys:String>
+    <sys:String x:Key="Loc.banner.select.first">เลือกเครื่องจากรายการ Connected Devices ก่อน</sys:String>
+    <sys:String x:Key="Loc.banner.select.delete">กรุณาเลือกอุปกรณ์ที่ต้องการลบจากรายการ Connected Devices</sys:String>
+    <sys:String x:Key="Loc.banner.renamed">เปลี่ยนชื่อเครื่องเป็น "{0}" เรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.namerest">รีเซ็ตชื่อเครื่องกลับเป็นค่าเริ่มต้น "{0}" เรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.deleted">ลบอุปกรณ์ '{0}' ออกจากระบบเรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.devicetype">ปรับประเภทเครื่องของ {0} แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.slot.moved">ย้ายหน้าจอ {0} ไปยังตำแหน่ง {1} เรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.positioned">จัดตำแหน่งหน้าจอ {0} ไปยัง {1} สำเร็จ</sys:String>
+    <sys:String x:Key="Loc.banner.policy">ปรับสิทธิ์ของอุปกรณ์ '{0}' เป็น '{1}' แล้ว — มีผลทันทีทั้งสองฝั่ง</sys:String>
+    <sys:String x:Key="Loc.banner.kb.eng">ซิงค์ภาษาทุกเครื่องเป็น ENG (US) เรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.kb.th">ซิงค์ภาษาทุกเครื่องเป็น TH (ไทย) เรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.deploying">กำลังอัปโหลดและรีสตาร์ท Node Agent ผ่าน SSH...</sys:String>
+    <sys:String x:Key="Loc.banner.pairing.ok">จับคู่กับ {0} สำเร็จแล้ว — พร้อมใช้งานทันที</sys:String>
+    <sys:String x:Key="Loc.banner.fp.revoked">เพิกถอน fingerprint ของ {0} แล้ว — ต้องจับคู่ใหม่ก่อนใช้งาน</sys:String>
+    <sys:String x:Key="Loc.banner.stream.stopping">กำลังหยุดขารับเสียง Stream...</sys:String>
+    <sys:String x:Key="Loc.banner.stream.stopped">หยุดขารับเสียง Stream แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.stream.starting">กำลังเริ่มขารับเสียง Stream (เครื่องลูก → เครื่องหลัก)...</sys:String>
+    <sys:String x:Key="Loc.banner.stream.running">ขารับเสียง Stream กำลังทำงาน</sys:String>
+    <sys:String x:Key="Loc.banner.mic.stopping">กำลังหยุดขาส่งไมโครโฟน...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.stopped">หยุดขาส่งไมโครโฟนแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.mic.starting">กำลังเริ่มขาส่งไมโครโฟน (เครื่องหลัก → เครื่องลูก)...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.running">ขาส่งไมโครโฟนกำลังทำงาน</sys:String>
+    <sys:String x:Key="Loc.banner.mic.scanning">กำลังสแกนอุปกรณ์ไมโครโฟน WASAPI2...</sys:String>
+    <sys:String x:Key="Loc.banner.mic.found">พบไมโครโฟนทั้งหมด {0} รายการ</sys:String>
+    <sys:String x:Key="Loc.banner.audio.resetting">กำลังรีเซ็ตระบบเสียงทั้งขา Stream และ Mic...</sys:String>
+    <sys:String x:Key="Loc.banner.audio.resetdone">รีเซ็ตระบบเสียงทั้งสองทิศทางเรียบร้อยแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.log.openfail">เปิดโฟลเดอร์ log ไม่สำเร็จ: </sys:String>
+    <sys:String x:Key="Loc.banner.danger.pairings">ล้างการจับคู่ทั้งหมดแล้ว — จับคู่ใหม่ผ่านหน้า Security &amp; Pairing</sys:String>
+    <sys:String x:Key="Loc.banner.danger.allowlist">ล้าง allowlist แล้ว (โหมดอนุญาตทุกที่ — deploy ใหม่เพื่อบังคับ agent)</sys:String>
+    <sys:String x:Key="Loc.banner.danger.factory">คืนค่าโรงงานแล้ว — แอปจะปิดใน 3 วินาที เปิดใหม่ได้จาก Desktop</sys:String>
+    <sys:String x:Key="Loc.banner.exit.quick">กำลังปิดโปรแกรมอย่างรวดเร็ว (Session Ending)...</sys:String>
+    <sys:String x:Key="Loc.banner.exit.slow">กำลังปิดระบบเสียงและคืนสถานะเครื่องลูก...</sys:String>
+
+    <!-- Dialogs -->
+    <sys:String x:Key="Loc.delete.confirm.title">ยืนยันการลบอุปกรณ์</sys:String>
+    <sys:String x:Key="Loc.delete.confirm.body">คุณต้องการลบอุปกรณ์ '{0}' ({1}) ออกจาก OmniLink หรือไม่?&#10;&#10;การเชื่อมต่อ KVM ของอุปกรณ์นี้จะถูกตัดทันที และข้อมูลจะถูกลบออกจากการตั้งค่า</sys:String>
+
+    <!-- Tray -->
+    <sys:String x:Key="Loc.tray.tooltip">OmniLink — LAN KVM &amp; Audio Hub</sys:String>
+    <sys:String x:Key="Loc.tray.open">เปิดหน้าจัดการ OmniLink</sys:String>
+    <sys:String x:Key="Loc.tray.kb.eng">ซิงค์คีย์บอร์ดทุกเครื่อง → ENG (US)</sys:String>
+    <sys:String x:Key="Loc.tray.kb.th">ซิงค์คีย์บอร์ดทุกเครื่อง → TH (ไทย)</sys:String>
+    <sys:String x:Key="Loc.tray.reset">รีเซ็ตระบบเสียง Stream + Mic</sys:String>
+    <sys:String x:Key="Loc.tray.exit">ออกจากโปรแกรม</sys:String>
+    <sys:String x:Key="Loc.tray.host">Host ({0})</sys:String>
+    <sys:String x:Key="Loc.tray.remote">Remote ({0})</sys:String>
+    <!-- ═══ v1.9.1 เพิ่ม: crash dialog / VM / service banners / deploy / pairing results / footer reset ═══ -->
+    <sys:String x:Key="Loc.crash.hung.body">OmniLink กำลังทำงานอยู่แต่ไม่ตอบสนอง&#10;&#10;โปรดปิดโปรเซสเดิมจาก Task Manager แล้วเปิดโปรแกรมใหม่อีกครั้ง</sys:String>
+    <sys:String x:Key="Loc.banner.internalerror">⚠ เกิดข้อผิดพลาดภายใน (ดูรายละเอียดใน log): {0}</sys:String>
+    <sys:String x:Key="Loc.vm.host.ready">พร้อมใช้งาน</sys:String>
+    <sys:String x:Key="Loc.vm.node.host">ควบคุมหน้าจอเครื่องแม่ (Host)</sys:String>
+    <sys:String x:Key="Loc.vm.node.host.lock">ควบคุมหน้าจอเครื่องแม่ (Host) [ล็อกเมาส์]</sys:String>
+    <sys:String x:Key="Loc.vm.node.client">กำลังควบคุมเครื่องลูก: {0}</sys:String>
+    <sys:String x:Key="Loc.vm.node.client.lock">กำลังควบคุมเครื่องลูก: {0} [ล็อกเมาส์]</sys:String>
+    <sys:String x:Key="Loc.vm.connected">เชื่อมต่อกับ {0} สำเร็จ</sys:String>
+    <sys:String x:Key="Loc.vm.disconnected">โหนด {0} ขาดการติดต่อ</sys:String>
+    <sys:String x:Key="Loc.banner.clip.received">รับ clipboard จากเครื่องลูกแล้ว ({0} ตัวอักษร)</sys:String>
+    <sys:String x:Key="Loc.banner.image.received">รับรูปภาพจากเครื่องลูกแล้ว ({0} KB)</sys:String>
+    <sys:String x:Key="Loc.banner.files.receiving">กำลังรับไฟล์ {0} รายการ ({1} KB) จากเครื่องลูก...</sys:String>
+    <sys:String x:Key="Loc.banner.files.received">ได้รับไฟล์ {0} ไฟล์จากเครื่องลูกแล้ว (วางด้วย Ctrl+V)</sys:String>
+    <sys:String x:Key="Loc.banner.files.sending">กำลังเสนอส่งไฟล์ {0} ไฟล์ ({1} KB) ไปเครื่องลูก...</sys:String>
+    <sys:String x:Key="Loc.deploy.nofile">ไม่พบไฟล์ node_agent/omnilink_agent.py</sys:String>
+    <sys:String x:Key="Loc.deploy.nossh">ไม่สามารถเรียก ssh.exe</sys:String>
+    <sys:String x:Key="Loc.deploy.nostart">ไม่สามารถรัน Agent ผ่าน SSH</sys:String>
+    <sys:String x:Key="Loc.deploy.ok">ติดตั้งและเริ่มทำงาน Agent บน {0} สำเร็จ (ยืนยันการเชื่อมต่อแล้ว)</sys:String>
+    <sys:String x:Key="Loc.deploy.noresponse">Deploy แล้วแต่ Agent ไม่ตอบสนอง (อาจมีโปรเซสเก่าถือพอร์ตค้างอยู่)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.nocert">เครื่องลูกไม่เสนอ TLS certificate (agent เก่ากว่า v1.6 หรือถูกแทรก)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.nocert.reject">เครื่องลูกไม่เสนอ TLS certificate (agent เก่ากว่า v1.6 หรือถูกแทรก) — ปฏิเสธการจับคู่</sys:String>
+    <sys:String x:Key="Loc.pairing.err.fingerprint.mismatch">ยกเลิกการจับคู่ — fingerprint บนจอเครื่องลูกไม่ตรงกับที่ได้รับ (อย่าจับคู่เมื่อไม่ตรง!)</sys:String>
+    <sys:String x:Key="Loc.pairing.err.dropped">การเชื่อมต่อถูกตัดขาดระหว่างรอการยืนยันรหัส PIN</sys:String>
+    <sys:String x:Key="Loc.pairing.err.badreply">ได้รับรูปแบบข้อมูลตอบกลับที่ไม่ถูกต้อง</sys:String>
+    <sys:String x:Key="Loc.pairing.err.incomplete">ข้อมูลตอบกลับไม่สมบูรณ์</sys:String>
+    <sys:String x:Key="Loc.pairing.err.badcert">ปฏิเสธการจับคู่ — ข้อมูล certificate จากเครื่องลูกไม่น่าเชื่อถือ</sys:String>
+    <sys:String x:Key="Loc.pairing.ok">จับคู่อุปกรณ์สำเร็จ</sys:String>
+    <sys:String x:Key="Loc.pairing.reason.rejected">ผู้ใช้ปลายทางปฏิเสธการเชื่อมต่อ</sys:String>
+    <sys:String x:Key="Loc.pairing.err.rejected">การจับคู่ถูกปฏิเสธ: {0}</sys:String>
+    <sys:String x:Key="Loc.settings.reset">ยกเลิกการแก้ไข</sys:String>
+    <sys:String x:Key="Loc.settings.reset.tip">ย้อนกลับทุกค่าในหน้านี้ไปยังค่าที่โหลดล่าสุด — ปุ่มจะเปิดใช้เมื่อมีการแก้ไขค้างอยู่ (ค่าถูกใช้ทันทีตอนแก้ แต่กดยกเลิก = โหลดค่าเดิมกลับมา)</sys:String>
+    <sys:String x:Key="Loc.banner.reset.page">ยกเลิกการแก้ไขหน้านี้แล้ว — กลับไปใช้ค่าที่โหลดล่าสุด</sys:String>
+    <!-- ═══ v1.9 Phase C: สูตรลัด / แม็ป modifier / กัน sleep / first-run ═══ -->
+    <sys:String x:Key="Loc.common.save">บันทึก</sys:String>
+    <sys:String x:Key="Loc.common.edit">แก้ไข</sys:String>
+    <sys:String x:Key="Loc.common.cancel">ยกเลิก</sys:String>
+    <sys:String x:Key="Loc.settings.section.hotkeys">สูตรลัด</sys:String>
+    <sys:String x:Key="Loc.settings.hotkeys">สูตรลัด (Hotkey → Action)</sys:String>
+    <sys:String x:Key="Loc.settings.hotkeys.desc">ตั้งปุ่มลัดให้ทำงานอัตโนมัติ เช่น สลับเครื่อง เปิด/ปิดเสียง — ใช้ได้ทันทีทั้งตอนอยู่เครื่องแม่และตอนคุมเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.hotkey.add">เพิ่มสูตรลัด</sys:String>
+    <sys:String x:Key="Loc.hotkey.list.title">กฎที่ตั้งไว้</sys:String>
+    <sys:String x:Key="Loc.hotkey.list.desc">กดปุ่มตามกฎ = ทำทุก action ในกฎนั้น (ปุ่มจะถูกกลืน ไม่ส่งต่อให้ OS/แอปอื่น)</sys:String>
+    <sys:String x:Key="Loc.hotkey.empty">ยังไม่มีสูตรลัด — กด "เพิ่มสูตรลัด" เพื่อเริ่ม</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.title">แก้ไขสูตรลัด</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.subtitle">คลิกช่องปุ่มลัดแล้วกดปุ่มที่ต้องการบนคีย์บอร์ดจริง</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key">ปุ่มลัด:</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key.tip">ต้องมี Ctrl/Alt/Shift อย่างน้อย 1 ปุ่ม — ไม่รับ Win เพราะชนกับระบบสลับภาษา</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.key.invalid">ปุ่มนี้ใช้เป็นสูตรลัดไม่ได้ — ต้องมี Ctrl/Alt/Shift อย่างน้อย 1 ปุ่ม และไม่รับ Win (ชนกับระบบสลับภาษา)</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.action">การทำงาน (เลือกได้หลายอย่างต่อกฎ):</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.action.add">เพิ่ม action</sys:String>
+    <sys:String x:Key="Loc.hotkey.editor.err.node">เลือกเครื่องปลายทางก่อนเพิ่ม action สลับจอ</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.scrolllock">ชนกับ Scroll Lock (ล็อกเมาส์) — กฎนี้จะทำงานแทนปุ่มเดิม</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.emergency">ชนกับปุ่มฉุกเฉิน Ctrl+Alt+Backspace — แนะนำเปลี่ยน</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.duplicate">ปุ่มนี้ซ้ำกับกฎอื่น — กฎที่เลือกทั้งหมดจะทำงานพร้อมกัน</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.header">⚠ ปุ่มลัดชนกัน:</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.duplicate.list">ปุ่ม {0} ถูกใช้ซ้ำหลายกฎ — กฎทั้งหมดจะทำงานพร้อมกันตอนกด</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.scrolllock.list">{0} ชนกับ Scroll Lock (ล็อกเมาส์) — กฎนี้ทำงานแทนปุ่มเดิม</sys:String>
+    <sys:String x:Key="Loc.hotkey.conflict.emergency.list">{0} ชนกับปุ่มฉุกเฉิน Ctrl+Alt+Backspace — แนะนำเปลี่ยน</sys:String>
+    <sys:String x:Key="Loc.action.switch_node">สลับไปเครื่องที่เลือก</sys:String>
+    <sys:String x:Key="Loc.action.switch_node.named">สลับไปเครื่อง: {0}</sys:String>
+    <sys:String x:Key="Loc.action.toggle_lock">สลับล็อก/ปลดล็อกเมาส์</sys:String>
+    <sys:String x:Key="Loc.action.toggle_stream">เปิด/ปิดเสียงจากเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.action.toggle_mic">เปิด/ปิดส่งไมโครโฟน</sys:String>
+    <sys:String x:Key="Loc.action.calibrate_en">ซิงค์คีย์บอร์ดทุกเครื่องเป็น ENG</sys:String>
+    <sys:String x:Key="Loc.action.calibrate_th">ซิงค์คีย์บอร์ดทุกเครื่องเป็นไทย</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.switched">สูตรลัด: สลับไปเครื่อง {0}</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.lock">สูตรลัด: {0}</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.added">เพิ่มสูตรลัด {0} แล้ว — ใช้ได้ทันที</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.updated">อัปเดตสูตรลัด {0} แล้ว — ใช้ได้ทันที</sys:String>
+    <sys:String x:Key="Loc.banner.hotkey.removed">ลบสูตรลัด {0} แล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.defaults.hotkeys">ล้างสูตรลัดทั้งหมดแล้ว (คืนค่าเริ่มต้น)</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock.on">ล็อกเมาส์ไว้จอปัจจุบัน</sys:String>
+    <sys:String x:Key="Loc.settings.switch.lock.off">ปลดล็อกเมาส์แล้ว</sys:String>
+    <sys:String x:Key="Loc.devices.modmap">แม็ปปุ่ม Modifier (ขั้นสูง)</sys:String>
+    <sys:String x:Key="Loc.devices.modmap.tip">เปลี่ยนหน้าที่ปุ่ม Ctrl/Alt/Shift เป็นปุ่มอื่นเฉพาะตอนคุมเครื่องนี้ เช่น แม็ป Alt → AltGr สำหรับ layout หลายภาษา</sys:String>
+    <sys:String x:Key="Loc.devices.modmap.desc">ใช้เฉพาะเมื่อจำเป็น (layout พิเศษ/คีย์บอร์ดบางรุ่น) — เครื่องอื่นไม่ได้รับผล ปุ่มปกติ/ภาษาไทยไม่ถูกแตะ</sys:String>
+    <sys:String x:Key="Loc.modmap.default">ไม่แม็ป (ปกติ)</sys:String>
+    <sys:String x:Key="Loc.modmap.shift">Shift:</sys:String>
+    <sys:String x:Key="Loc.modmap.ctrl">Ctrl:</sys:String>
+    <sys:String x:Key="Loc.modmap.alt">Alt:</sys:String>
+    <sys:String x:Key="Loc.modmap.super">Super:</sys:String>
+    <sys:String x:Key="Loc.modmap.altgr">AltGr:</sys:String>
+    <sys:String x:Key="Loc.modmap.to.shift">→ เป็น Shift</sys:String>
+    <sys:String x:Key="Loc.modmap.to.ctrl">→ เป็น Ctrl</sys:String>
+    <sys:String x:Key="Loc.modmap.to.alt">→ เป็น Alt</sys:String>
+    <sys:String x:Key="Loc.modmap.to.super">→ เป็น Super (Win)</sys:String>
+    <sys:String x:Key="Loc.modmap.to.altgr">→ เป็น AltGr</sys:String>
+    <sys:String x:Key="Loc.modmap.to.none">กลืนปุ่ม (ปิดการใช้งาน)</sys:String>
+    <sys:String x:Key="Loc.banner.modmap">ปรับแม็ปปุ่ม modifier ของ {0} แล้ว — มีผลทันทีที่คุมเครื่องนี้</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.title">กันเครื่องเข้าโหมด sleep</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.desc">เหมาะกับเครื่องที่ใช้เป็น host ตลอดเวลา — มีผลทันที ไม่ต้องรีสตาร์ต</sys:String>
+    <sys:String x:Key="Loc.settings.sleep.tip">กันเครื่องเข้า sleep ขณะใช้งาน — ปิดเมื่อไหร่เครื่องกลับไป sleep ตามค่าของระบบตามปกติ</sys:String>
+    <sys:String x:Key="Loc.banner.sleep.on">เปิดกันเครื่อง sleep แล้ว — เครื่องนี้จะไม่เข้าโหมด sleep ขณะโปรแกรมทำงาน</sys:String>
+    <sys:String x:Key="Loc.banner.sleep.off">ปิดกัน sleep แล้ว — เครื่องเข้า sleep ได้ตามค่าของระบบ</sys:String>
+    <sys:String x:Key="Loc.wizard.title">เพิ่มเครื่องแรกของคุณ</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle">เลือกว่าคอมพิวเตอร์ข้างๆ เครื่องนี้เป็นระบบอะไร</sys:String>
+    <sys:String x:Key="Loc.wizard.title2">เตรียมเครื่องข้างๆ</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle2">ทำตามคำแนะนำสั้นๆ แล้วกดไปขั้นถัดไป</sys:String>
+    <sys:String x:Key="Loc.wizard.title3">จับคู่กับเครื่องใหม่</sys:String>
+    <sys:String x:Key="Loc.wizard.subtitle3">สแกนหาเครื่อง → เลือก → ใส่ PIN จากจอเครื่องนั้น</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.windows">เครื่องข้างๆ เป็น Windows</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.windows.desc">เตรียมไฟล์ตัวติดตั้งให้คัดลอกไป (USB / แชร์ไฟล์) — เครื่องนั้นไม่ต้องลงอะไรเพิ่ม</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.linux">เครื่องข้างๆ เป็น Linux ที่ SSH ได้</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.linux.desc">กรอก IP + ชื่อผู้ใช้ SSH แล้ว OmniLink ติดตั้งและเปิด agent ให้เองเลย</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.ready">ติดตั้ง agent เองแล้ว / อื่นๆ</sys:String>
+    <sys:String x:Key="Loc.wizard.opt.ready.desc">agent รันอยู่แล้ว (ทุก OS) — เข้าสู่ขั้นจับคู่ด้วย PIN ได้เลย</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step1">1) กดปุ่ม "เปิดโฟลเดอร์ตัวติดตั้ง" ด้านล่าง แล้วคัดลอกไฟล์ zip ไปเครื่องข้างๆ (USB หรือแชร์ไฟล์)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step2">2) ที่เครื่องนั้น: แตก zip → ดับเบิลคลิก start-node.bat (ไม่ต้องติดตั้งอะไรเพิ่ม)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.step3">3) เปิดหน้าต่าง agent ที่เด้งขึ้น แล้วจด PIN รูปแบบ xxx-xxx ไว้ — แล้วกดปุ่มสีฟ้าเพื่อไปขั้นจับคู่</sys:String>
+    <sys:String x:Key="Loc.wizard.win.mode.portable">โฟลเดอร์นี้มีไฟล์ OmniLink-Node-Win-Portable.zip — คัดลอกไฟล์นี้ไปเครื่องนั้นได้เลย (มี Python ฝัง ไม่ต้องลงอะไรเพิ่ม)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.mode.manual">build นี้ไม่มี zip แบบพกพา — ใช้ install_node.bat ในโฟลเดอร์นี้แทน (เครื่องปลายทางต้องมี Python 3.8+)</sys:String>
+    <sys:String x:Key="Loc.wizard.win.open">เปิดโฟลเดอร์ตัวติดตั้ง</sys:String>
+    <sys:String x:Key="Loc.wizard.next.scan">ถัดไป: สแกนหาเครื่อง →</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.ip">IP ของเครื่อง Linux ข้างๆ</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.user">ชื่อผู้ใช้ SSH</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.note">ต้องใช้งาน SSH แบบคีย์ (ไม่มีรหัสผ่าน) ได้จากเครื่องนี้ — เหมือนคำสั่ง ssh ปกติ</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.deploy">ติดตั้งให้เลย</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.deploying">กำลังติดตั้งผ่าน SSH (อาจใช้ ~10 วินาที)...</sys:String>
+    <sys:String x:Key="Loc.wizard.linux.err.fields">กรอก IP และชื่อผู้ใช้ SSH ก่อน</sys:String>
+    <sys:String x:Key="Loc.wizard.ready.desc">ตราบใดที่ agent กำลังรันอยู่ที่เครื่องข้างๆ (หน้าต่าง agent เปิดค้างไว้) กดปุ่มถัดไปเพื่อสแกนและจับคู่ได้เลย</sys:String>
+    <sys:String x:Key="Loc.wizard.scan.again">สแกนใหม่</sys:String>
+    <sys:String x:Key="Loc.wizard.scan.none">ยังไม่พบ — ตรวจว่า agent รันอยู่ที่เครื่องนั้นแล้วกดสแกนใหม่</sys:String>
+    <sys:String x:Key="Loc.wizard.manual.add">เพิ่มด้วย IP เอง</sys:String>
+    <sys:String x:Key="Loc.wizard.back">← ย้อนกลับ</sys:String>
+    <sys:String x:Key="Loc.wizard.close">ปิด</sys:String>
+    <sys:String x:Key="Loc.hero.empty.title">ยังไม่มีเครื่องลูกในผังของคุณ</sys:String>
+    <sys:String x:Key="Loc.hero.empty.desc">เพิ่มคอมพิวเตอร์ข้างๆ เครื่องนี้ แล้วใช้เมาส์ข้ามจอได้เลยเหมือนจอเดียวกัน</sys:String>
+    <sys:String x:Key="Loc.hero.empty.button">＋ เพิ่มเครื่องแรกของคุณ</sys:String>
+    <sys:String x:Key="Loc.firstrun.title">ยินดีต้อนรับสู่ OmniLink</sys:String>
+    <sys:String x:Key="Loc.firstrun.subtitle">4 อย่างที่ควรรู้ก่อนเริ่มใช้</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip1">🚨 ฉุกเฉิน: กด Ctrl+Alt+Shift+Q เพื่อดึงเมาส์กลับเครื่องนี้ทันที (ใช้ได้เสมอแม้หน้าจอค้าง)</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip2">🖱️ สลับเครื่อง: เลื่อนเมาส์ชนขอบจอตามผังบนแท็บ Topology — ปรับจังหวะได้ที่ Settings → Switching</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip3">🔗 เพิ่มเครื่องใหม่: กดปุ่ม "＋ เพิ่มเครื่องแรกของคุณ" กลางแผนที่ (มี wizard พาทำทีละขั้น จับคู่ด้วย PIN)</sys:String>
+    <sys:String x:Key="Loc.firstrun.tip4">🌐 ภาษาโปรแกรม: เปลี่ยนไทย/อังกฤษได้ที่ Settings → General (ปุ่ม ENG/ไทย บนหัวจอคือสลับคีย์บอร์ด ไม่ใช่ภาษาโปรแกรม)</sys:String>
+    <sys:String x:Key="Loc.firstrun.addnow">เพิ่มเครื่องตอนนี้เลย</sys:String>
+    <sys:String x:Key="Loc.firstrun.ok">เข้าใจแล้ว</sys:String>
+    <sys:String x:Key="Loc.firstrun.dontshow">ไม่ต้องแสดงอีก</sys:String>
+    <!-- ═══ v1.9.1: dialogs Add/Rename — ปิดจุดสุดท้ายที่ hardcode อังกฤษ ═══ -->
+    <sys:String x:Key="Loc.dialog.add.title">เพิ่มเครื่องด้วยตัวเอง</sys:String>
+    <sys:String x:Key="Loc.dialog.add.subtitle">กรอก IP ของเครื่องลูกตรงๆ — ใช้ได้แม้ broadcast discovery หาไม่เจอ (VPN, หลายการ์ดเน็ต)</sys:String>
+    <sys:String x:Key="Loc.dialog.add.ip">IP ของเครื่องลูก:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.port">พอร์ต:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.position">ตำแหน่งหน้าจอ:</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.right">ขวาของเครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.left">ซ้ายของเครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.top">บนเครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pos.bottom">ใต้เครื่องแม่</sys:String>
+    <sys:String x:Key="Loc.dialog.add.name">ชื่อที่แสดง (ไม่จำเป็น):</sys:String>
+    <sys:String x:Key="Loc.dialog.add.pin">PIN จับคู่ (6 หลัก ดูจากจอเครื่องลูก):</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.ip">IP ไม่ถูกต้อง — ตัวอย่าง: 192.168.99.2</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.port">Port ต้องเป็นตัวเลข 1-65535</sys:String>
+    <sys:String x:Key="Loc.dialog.add.err.pin">กรุณาใส่ PIN 6 หลักที่แสดงบนจอเครื่องลูก</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.title">เปลี่ยนชื่อเครื่อง</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.subtitle">ตั้งชื่อเรียกเอง หรือคืนกลับเป็น hostname จริงของเครื่อง</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.hostname">Hostname ที่ตรวจพบ:</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.alias">ชื่อที่แสดง / Alias:</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.hint">เว้นว่างหรือกด Reset เพื่อใช้ hostname จริงของเครื่อง</sys:String>
+    <sys:String x:Key="Loc.dialog.rename.save">บันทึกชื่อ</sys:String>
+    <!-- ═══ v1.9.1: chain topology + corner diagonal ═══ -->
+    <sys:String x:Key="Loc.devices.anchor">ต่อจากเครื่อง:</sys:String>
+    <sys:String x:Key="Loc.devices.anchor.tip">ผังการสลับ: เครื่องนี้วางอยู่ "ด้าน" ที่เลือกไว้ของเครื่องที่เลือก — ต่อเครื่องลูกต่อจากเครื่องลูกได้ไม่จำกัด (เช่น จอบนของ L440) · สลับได้จากแท็บนี้ + แผนที่ + มุมจอ</sys:String>
+    <sys:String x:Key="Loc.devices.anchor.host">Host (เครื่องแม่)</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.set">{0} ต่อจาก {1} ด้าน{2} แล้ว — ลากขอบตามผังได้เลย</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.cycle">ปฏิเสธ — anchor นี้จะสร้างวงจร (เครื่องต่อกันเป็นวง)</sys:String>
+    <sys:String x:Key="Loc.banner.corner.switched">สลับมุมทแยงไปยัง {0}</sys:String>
+    <sys:String x:Key="Loc.banner.corner.on">เปิดสลับมุมทแยงแล้ว — ลากเข้าโซนมุมที่มีเครื่องวางทแยงจะสลับทันที</sys:String>
+    <sys:String x:Key="Loc.banner.corner.off">ปิดสลับมุมทแยงแล้ว — มุมกลับไปเป็นโซนกันพลาดตามเดิม</sys:String>
+    <sys:String x:Key="Loc.settings.corner.title">สลับมุมทแยง (Corner diagonal switch)</sys:String>
+    <sys:String x:Key="Loc.settings.corner.desc">เมื่อมีเครื่องวาง "ทแยง" (เช่น A บนของ L440 ซึ่ง L440 ขวาของ host) — ลากเมาส์เข้าโซนมุมของ host จะสลับไปหลานทันที</sys:String>
+    <sys:String x:Key="Loc.settings.corner.tip">เปิดแล้วมุมจะกลายเป็นโซนสลับ (ขนาดตามค่า px) เฉพาะเมื่อมีเครื่องวางทแยงอยู่จริง — ถ้าไม่มี มุมยังเป็นโซนกันพลาดตามเดิม</sys:String>
+    <sys:String x:Key="Loc.settings.corner.px">รัศมีโซนมุม (px):</sys:String>
+    <sys:String x:Key="Loc.map.arrow.drop.tip">ลากชื่อเครื่องจากรายการมาวางที่ลูกศร = ต่อด้านนี้ (สลับที่กับเจ้าของเดิมอัตโนมัติ)</sys:String>
+    <sys:String x:Key="Loc.banner.anchor.moved">ย้าย {0} ไปต่อที่ {1} ด้าน{2} แล้ว — สลับขอบอัปเดตทันที</sys:String>
+    <sys:String x:Key="Loc.map.resetview">รีเซ็ตมุมมอง</sys:String>
+    <sys:String x:Key="Loc.map.resetview.tip">กลับไปมุมมองพอดี (ลากพื้นว่าง = เลื่อนผัง · ล้อเมาส์ = ซูม · ดับเบิลคลิกพื้นว่าง = พอดีจอ)</sys:String>
+</ResourceDictionary>

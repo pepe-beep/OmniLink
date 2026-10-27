@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OmniLink.Core/OmniLink.Core.csproj" />
+    <Project Path="src/OmniLink.Headless/OmniLink.Headless.csproj" />
+    <Project Path="src/OmniLink.Platform.Linux/OmniLink.Platform.Linux.csproj" />
+    <Project Path="src/OmniLink.Platform.Windows/OmniLink.Platform.Windows.csproj" />
+    <Project Path="src/OmniLink/OmniLink.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OmniLink.Tests/OmniLink.Tests.csproj" />
+    <Project Path="tests/XamlLoadHarness/XamlLoadHarness.csproj" />
+  </Folder>
+</Solution>

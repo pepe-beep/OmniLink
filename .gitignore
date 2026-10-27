@@ -1,0 +1,41 @@
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+src/OmniLink/bin/
+src/OmniLink/obj/
+tests/**/bin/
+tests/**/obj/
+publish/
+publish_latest/
+publish-sc/
+publish-linux/
+dist/
+InstallerOutput/
+
+# Python
+__pycache__/
+*.pyc
+
+# Runtime data (contains real pairing tokens — never track)
+omnilink_config.json
+logs/
+crash.log
+omnilink_stream.log
+omnilink_mic.log
+runstate/
+
+# Local AI lessons (machine-local knowledge base — never pushed)
+_lessons/
+docs/
+whiteboard/
+HANDOFF.md
+AGENTS.md
+.git-old-history*/
+
+# IDE / OS
+.vs/
+.vscode/
+*.user
+Thumbs.db
+test-artifacts/
+.git-old-history/

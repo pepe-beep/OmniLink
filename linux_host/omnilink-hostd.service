@@ -1,0 +1,16 @@
+[Unit]
+Description=OmniLink Host Daemon (headless mesh KVM host)
+# v2.0: host บน Linux — ติดตั้งเป็น systemd --user (ไม่ต้อง sudo) รันในสภาพแวดล้อม session
+# ของผู้ใช้เพื่อเข้าถึง X display (:0) ได้ (edge-switch/grab ทำงานเมื่อมี desktop session)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/omnilink-host/omnilink-hostd run
+Environment=DISPLAY=:0
+Environment=OMNILINK_HOME=%h/omnilink-host
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

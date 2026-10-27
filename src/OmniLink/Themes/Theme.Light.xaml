@@ -1,0 +1,69 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- ═══ ธีม "สว่าง" — พื้นสว่าง/ตัวอักษรเข้ม (v2.0) ═══ -->
+
+    <SolidColorBrush x:Key="AppWindowBgBrush" Color="#EDEFF3"/>
+
+    <SolidColorBrush x:Key="FluentCanvasBrush" Color="#F4F5F8"/>
+    <SolidColorBrush x:Key="FluentCardBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="FluentCardHoverBrush" Color="#EDF1F7"/>
+    <SolidColorBrush x:Key="FluentCardSelectedBrush" Color="#D7E8FB"/>
+    <SolidColorBrush x:Key="FluentCardDeepBrush" Color="#E9ECF2"/>
+
+    <SolidColorBrush x:Key="FluentSubtleFillBrush" Color="#0F000000"/>
+    <SolidColorBrush x:Key="FluentSubtleFillHoverBrush" Color="#18000000"/>
+    <SolidColorBrush x:Key="FluentSubtleFillPressedBrush" Color="#0A000000"/>
+    <SolidColorBrush x:Key="FluentFocusFillBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="FluentScrollbarThumbBrush" Color="#30000000"/>
+
+    <SolidColorBrush x:Key="FluentBorderSubtleBrush" Color="#14000000"/>
+    <SolidColorBrush x:Key="FluentBorderHoverBrush" Color="#28000000"/>
+    <SolidColorBrush x:Key="FluentBorderFocusedBrush" Color="#0078D4"/>
+
+    <SolidColorBrush x:Key="FluentAccentPrimaryBrush" Color="#0067C0"/>
+    <SolidColorBrush x:Key="FluentAccentHoverBrush" Color="#1975C6"/>
+    <SolidColorBrush x:Key="FluentAccentPressedBrush" Color="#005BA1"/>
+    <SolidColorBrush x:Key="FluentAccentLightBrush" Color="#0B7AD0"/>
+
+    <SolidColorBrush x:Key="StatusOnlineBrush" Color="#1E8E4E"/>
+    <SolidColorBrush x:Key="StatusOnlineBgBrush" Color="#1427AE60"/>
+    <SolidColorBrush x:Key="StatusIdleBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="StatusIdleBgBrush" Color="#14808080"/>
+    <SolidColorBrush x:Key="StatusWarningBrush" Color="#B45309"/>
+    <SolidColorBrush x:Key="StatusWarningBgBrush" Color="#14D97706"/>
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#BE123C"/>
+    <SolidColorBrush x:Key="StatusErrorBgBrush" Color="#14E11D48"/>
+
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1F2430"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#4B5563"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#6B7280"/>
+    <SolidColorBrush x:Key="TextDimBrush" Color="#9CA3AF"/>
+
+    <SolidColorBrush x:Key="AeroGlassCanvasBrush" Color="#F4F5F8"/>
+    <SolidColorBrush x:Key="AeroGlassCardBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AeroGlassCardHoverBrush" Color="#EDF1F7"/>
+    <SolidColorBrush x:Key="AeroGlassCardDeepBrush" Color="#E9ECF2"/>
+    <SolidColorBrush x:Key="AeroSpecularRimBrush" Color="#14000000"/>
+    <SolidColorBrush x:Key="AeroSpecularRimHoverBrush" Color="#28000000"/>
+    <SolidColorBrush x:Key="AeroSubtleBorderBrush" Color="#14000000"/>
+    <SolidColorBrush x:Key="AeroCyanBrush" Color="#0067C0"/>
+    <SolidColorBrush x:Key="AeroCyanDeepBrush" Color="#200067C0"/>
+    <SolidColorBrush x:Key="AeroCyanGlowBrush" Color="#0067C0"/>
+    <SolidColorBrush x:Key="JewelEmeraldBrush" Color="#1E8E4E"/>
+    <SolidColorBrush x:Key="JewelEmeraldDeepBrush" Color="#201E8E4E"/>
+    <SolidColorBrush x:Key="JewelEmeraldGlowBrush" Color="#1E8E4E"/>
+    <SolidColorBrush x:Key="JewelAmberBrush" Color="#B45309"/>
+    <SolidColorBrush x:Key="JewelAmberDeepBrush" Color="#20B45309"/>
+    <SolidColorBrush x:Key="JewelRubyBrush" Color="#BE123C"/>
+    <SolidColorBrush x:Key="JewelRubyDeepBrush" Color="#20BE123C"/>
+    <SolidColorBrush x:Key="AppleTextWhite" Color="#1F2430"/>
+    <SolidColorBrush x:Key="AppleTextSlateLight" Color="#4B5563"/>
+    <SolidColorBrush x:Key="AppleTextSlateMuted" Color="#6B7280"/>
+    <SolidColorBrush x:Key="AppleCardBackground" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="AppleCardBorder" Color="#14000000"/>
+    <SolidColorBrush x:Key="AppleAccentBlue" Color="#0067C0"/>
+    <SolidColorBrush x:Key="AppleAccentEmerald" Color="#1E8E4E"/>
+    <SolidColorBrush x:Key="AppleAccentAmber" Color="#B45309"/>
+    <SolidColorBrush x:Key="AppleAccentRed" Color="#BE123C"/>
+</ResourceDictionary>

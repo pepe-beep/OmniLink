@@ -1,0 +1,74 @@
+<Window x:Class="OmniLink.Views.RenameDeviceDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="Rename Device"
+        Width="440" Height="290"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+
+    <Border Background="{StaticResource FluentCanvasBrush}"
+            BorderBrush="{StaticResource FluentBorderHoverBrush}"
+            BorderThickness="1"
+            CornerRadius="10"
+            Padding="24,20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <DockPanel Grid.Row="0" Margin="0,0,0,16">
+                <ui:SymbolIcon DockPanel.Dock="Left" Symbol="Edit24"
+                               Foreground="{StaticResource FluentAccentLightBrush}"
+                               FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Loc.dialog.rename.title}" FontSize="15" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{DynamicResource Loc.dialog.rename.subtitle}" FontSize="11" Foreground="{StaticResource TextMutedBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Content Area -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                <DockPanel Margin="0,0,0,6">
+                    <TextBlock Text="{DynamicResource Loc.dialog.rename.hostname}" FontSize="11.5" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock x:Name="DetectedHostnameText" Text="thinkpad-l440" FontSize="11.5" FontWeight="SemiBold"
+                               Foreground="{StaticResource FluentAccentLightBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+
+                <TextBlock Text="{DynamicResource Loc.dialog.rename.alias}" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}" Margin="0,8,0,6"/>
+                <TextBox x:Name="DeviceNameBox"
+                         Style="{StaticResource FluentCompactTextBox}"
+                         MinHeight="34" FontSize="13"
+                         Padding="10,6"
+                         KeyDown="OnDeviceNameBoxKeyDown"/>
+                <TextBlock Text="{DynamicResource Loc.dialog.rename.hint}"
+                           FontSize="10.5" Foreground="{StaticResource TextMutedBrush}" Margin="2,4,0,0"/>
+            </StackPanel>
+
+            <!-- Action Buttons -->
+            <DockPanel Grid.Row="2" Margin="0,16,0,0">
+                <Button x:Name="BtnResetHostname"
+                        Content="{DynamicResource Loc.devices.reset}"
+                        Style="{StaticResource AppleSecondaryButton}"
+                        Padding="12,5" MinHeight="32" FontSize="11.5"
+                        Click="OnResetHostnameClick"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="{DynamicResource Loc.common.cancel}"
+                            Style="{StaticResource AppleSecondaryButton}"
+                            Padding="14,5" MinHeight="32" FontSize="11.5" Margin="0,0,8,0"
+                            Click="OnCancelClick"/>
+                    <Button Content="{DynamicResource Loc.dialog.rename.save}"
+                            Style="{StaticResource ApplePrimaryButton}"
+                            Padding="16,5" MinHeight="32" FontSize="11.5"
+                            Click="OnSaveClick"/>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,51 @@
+<UserControl x:Class="OmniLink.Views.Settings.LoggingPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="{DynamicResource Loc.settings.logging}" FontSize="16" FontWeight="Bold"
+                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,2"/>
+        <TextBlock Text="{DynamicResource Loc.settings.logging.desc}" Style="{StaticResource SettingDesc}" Margin="0,0,0,14"/>
+
+        <Border Style="{StaticResource SettingsCardStyle}" Margin="0,0,0,12">
+            <StackPanel>
+                <DockPanel Style="{StaticResource SettingRow}">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <ComboBox x:Name="LevelCombo" Style="{StaticResource SettingCombo}" SelectionChanged="OnLevelChanged">
+                            <ComboBoxItem Content="{DynamicResource Loc.settings.log.off}"/>
+                            <ComboBoxItem Content="{DynamicResource Loc.settings.log.error}"/>
+                            <ComboBoxItem Content="{DynamicResource Loc.settings.log.warn}"/>
+                            <ComboBoxItem Content="{DynamicResource Loc.settings.log.info}"/>
+                        </ComboBox>
+                        <Button Style="{StaticResource InfoIconButton}" ToolTip="{DynamicResource Loc.settings.log.tip}">
+                            <TextBlock Style="{StaticResource InfoIconGlyph}"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Loc.settings.log.title}" Style="{StaticResource SettingTitle}"/>
+                        <TextBlock Text="{DynamicResource Loc.settings.log.desc}" Style="{StaticResource SettingDesc}" Margin="0,1,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <DockPanel Style="{StaticResource SettingRow}">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <TextBox x:Name="LogMaxKbBox" Style="{StaticResource SettingBox}" TextChanged="OnBoxChanged"/>
+                        <Button Style="{StaticResource InfoIconButton}" ToolTip="{DynamicResource Loc.settings.log.max.tip}">
+                            <TextBlock Style="{StaticResource InfoIconGlyph}"/>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Loc.settings.log.max.title}" Style="{StaticResource SettingTitle}"/>
+                        <TextBlock Text="{DynamicResource Loc.settings.log.max.desc}" Style="{StaticResource SettingDesc}" Margin="0,1,0,0"/>
+                    </StackPanel>
+                </DockPanel>
+                <TextBlock x:Name="ErrorText" Style="{StaticResource SettingError}" Visibility="Collapsed"/>
+
+                <DockPanel Margin="0,6,0,0">
+                    <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.settings.log.open}" Style="{StaticResource AppleSecondaryButton}"
+                            Padding="12,4" MinHeight="28" Click="OnOpenLogsClick"/>
+                    <TextBlock x:Name="LogPathText" Text="" FontSize="10.5" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </DockPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
