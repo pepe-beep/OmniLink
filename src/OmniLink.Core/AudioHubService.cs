@@ -133,7 +133,7 @@ public sealed class AudioHubService : IDisposable
 
     private static bool IsOrphan(Process p)
     {
-        var ppid = OmniLink.Interop.NativeMethods.GetParentProcessId(p);
+        var ppid = ProcessParentPid.GetParentProcessId(p);
         if (ppid <= 0 || ppid == Environment.ProcessId)
         {
             return false;

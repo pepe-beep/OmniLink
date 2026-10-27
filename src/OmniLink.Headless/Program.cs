@@ -1,12 +1,14 @@
 using System.Text.Json;
 using OmniLink.Core;
 using OmniLink.Core.Abstractions;
+using OmniLink.Core.Events;
 
 namespace OmniLink.Headless;
 
 /// <summary>
 /// v2.0: OmniLink host แบบไม่มี UI (daemon) — รันบน Linux (Ubuntu/Mint/Lubuntu 22.04+) หรือ Windows
-/// เป้าหมายแรก: L440 เพื่อพิสูจน์ "host บน Linux" + เป็นฐานให้ host↔host ในเฟสถัดไป
+/// v2.1 S1 (Engine/UI split): hostd บน Windows = engine เต็มรูปแบบ (hook/edge-switch จริง, clipboard,
+/// audio hub, discovery, sub-mode) — parity กับ WPF host ตามแผน _lessons/war-room/BACKLOG-ROADMAP §1-S1
 /// การตั้งค่า: ใช้ omnilink_config.json เดียวกับ host UI ทั้งหมด (root = OMNILINK_HOME
 /// หรือโฟลเดอร์ที่มี config ข้าง exe — กติกา OmniPaths เดิม)
 /// </summary>
@@ -16,6 +18,10 @@ internal static class Program
     private static KvmHostService? _kvm;
     private static OmniLink.Core.NodeAgentServer? _sub;
     private static System.Threading.Timer? _statusTimer;
+#if OMNILINK_WINDOWS
+    private static AudioHubService? _audio;
+    private static OmniDiscoveryService? _discovery;
+#endif
 
     private static int Main(string[] args)
     {
@@ -55,7 +61,7 @@ internal static class Program
 
     private static int VersionStamp()
     {
-        Console.WriteLine("omnilink-hostd 2.0.0");
+        Console.WriteLine($"omnilink-hostd {typeof(KvmHostService).Assembly.GetName().Version?.ToString(3) ?? "?"}");
         return 0;
     }
 
@@ -66,6 +72,8 @@ internal static class Program
         OmniLimits.Normalize(cfg);
         cfg.Save();
         OmniLog.SetLevel(cfg.LogLevel);
+        OmniLog.SetMaxLogBytes(cfg.LogMaxBytes);       // parity กับ UI (F2 รอบ v1.9)
+        OmniLog.SetDiagnostics(cfg.DiagnosticsEnabled);
 
         OmniLog.Write("boot", $"omnilink-hostd starting pid={Environment.ProcessId} os={Environment.OSVersion.Platform} root={OmniPaths.Root}");
 
@@ -89,11 +97,8 @@ internal static class Program
             OmniLog.Write("boot", $"[LowMem] profile ACTIVE mode={(isLowRam ? "auto(<=4GB)" : "manual")} (RAM: {totalRam / 1024 / 1024}MB) applied=[{string.Join(", ", applied)}]");
         }
 
-        // อินพุต: Linux = X11 gateway (poll + grab) · Windows = NullHostInputGateway
-        // (headless บน Windows ไม่มี edge-switch — คุมผ่านสูตรลัด/agent เท่านั้น)
-        IHostInputGateway input = OperatingSystem.IsLinux()
-            ? new OmniLink.Platform.Linux.LinuxHostInput(Environment.GetEnvironmentVariable("DISPLAY") ?? ":0")
-            : new NullHostInputGateway();
+        // อินพุต: Linux = X11 gateway (poll + grab) · Windows = WindowsHostInput จริง (S1: เดิม Null = ไม่มี edge-switch)
+        IHostInputGateway input = CreateInputGateway();
 
         _kvm = new KvmHostService(cfg, static () => { }, null, input);
         // godclass-F3: pre-check ชนพอร์ตกับ node agent ก่อน bind — ข้อความชัดกว่ารอ SocketException ตอน Start
@@ -102,26 +107,39 @@ internal static class Program
             OmniLog.Warn("[hostd] sub_mode_enabled=true แต่พอร์ต 24801 ถูกถืออยู่ (น่าจะ node agent บนเครื่องเดียวกัน) → ข้าม sub-mode รอบนี้");
             cfg.SubModeEnabled = false;
         }
-        else if (cfg.SubModeEnabled && input is OmniLink.Platform.Linux.LinuxHostInput linuxInput)
-        {
-            // v2.0 เฟส 3: โหมด sub บน Linux — แชร์ gateway เดียวกับ host-role (ภาษา/จอเป็น machine-global)
-            _sub = new OmniLink.Core.NodeAgentServer(cfg,
-                new OmniLink.Platform.Linux.LinuxNodeInputInjector(),
-                linuxInput,
-                new OmniLink.Platform.Linux.LinuxClipboardBridge(),
-                new OmniLink.Platform.Linux.LinuxEscapeHotkey());
-            _sub.OnStatus = static msg => OmniLog.Write("sub", msg);
-            _kvm.SubActiveFocusProbe = () => _sub.ActiveFocus; // กันลูป host<->host
-            _sub.Start();
-        }
         else if (cfg.SubModeEnabled)
         {
-            OmniLog.Warn("[hostd] sub_mode_enabled=true แต่แพลตฟอร์มนี้ยังไม่มี injector (Windows hostd ยังไม่รองรับ — ใช้แอป UI แทน)");
+            // S1: ทั้ง Linux (XTest) และ Windows (SendInput) มี injector ครบแล้ว — แชร์ gateway เดียวกับ host-role (ภาษา/จอเป็น machine-global)
+            _sub = CreateSubServer(cfg, input);
+            if (_sub is not null)
+            {
+                _sub.OnStatus = static msg => OmniLog.Write("sub", msg);
+                _kvm.SubActiveFocusProbe = () => _sub.ActiveFocus; // กันลูป host<->host
+                _sub.Start();
+            }
+            else
+            {
+                OmniLog.Warn("[hostd] sub_mode_enabled=true แต่แพลตฟอร์มนี้ไม่มี injector → ข้าม sub-mode รอบนี้");
+            }
         }
-        _kvm.OnStatusBanner = static msg => OmniLog.Write("banner", msg);
-        _kvm.OnNodeOnline = static sess => OmniLog.Write("hostd", $"node online: {sess.Config.NodeId} ({sess.Config.Ip}) agent={sess.AgentVersion}");
-        _kvm.OnClipboardFromClient = static text => OmniLog.Write("clipboard", $"รับจาก node len={text.Length} (headless ยังไม่เชื่อมคลิปบอร์ดเครื่องนี้)");
-        _kvm.Start();
+
+        // S1 parity: clipboard เขียนเครื่องนี้จริง + audio hub + smart audio + hotkey audio + discovery (Windows)
+        // ฝั่ง Linux คงพฤติกรรมเดิมทุกบรรทัด (stub log เหมือนเดิม — ยังไม่เคยทดสอบ live)
+        WireEngineParity(cfg);
+
+        if (cfg.PreventSleep)
+        {
+            EnablePreventSleep(); // v1.9 C4: เธรด keeper ค้าง ES_CONTINUOUS ตลอดที่เปิดใช้ (Windows เท่านั้น)
+        }
+
+        if (cfg.AutoStartKvm)
+        {
+            _kvm.Start();
+        }
+        else
+        {
+            OmniLog.Write("boot", "auto_start_kvm=false → engine ไม่ทำงาน (โหมด KVM ปิด — parity กับ UI)");
+        }
 
         // สถานะสำหรับ omnilink-hostd status / การวัดของจริง (เขียนทุก 5 วิ — I/O น้อยมาก)
         _statusTimer = new System.Threading.Timer(_ => WriteStatus(), null, 2000, 5000);
@@ -133,6 +151,9 @@ internal static class Program
         OmniLog.Write("boot", $"omnilink-hostd v{typeof(KvmHostService).Assembly.GetName().Version?.ToString(3) ?? "?"} ready — nodes ใน config จะถูกเชื่อมตาม lifecycle (hot/cold/freeze)");
         Console.WriteLine("omnilink-hostd running — Ctrl+C เพื่อหยุด");
 
+        // S1: boot sequence หลัง Start (deploy + auto audio + calibrate) — เดินหลังบูตเสมอ ไม่บล็อก main loop
+        RunBootSequence(cfg);
+
         while (!_stopping)
         {
             Thread.Sleep(500);
@@ -140,11 +161,246 @@ internal static class Program
 
         OmniLog.Write("boot", "omnilink-hostd กำลังปิดตัว...");
         _statusTimer.Dispose();
+        ShutdownParity(); // S1: หยุด audio ก่อนปิด session (D1: exit ต้องหยุด remote เสียงด้วย)
         _sub?.Dispose();
         _kvm.Dispose();
         OmniLog.Write("boot", "omnilink-hostd ปิดแล้ว");
         return 0;
     }
+
+#if OMNILINK_WINDOWS
+    private static IHostInputGateway CreateInputGateway() => new OmniLink.Platform.Windows.WindowsHostInput();
+
+    private static OmniLink.Core.NodeAgentServer? CreateSubServer(OmniConfig cfg, IHostInputGateway input)
+        => new(cfg,
+            new OmniLink.Platform.Windows.WindowsNodeInputInjector(),
+            input,
+            new OmniLink.Core.Clipboard.WindowsClipboardBridge(),
+            new OmniLink.Platform.Windows.WindowsEscapeHotkey());
+
+    private static void EnablePreventSleep() => PreventSleepService.SetEnabled(true);
+
+    /// <summary>S1: parity กับ wiring ของ MainWindow — clipboard 3 ทิศ + audio hub + smart audio + hotkey/online events + discovery</summary>
+    private static void WireEngineParity(OmniConfig cfg)
+    {
+        var kvm = _kvm!;
+        var clip = new OmniLink.Core.Clipboard.WindowsClipboardBridge();
+
+        // engine ดึงคลิปบอร์ดของเครื่องนี้เพื่อ push หา node (เดิม UI ผูก HostClipboardGetter — hostd เดิมไม่ผูก = ไม่มีทางส่ง)
+        kvm.HostClipboardGetter = () => clip.GetText();
+        kvm.HostPngGetter = () =>
+        {
+            if (clip.TryGetPng(out var png) && png.Length > 0)
+            {
+                return png;
+            }
+            return null;
+        };
+        kvm.HostFileDropGetter = (out bool isCut) => clip.GetFileDropList(out isCut);
+
+        // node ส่งคลิปมาเขียนลงเครื่องนี้จริง (ปิด stub "headless ยังไม่เชื่อมคลิปบอร์ดเครื่องนี้") — กัน echo ด้วยเปรียบเทียบค่าปัจจุบันก่อนเขียน เหมือน UI
+        kvm.OnClipboardFromClient = text =>
+        {
+            try
+            {
+                if (clip.GetText() != text)
+                {
+                    clip.SetText(text);
+                }
+            }
+            catch { }
+        };
+        kvm.OnClipboardImageFromClient = png =>
+        {
+            try
+            {
+                if (png is { Length: > 0 })
+                {
+                    clip.SetPng(png);
+                }
+            }
+            catch { }
+        };
+        kvm.OnClipboardFilesFromClient = (files, isCut) =>
+        {
+            try
+            {
+                clip.SetFileDropList(files, isCut);
+            }
+            catch { }
+        };
+
+        // Smart Audio & Smart Focus-Aware Mic (เหมือน MainWindow แต่ไม่มี Dispatcher — เขียน config ตรง)
+        _audio = new AudioHubService(
+            cfg,
+            kvm.SendNodeCommand,
+            kvm.GetLocalEndpointIpForNode,
+            d =>
+            {
+                try
+                {
+                    cfg.MicDeviceId = d.Id;
+                    cfg.MicDeviceName = d.Name;
+                    cfg.Save();
+                }
+                catch { }
+            });
+
+        kvm.OnNodeAudioActivityChanged = (nodeId, active) =>
+        {
+            try { _audio.HandleNodeAudioActivity(nodeId, active); } catch { }
+        };
+        kvm.OnFocusMicAction = start =>
+        {
+            try
+            {
+                if (start)
+                {
+                    if (!_audio.IsMicRunning)
+                    {
+                        OmniLog.Write("audio", "[smart] Focus บนเครื่องลูก -> เปิดไมค์อัตโนมัติ");
+                        try { _audio.StartMic(); } catch { }
+                    }
+                }
+                else if (_audio.IsMicRunning)
+                {
+                    OmniLog.Write("audio", "[smart] กลับมาทำงานบน Host นานเกินกำหนด -> พักไมค์อัตโนมัติ");
+                    try { _audio.StopMic(); } catch { }
+                }
+            }
+            catch { }
+        };
+
+        // hotkey ขอ toggle เสียง (engine จับปุ่มแล้ง publish มาที่ hub — hostd เป็นผู้ฟังแทน UI)
+        OmniEventHub.Default.Subscribe<HotkeyAudioRequestedEvent>(e =>
+        {
+            try
+            {
+                if (e.ActionType == HotkeyActionConfig.ToggleStream)
+                {
+                    if (_audio.IsStreamRunning) { _audio.StopStream(); OmniLog.Write("audio", "hotkey → ปิด stream"); }
+                    else { _audio.StartStream(); OmniLog.Write("audio", "hotkey → เปิด stream"); }
+                }
+                else if (e.ActionType == HotkeyActionConfig.ToggleMic)
+                {
+                    if (_audio.IsMicRunning) { _audio.StopMic(); OmniLog.Write("audio", "hotkey → ปิดไมค์"); }
+                    else { _audio.StartMic(); OmniLog.Write("audio", "hotkey → เปิดไมค์"); }
+                }
+            }
+            catch (Exception ex) { OmniLog.Warn("[audio] hotkey toggle: " + ex.Message); }
+        });
+
+        // node ออนไลน์ → retry เปิดเสียงตาม config (เหมือน MainWindow)
+        OmniEventHub.Default.Subscribe<NodeConnectionEvent>(e =>
+        {
+            if (!e.Connected) return;
+            try
+            {
+                if (cfg.AutoStartStream && !_audio.IsStreamRunning)
+                {
+                    OmniLog.Write("audio", "node online → retry start_stream (auto)");
+                    try { _audio.StartStream(); } catch (Exception ex) { OmniLog.Warn("[audio] retry stream: " + ex.Message); }
+                }
+                if (cfg.AutoStartMic && !_audio.IsMicRunning)
+                {
+                    OmniLog.Write("audio", "node online → retry start_mic (auto)");
+                    try { _audio.StartMic(); } catch (Exception ex) { OmniLog.Warn("[audio] retry mic: " + ex.Message); }
+                }
+            }
+            catch { }
+        });
+
+        // discovery: สแกนเจออะไรให้ log ไว้ (หน้าจอจับคู่ยังเป็นของ UI — hostd ใช้เพื่อ observability)
+        _discovery = new OmniDiscoveryService(cfg, node =>
+            OmniLog.Write("discovery", $"เจอ node สด: {node.Name} ({node.Ip}) paired={node.Paired} zone={node.Zone}"));
+    }
+
+    /// <summary>S1: boot sequence แบบเดียวกับ OnWindowLoaded ของ UI — deploy + auto audio + calibrate + scan ครั้งแรก (background ทั้งหมด)</summary>
+    private static void RunBootSequence(OmniConfig cfg)
+    {
+        var kvm = _kvm!;
+        if (!cfg.AutoStartKvm) return;
+
+        Task.Run(async () =>
+        {
+            try
+            {
+                OmniLog.Write("boot", "กำลังเชื่อมต่อเครื่องลูกข่ายและเตรียมระบบเสียง LAN...");
+                await Task.Delay(500);
+
+                foreach (var ncfg in cfg.Nodes)
+                {
+                    if (!ncfg.Enabled) continue;
+                    if (!kvm.Sessions.TryGetValue(ncfg.NodeId, out var sess) || !sess.Connected)
+                    {
+                        var (ok, msg) = kvm.DeployRemoteAgent(ncfg);
+                        OmniLog.Write("deploy", $"boot deploy ok={ok}: {msg}");
+                        await Task.Delay(600);
+                    }
+                }
+
+                if (cfg.AutoStartStream || cfg.AutoStartMic)
+                {
+                    AudioHubService.KillOrphanedAudioFromPreviousRun(cfg.GstExe); // D5: PID file + orphan-match เฉพาะ gst ของเรา
+                    for (var i = 0; i < 30; i++)
+                    {
+                        if (kvm.Sessions.Values.Any(s => s.Connected)) break;
+                        await Task.Delay(500);
+                    }
+                    if (cfg.AutoStartStream) { try { _audio?.StartStream(); } catch { } }
+                    if (cfg.AutoStartMic) { try { _audio?.StartMic(); } catch { } }
+                }
+
+                try { kvm.CalibrateAllLanguages(kvm.GetHostLangGroup()); } catch { }
+
+                try
+                {
+                    var found = await _discovery!.ScanNetworkAsync();
+                    OmniLog.Write("discovery", $"scan เริ่มต้นพบ {found.Count} เครื่อง");
+                }
+                catch { }
+
+                OmniLog.Write("boot", "hostd พร้อมทำงาน (S1 parity wiring ครบ)");
+            }
+            catch (Exception ex)
+            {
+                OmniLog.Error("boot", ex);
+            }
+        });
+    }
+
+    private static void ShutdownParity()
+    {
+        try { _audio?.ShutdownFull(); } catch { } // D1: สั่งหยุด remote ก่อนปิด session
+        try { _discovery?.Dispose(); } catch { }
+    }
+#else
+    private static IHostInputGateway CreateInputGateway()
+        => OperatingSystem.IsLinux()
+            ? new OmniLink.Platform.Linux.LinuxHostInput(Environment.GetEnvironmentVariable("DISPLAY") ?? ":0")
+            : new NullHostInputGateway();
+
+    private static OmniLink.Core.NodeAgentServer? CreateSubServer(OmniConfig cfg, IHostInputGateway input)
+        => input is OmniLink.Platform.Linux.LinuxHostInput linuxInput
+            ? new OmniLink.Core.NodeAgentServer(cfg,
+                new OmniLink.Platform.Linux.LinuxNodeInputInjector(),
+                linuxInput,
+                new OmniLink.Platform.Linux.LinuxClipboardBridge(),
+                new OmniLink.Platform.Linux.LinuxEscapeHotkey())
+            : null;
+
+    private static void EnablePreventSleep() { /* Linux: ยังไม่รองรับ (คงเดิม) */ }
+
+    private static void WireEngineParity(OmniConfig cfg)
+    {
+        // Linux hostd คงพฤติกรรมเดิมทุกบรรทัด (S1 ขยายเฉพาะ Windows — ประเด็น Linux parity เป็นงานถัดไปตาม roadmap §3.5)
+        _kvm!.OnClipboardFromClient = static text => OmniLog.Write("clipboard", $"รับจาก node len={text.Length} (headless ยังไม่เชื่อมคลิปบอร์ดเครื่องนี้)");
+    }
+
+    private static void RunBootSequence(OmniConfig cfg) { /* Linux: คงเดิม — ไม่มี boot deploy (ทดสอบ live ไม่ได้เพราะ L440 ปิด) */ }
+
+    private static void ShutdownParity() { }
+#endif
 
     private static bool AgentPortInUse()
     {
@@ -179,7 +435,8 @@ internal static class Program
             }).ToList();
             var doc = new
             {
-                hostd = "2.0.0",
+                hostd = typeof(KvmHostService).Assembly.GetName().Version?.ToString(3) ?? "?",
+                app_version = typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "?", // F2: ยืนยันความสดของ binary
                 pid = Environment.ProcessId,
                 updated = DateTimeOffset.Now.ToString("O"),
                 active_node = kvm.ActiveNodeId,
