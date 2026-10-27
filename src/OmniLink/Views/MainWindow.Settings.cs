@@ -112,6 +112,12 @@ public partial class MainWindow
     public void StartSubMode()
     {
         if (_subServer is not null) return;
+        if (_dashboard)
+        {
+            // S3: โหมด sub ฝังเป็นของฝั่ง engine (hostd อ่านจาก sub_mode_enabled เดิม) — UI process ห้ามผูกพอร์ตซ้อน
+            SetBanner(Loc.T("sub.dashboard.engine", "โหมด sub จัดการที่ฝั่ง engine (hostd) ตาม config — หน้าต่างนี้ไม่ฝังเอง"));
+            return;
+        }
         var sub = new OmniLink.Core.NodeAgentServer(
             _config,
             new OmniLink.Platform.Windows.WindowsNodeInputInjector(),
@@ -172,7 +178,7 @@ public partial class MainWindow
     {
         _config.ResetToDefaultsInPlace();
         LocalizationService.Initialize(_config.UiLanguage);
-        var save = Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4: ไม่เขียนไฟล์บน UI thread
+        var save = PersistConfig(); // S3: dashboard = push ให้ engine · engine = เขียนไฟล์นอก UI thread (UI-H4)
         OmniLog.SetMaxLogBytes(_config.LogMaxBytes);
         RefreshUiState();
         SetBanner(Loc.T("banner.danger.factory", "คืนค่าโรงงานแล้ว — แอปจะปิดใน 3 วินาที เปิดใหม่ได้จาก Desktop"));

@@ -73,8 +73,9 @@ public sealed class IpcKvmClient : IKvmHost
                 OmniLog.Write("ipc", $"เชื่อม engine สำเร็จ (hostd v{hello.Ver} pid={hello.Data?.GetProperty("pid").GetInt32()})");
                 ReaderLoop(pipe);
             }
-            catch (Exception ex) when (!_cts.IsCancellationRequested)
+            catch (Exception ex)
             {
+                if (_cts.IsCancellationRequested) break; // Dispose ระหว่าง connect — จบเงียบ ๆ ห้ามแครช thread
                 if (IsConnected)
                 {
                     IsConnected = false;

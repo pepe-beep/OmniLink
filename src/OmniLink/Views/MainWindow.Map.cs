@@ -657,7 +657,7 @@ public partial class MainWindow
         var dialog = new RenameDeviceDialog(node) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.WasChanged)
         {
-            Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4 fix
+            PersistConfig(); // S3
             _mapSignature = null;
             ScheduleConfigSave();
             RefreshUiState();

@@ -10,6 +10,7 @@ using OmniLink.Core;
 using OmniLink.Core.Abstractions;
 using OmniLink.Core.Clipboard;
 using OmniLink.Core.Events;
+using OmniLink.Core.Ipc;
 using OmniLink.Core.Strategies;
 using OmniLink.Interop;
 using OmniLink.ViewModels;
@@ -35,11 +36,12 @@ public partial class MainWindow : Window, ISettingsHost
 
     private readonly OmniConfig _config;
     private readonly IOmniEventHub _eventHub;
+    private readonly bool _dashboard; // S3: ui_role=dashboard — UI เป็น client ของ engine (hostd)
     private readonly IClipboardBridge _clipboardBridge;
     private readonly OmniLink.Platform.Windows.WindowsHostInput _hostInput = null!;
     private OmniLink.Core.NodeAgentServer? _subServer;
     private readonly IKvmHost _kvm;
-    private readonly AudioHubService _audio;
+    private readonly AudioHubService? _audio;
     private readonly OmniDiscoveryService _discovery;
     private readonly OmniTrayService? _tray;
     private readonly DispatcherTimer _uiTimer;
@@ -68,6 +70,7 @@ public partial class MainWindow : Window, ISettingsHost
             PreventSleepService.SetEnabled(true); // v1.9 C4: เธรด keeper ค้าง ES_CONTINUOUS ตลอดที่เปิดใช้
         }
         _eventHub = OmniEventHub.Default;
+        _dashboard = string.Equals(_config.UiRole, "dashboard", StringComparison.OrdinalIgnoreCase);
         _clipboardBridge = new WindowsClipboardBridge();
 
         HistoryVM = new HistoryViewModel();
@@ -76,15 +79,28 @@ public partial class MainWindow : Window, ISettingsHost
         // callback ของ discovery จะยิงหลังหน้า Settings ถูกสร้างแล้วเสมอ (scan เกิดหลังบูตเท่านั้น)
         _discovery = new OmniDiscoveryService(_config, node => Dispatcher.BeginInvoke(() => _securityPage?.OnLiveNodeDiscovered(node)));
         _hostInput = new OmniLink.Platform.Windows.WindowsHostInput();
-        _kvm = new KvmHostService(_config, ScheduleUiRefresh, _eventHub, _hostInput);
+        if (_dashboard)
+        {
+            // S3: engine อยู่ที่ hostd — UI เป็น dashboard client (ไม่ติด hook ไม่แย่งพอร์ต 24801)
+            var ipc = new IpcKvmClient();
+            ipc.StateChanged += () => ScheduleUiRefresh();
+            ipc.ConnectedChanged += () => Dispatcher.BeginInvoke(() => SetBanner(ipc.IsConnected
+                ? Loc.T("banner.dashboard.connected", "โหมด dashboard: เชื่อม engine (hostd) สำเร็จ")
+                : Loc.T("banner.dashboard.offline", "โหมด dashboard: engine ไม่ตอบ — กำลังลองเชื่อมต่อใหม่...")));
+            _kvm = ipc;
+        }
+        else
+        {
+            _kvm = new KvmHostService(_config, ScheduleUiRefresh, _eventHub, _hostInput);
+        }
 
         // v2.0 เฟส 3: โหมด sub ฝัง — เครื่องนี้ถูกคุมโดย host ตัวอื่นได้ (กันลูปผ่าน SubActiveFocusProbe)
-        if (_config.SubModeEnabled)
+        if (_config.SubModeEnabled && !_dashboard)
         {
             StartSubMode();
         }
         // B5: service แจ้งผ่าน callback — MainWindow บน UI thread เป็นผู้เขียน config คนเดียวเสมอ
-        _audio = new AudioHubService(
+        _audio = _dashboard ? null : new AudioHubService(
             _config,
             _kvm.SendNodeCommand,
             _kvm.GetLocalEndpointIpForNode,
@@ -94,71 +110,74 @@ public partial class MainWindow : Window, ISettingsHost
                 c.MicDeviceName = d.Name;
             }));
 
-        // Wire Smart Audio & Smart Focus-Aware Mic
-        _kvm.OnNodeAudioActivityChanged = (nodeId, active) => _audio.HandleNodeAudioActivity(nodeId, active);
-        _kvm.OnFocusMicAction = (start) =>
+        if (!_dashboard)
         {
-            Dispatcher.BeginInvoke(() =>
+            // Wire Smart Audio & Smart Focus-Aware Mic
+            _kvm.OnNodeAudioActivityChanged = (nodeId, active) => _audio!.HandleNodeAudioActivity(nodeId, active);
+            _kvm.OnFocusMicAction = (start) =>
             {
-                if (start)
+                Dispatcher.BeginInvoke(() =>
                 {
-                    if (!_audio.IsMicRunning)
+                    if (start)
                     {
-                        OmniLog.Write("audio", "[smart] Focus บนเครื่องลูก -> เปิดไมค์อัตโนมัติ");
-                        try { _audio.StartMic(); } catch { }
+                        if (!AudioMicRunningNow)
+                        {
+                            OmniLog.Write("audio", "[smart] Focus บนเครื่องลูก -> เปิดไมค์อัตโนมัติ");
+                            AudioStartMic();
+                        }
                     }
-                }
-                else
+                    else
+                    {
+                        if (AudioMicRunningNow)
+                        {
+                            OmniLog.Write("audio", "[smart] กลับมาทำงานบน Host นานเกินกำหนด -> พักไมค์อัตโนมัติ (ประหยัดพลังงาน)");
+                            AudioStopMic();
+                        }
+                    }
+                    ScheduleUiRefresh();
+                });
+            };
+
+            // v1.9 C1: hotkey ขอ toggle เสียง — engine จับปุ่มแล้วส่งต่อ (เสียงเป็นของฝั่งนี้ในโหมด engine)
+            _eventHub.Subscribe<HotkeyAudioRequestedEvent>(e =>
+            {
+                Dispatcher.BeginInvoke(() =>
                 {
-                    if (_audio.IsMicRunning)
+                    if (e.ActionType == HotkeyActionConfig.ToggleStream)
                     {
-                        OmniLog.Write("audio", "[smart] กลับมาทำงานบน Host นานเกินกำหนด -> พักไมค์อัตโนมัติ (ประหยัดพลังงาน)");
-                        try { _audio.StopMic(); } catch { }
+                        OnToggleStreamClick(this, new RoutedEventArgs());
                     }
-                }
-                ScheduleUiRefresh();
+                    else if (e.ActionType == HotkeyActionConfig.ToggleMic)
+                    {
+                        OnToggleMicClick(this, new RoutedEventArgs());
+                    }
+                });
             });
-        };
+
+            _eventHub.Subscribe<NodeConnectionEvent>(e =>
+            {
+                if (e.Connected)
+                {
+                    Dispatcher.BeginInvoke(() =>
+                    {
+                        if (_config.AutoStartStream && !AudioStreamRunningNow)
+                        {
+                            OmniLog.Write("audio", "node online → retry start_stream (auto)");
+                            try { AudioStartStream(); } catch (Exception ex) { OmniLog.Warn("[audio] retry stream: " + ex.Message); }
+                        }
+                        if (_config.AutoStartMic && !AudioMicRunningNow)
+                        {
+                            OmniLog.Write("audio", "node online → retry start_mic (auto)");
+                            try { AudioStartMic(); } catch (Exception ex) { OmniLog.Warn("[audio] retry mic: " + ex.Message); }
+                        }
+                    });
+                }
+            });
+        }
 
         _eventHub.Subscribe<StatusBannerEvent>(e =>
         {
             Dispatcher.BeginInvoke(() => SetBanner(e.Message));
-        });
-
-        // v1.9 C1: hotkey ขอ toggle เสียง — Kvm hook จับปุ่มแล้วส่งต่อมาที่นี่ (audio เป็นของฝั่งนี้)
-        _eventHub.Subscribe<HotkeyAudioRequestedEvent>(e =>
-        {
-            Dispatcher.BeginInvoke(() =>
-            {
-                if (e.ActionType == HotkeyActionConfig.ToggleStream)
-                {
-                    OnToggleStreamClick(this, new RoutedEventArgs());
-                }
-                else if (e.ActionType == HotkeyActionConfig.ToggleMic)
-                {
-                    OnToggleMicClick(this, new RoutedEventArgs());
-                }
-            });
-        });
-
-        _eventHub.Subscribe<NodeConnectionEvent>(e =>
-        {
-            if (e.Connected)
-            {
-                Dispatcher.BeginInvoke(() =>
-                {
-                    if (_config.AutoStartStream && !_audio.IsStreamRunning)
-                    {
-                        OmniLog.Write("audio", "node online → retry start_stream (auto)");
-                        try { _audio.StartStream(); } catch (Exception ex) { OmniLog.Warn("[audio] retry stream: " + ex.Message); }
-                    }
-                    if (_config.AutoStartMic && !_audio.IsMicRunning)
-                    {
-                        OmniLog.Write("audio", "node online → retry start_mic (auto)");
-                        try { _audio.StartMic(); } catch (Exception ex) { OmniLog.Warn("[audio] retry mic: " + ex.Message); }
-                    }
-                });
-            }
         });
 
         _eventHub.Subscribe<ClipboardReceivedEvent>(e =>
@@ -356,7 +375,7 @@ public partial class MainWindow : Window, ISettingsHost
         _configSaveDebounce.Tick += (_, _) =>
         {
             _configSaveDebounce.Stop();
-            Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4: เขียนไฟล์นอก UI thread (AtomicFile รอ mutex ได้ถึง 5 วิ)
+            PersistConfig(); // S3: engine mode = เขียนไฟล์ · dashboard = push ทั้งฉบับให้ hostd apply+save
         };
     }
 
@@ -426,6 +445,7 @@ public partial class MainWindow : Window, ISettingsHost
         // Background startup for Remote Agent deploy & GStreamer Audio Bridge
         Task.Run(() =>
         {
+            if (_dashboard) return; // S3: deploy + auto-audio เป็นของฝั่ง engine (hostd boot sequence)
             SetBanner(Loc.T("banner.boot.connecting", "กำลังเชื่อมต่อเครื่องลูกข่ายและเริ่มระบบเสียง LAN..."));
             Thread.Sleep(500);
 
@@ -455,8 +475,8 @@ public partial class MainWindow : Window, ISettingsHost
                     }
                     Thread.Sleep(500);
                 }
-                if (_config.AutoStartStream) _audio.StartStream();
-                if (_config.AutoStartMic) _audio.StartMic();
+                if (_config.AutoStartStream) AudioStartStream();
+                if (_config.AutoStartMic) AudioStartMic();
             }
 
             Dispatcher.BeginInvoke(() =>
@@ -630,6 +650,26 @@ public partial class MainWindow : Window, ISettingsHost
         MicDeviceCombo.Items.Add(current);
         MicDeviceCombo.SelectedIndex = 0;
         _initializingControls = false;
+    }
+
+    // ════════ S3 (Engine/UI split): ตัวกลางเสียง + config สำหรับสองโหมด ════════
+
+    private bool AudioStreamRunningNow => _kvm is IpcKvmClient c ? c.AudioStreamRunning : _audio?.IsStreamRunning == true;
+    private bool AudioMicRunningNow => _kvm is IpcKvmClient c ? c.AudioMicRunning : _audio?.IsMicRunning == true;
+
+    private void AudioStartStream() { if (_kvm is IpcKvmClient c) { c.AudioOp("audio.start_stream"); return; } try { _audio!.StartStream(); } catch { } }
+    private void AudioStopStream() { if (_kvm is IpcKvmClient c) { c.AudioOp("audio.stop_stream"); return; } try { _audio!.StopStream(); } catch { } }
+    private void AudioStartMic() { if (_kvm is IpcKvmClient c) { c.AudioOp("audio.start_mic"); return; } try { _audio!.StartMic(); } catch { } }
+    private void AudioStopMic() { if (_kvm is IpcKvmClient c) { c.AudioOp("audio.stop_mic"); return; } try { _audio!.StopMic(); } catch { } }
+
+    /// <summary>S3: จุดเขียน config เดียว — engine mode = เขียนไฟล์ · dashboard = push ทั้งฉบับให้ engine apply (S0 §4.3)</summary>
+    private Task PersistConfig()
+    {
+        if (_kvm is IpcKvmClient c)
+        {
+            return Task.Run(() => { try { c.ReplaceConfig(_config); } catch { } });
+        }
+        return Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4: เขียนไฟล์นอก UI thread (AtomicFile รอ mutex ได้ถึง 5 วิ)
     }
 
     private void ScheduleUiRefresh()
@@ -820,8 +860,8 @@ public partial class MainWindow : Window, ISettingsHost
         }
 
         // Update Audio Toggle State & Buttons
-        var pbOn = _audio.IsStreamRunning;
-        var micOn = _audio.IsMicRunning;
+        var pbOn = AudioStreamRunningNow;
+        var micOn = AudioMicRunningNow;
 
         BtnToggleStream.Content = pbOn ? Loc.T("audio.active", "ACTIVE") : Loc.T("audio.standby", "STANDBY");
         BtnToggleStream.Background = pbOn
@@ -922,15 +962,15 @@ public partial class MainWindow : Window, ISettingsHost
         var shutdown = Task.Run(() =>
         {
             // E1: flush config ค้างใน debounce ก่อนปิด — เขียนบน background เสมอ (UI-H4)
-            try { _config.Save(); } catch { }
+            PersistConfig();
             try
             {
-                if (!quick) _audio.ShutdownFull(); // remote stop + local stop (ใช้เวลา ~1-4s)
+                if (!quick) _audio?.ShutdownFull(); // remote stop + local stop (ใช้เวลา ~1-4s)
             }
             catch { }
             try { _discovery.Dispose(); } catch { }
-            try { _kvm.Dispose(); } catch { } // ReleaseAll + unhook + ปิด sessions (เร็ว)
-            try { _audio.Dispose(); } catch { }
+            try { _kvm.Dispose(); } catch { } // engine: unhook+ปิด sessions · dashboard: ปิดท่อ IPC
+            try { _audio?.Dispose(); } catch { }
         });
 
         var timeout = Task.Delay(TimeSpan.FromSeconds(quick ? 2 : 8));

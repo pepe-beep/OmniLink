@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
@@ -140,6 +140,9 @@
     <sys:String x:Key="Loc.sub.started">โหมด sub เปิดแล้ว — เครื่องหลักเครื่องอื่นเพิ่มเครื่องนี้เป็น node ได้ (PIN จับคู่: {0})</sys:String>
     <sys:String x:Key="Loc.sub.controlled">เครื่องนี้กำลังถูกคุมโดย host ({0}) — หนีฉุกเฉิน Ctrl+Alt+Shift+Q</sys:String>
     <sys:String x:Key="Loc.sub.released">เครื่องนี้กลับมาใช้งานเองแล้ว</sys:String>
+    <sys:String x:Key="Loc.banner.dashboard.connected">โหมด dashboard: เชื่อม engine (hostd) สำเร็จ</sys:String>
+    <sys:String x:Key="Loc.banner.dashboard.offline">โหมด dashboard: engine ไม่ตอบ — กำลังลองเชื่อมต่อใหม่...</sys:String>
+    <sys:String x:Key="Loc.sub.dashboard.engine">โหมด sub จัดการที่ฝั่ง engine (hostd) ตาม config — หน้าต่างนี้ไม่ฝังเอง</sys:String>
     <sys:String x:Key="Loc.sub.stopped">ปิดโหมด sub แล้ว</sys:String>
     <sys:String x:Key="Loc.settings.theme.title">ธีมสี</sys:String>
     <sys:String x:Key="Loc.settings.theme.desc">เปลี่ยนโทนสีของโปรแกรม (หน้าต่างทึบตลอด — ไม่มีเอฟเฟกต์โปร่งแสง)</sys:String>

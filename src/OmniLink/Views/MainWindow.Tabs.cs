@@ -7,6 +7,7 @@ using OmniLink.Core;
 using OmniLink.Core.Events;
 using OmniLink.Core.FileExchange;
 using OmniLink.Interop;
+using OmniLink.Core.Ipc;
 using OmniLink.ViewModels;
 using OmniLink.Views.Settings;
 
@@ -20,16 +21,16 @@ public partial class MainWindow
     {
         Task.Run(() =>
         {
-            if (_audio.IsStreamRunning)
+            if (AudioStreamRunningNow)
             {
                 SetBanner(Loc.T("banner.stream.stopping", "กำลังหยุดขารับเสียง Stream..."));
-                _audio.StopStream();
+                AudioStopStream();
                 SetBanner(Loc.T("banner.stream.stopped", "หยุดขารับเสียง Stream แล้ว"));
             }
             else
             {
                 SetBanner(Loc.T("banner.stream.starting", "กำลังเริ่มขารับเสียง Stream (เครื่องลูก → Windows)..."));
-                _audio.StartStream();
+                AudioStartStream();
                 SetBanner(Loc.T("banner.stream.running", "ขารับเสียง Stream กำลังทำงาน"));
             }
             ScheduleUiRefresh();
@@ -40,16 +41,16 @@ public partial class MainWindow
     {
         Task.Run(() =>
         {
-            if (_audio.IsMicRunning)
+            if (AudioMicRunningNow)
             {
                 SetBanner(Loc.T("banner.mic.stopping", "กำลังหยุดขาส่งไมโครโฟน..."));
-                _audio.StopMic();
+                AudioStopMic();
                 SetBanner(Loc.T("banner.mic.stopped", "หยุดขาส่งไมโครโฟนแล้ว"));
             }
             else
             {
                 SetBanner(Loc.T("banner.mic.starting", "กำลังเริ่มขาส่งไมโครโฟน (Windows → เครื่องลูก)..."));
-                _audio.StartMic();
+                AudioStartMic();
                 SetBanner(Loc.T("banner.mic.running", "ขาส่งไมโครโฟนกำลังทำงาน"));
             }
             ScheduleUiRefresh();
@@ -74,10 +75,12 @@ public partial class MainWindow
         Task.Run(() =>
         {
             SetBanner(Loc.T("banner.mic.scanning", "กำลังสแกนอุปกรณ์ไมโครโฟน WASAPI2..."));
-            var wasRunning = _audio.IsMicRunning;
-            if (wasRunning) _audio.StopMic();
+            var wasRunning = AudioMicRunningNow;
+            if (wasRunning) AudioStopMic();
 
-            var devs = _audio.ScanMicrophones();
+            var devs = _kvm is IpcKvmClient c
+                ? c.AudioScanMics().Select(m => new MicDeviceInfo(m.Id, m.Name)).ToList()
+                : _audio!.ScanMicrophones();
             Dispatcher.BeginInvoke(() =>
             {
                 _initializingControls = true;

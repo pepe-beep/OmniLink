@@ -106,7 +106,7 @@ public partial class MainWindow
         if (confirm != MessageBoxResult.Yes) return;
 
         _kvm.RemoveNode(nodeId);
-        Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4 fix
+        PersistConfig(); // S3
         _kvm.ReloadLayout();
         RefreshUiState();
         SetBanner(Loc.T("banner.deleted", "ลบอุปกรณ์ '{0}' ออกจากระบบเรียบร้อยแล้ว", displayName));
@@ -120,7 +120,7 @@ public partial class MainWindow
         var dialog = new RenameDeviceDialog(targetNode) { Owner = this };
         if (dialog.ShowDialog() == true && dialog.WasChanged)
         {
-            Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4 fix
+            PersistConfig(); // S3
             RefreshUiState();
             SetBanner(Loc.T("banner.renamed", "เปลี่ยนชื่อเครื่องเป็น \"{0}\" เรียบร้อยแล้ว", targetNode.DisplayName));
         }
@@ -132,7 +132,7 @@ public partial class MainWindow
         if (targetNode is null) return;
 
         targetNode.ResetName();
-        Task.Run(() => { try { _config.Save(); } catch { } }); // UI-H4 fix
+        PersistConfig(); // S3
         RefreshUiState();
         SetBanner(Loc.T("banner.namerest", "รีเซ็ตชื่อเครื่องกลับเป็นค่าเริ่มต้น \"{0}\" เรียบร้อยแล้ว", targetNode.DisplayName));
     }
