@@ -38,7 +38,7 @@ public partial class MainWindow : Window, ISettingsHost
     private readonly IClipboardBridge _clipboardBridge;
     private readonly OmniLink.Platform.Windows.WindowsHostInput _hostInput = null!;
     private OmniLink.Core.NodeAgentServer? _subServer;
-    private readonly KvmHostService _kvm;
+    private readonly IKvmHost _kvm;
     private readonly AudioHubService _audio;
     private readonly OmniDiscoveryService _discovery;
     private readonly OmniTrayService? _tray;
@@ -433,7 +433,7 @@ public partial class MainWindow : Window, ISettingsHost
             {
                 if (ncfg.Enabled)
                 {
-                    _kvm.Sessions.TryGetValue(ncfg.NodeId, out var sess);
+                    _kvm.SessionViews.TryGetValue(ncfg.NodeId, out var sess);
                     if (sess is null || !sess.Connected)
                     {
                         var (ok, msg) = _kvm.DeployRemoteAgent(ncfg);
@@ -449,7 +449,7 @@ public partial class MainWindow : Window, ISettingsHost
                 // รอ node เชื่อมก่อนสั่ง audio — กันสั่งแล้วหลุดเพราะ TCP ยังไม่ติด (เห็นจริงใน log 01:41)
                 for (var i = 0; i < 30; i++)
                 {
-                    if (_kvm.Sessions.Values.Any(s => s.Connected))
+                    if (_kvm.SessionViews.Values.Any(s => s.Connected))
                     {
                         break;
                     }
@@ -692,7 +692,7 @@ public partial class MainWindow : Window, ISettingsHost
             var hostActiveH = _kvm.ActiveNodeId is null;
             var langH = hostActiveH
                 ? _kvm.MasterLangGroup
-                : (_kvm.ActiveNodeId is not null && _kvm.Sessions.TryGetValue(_kvm.ActiveNodeId, out var sH)
+                : (_kvm.ActiveNodeId is not null && _kvm.SessionViews.TryGetValue(_kvm.ActiveNodeId, out var sH)
                     ? sH.LangGroup
                     : _kvm.MasterLangGroup);
             _tray?.UpdateState(
@@ -733,7 +733,7 @@ public partial class MainWindow : Window, ISettingsHost
         var rows = new List<NodeListRow>();
         foreach (var ncfg in _config.Nodes)
         {
-            _kvm.Sessions.TryGetValue(ncfg.NodeId, out var sess);
+            _kvm.SessionViews.TryGetValue(ncfg.NodeId, out var sess);
             var online = sess is not null && sess.Connected;
             var focused = _kvm.ActiveNodeId == ncfg.NodeId;
             var nodeLang = sess?.LangGroup ?? 0;
@@ -842,7 +842,7 @@ public partial class MainWindow : Window, ISettingsHost
         var hostActive = _kvm.ActiveNodeId is null; // (เดิมประกาศในบล็อก slot-card ที่ย้ายไป RenderTopologyMap)
         var activeLang = hostActive
             ? _kvm.MasterLangGroup
-            : (_kvm.ActiveNodeId is not null && _kvm.Sessions.TryGetValue(_kvm.ActiveNodeId, out var actSess)
+            : (_kvm.ActiveNodeId is not null && _kvm.SessionViews.TryGetValue(_kvm.ActiveNodeId, out var actSess)
                 ? actSess.LangGroup
                 : _kvm.MasterLangGroup);
 
@@ -875,7 +875,7 @@ public partial class MainWindow : Window, ISettingsHost
             master_lang = _kvm.MasterLangGroup,
             stream_running = pbOn,
             mic_running = micOn,
-            nodes = _kvm.Sessions.Values.Select(s => new
+            nodes = _kvm.SessionViews.Values.Select(s => new
             {
                 id = s.Config.NodeId,
                 ip = s.Config.Ip,

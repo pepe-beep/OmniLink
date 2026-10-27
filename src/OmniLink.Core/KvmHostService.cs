@@ -21,7 +21,7 @@ using OmniLink.Core.Strategies;
 namespace OmniLink.Core;
 
 
-public sealed class KvmHostService : IDisposable, IHostLinkCallbacks
+public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractions.IKvmHost
 {
     private readonly IOmniEventHub _eventHub;
     public OmniConfig Config { get; }
@@ -121,10 +121,57 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks
     /// ให้พักการสลับจอของ host-role ของตัวเอง — หนึ่งคู่ active ต่อหนึ่งเวลา
     /// (owner ของ NodeAgentServer เป็นคนเสียบ probe นี้)
     /// </summary>
-    public Func<bool>? SubActiveFocusProbe;
+    public Func<bool>? SubActiveFocusProbe { get; set; }
 
     /// <summary>กราฟปัจจุบันสำหรับ UI (minimap) — ถ้ายังไม่ build = สร้างชั่วคราวจาก config</summary>
     public TopologyGraph Topology => _topo.CurrentOrTemp(); // godclass-K5
+
+    /// <summary>S2 (IKvmHost): snapshot ต่อ node สำหรับ dashboard/IPC — สร้างต่อการเรียก (จังหวะ refresh 900ms = ถูก)</summary>
+    public IReadOnlyDictionary<string, NodeSessionView> SessionViews
+    {
+        get
+        {
+            var dict = new Dictionary<string, NodeSessionView>(Sessions.Count);
+            foreach (var kv in Sessions)
+            {
+                var s = kv.Value;
+                dict[kv.Key] = new NodeSessionView
+                {
+                    Config = s.Config,
+                    Connected = s.Connected,
+                    LocalEndpointIp = s.LocalEndpointIp,
+                    Width = s.Width,
+                    Height = s.Height,
+                    AgentVersion = s.AgentVersion,
+                    LangGroup = s.LangGroup,
+                    PingMs = s.PingMs,
+                    RamPct = s.RamPct,
+                    RamUsedGb = s.RamUsedGb,
+                    RamTotalGb = s.RamTotalGb,
+                    PlaybackRunning = s.PlaybackRunning,
+                    PlaybackActive = s.PlaybackActive,
+                    MicRunning = s.MicRunning,
+                    LifecycleState = s.LifecycleState,
+                };
+            }
+            return dict;
+        }
+    }
+
+    /// <summary>S2 (IKvmHost): ผังฉบับเดินทางข้าม IPC ได้ (Cells + GetNeighbor)</summary>
+    public TopologyView TopologyView
+    {
+        get
+        {
+            var g = _topo.CurrentOrTemp();
+            var cells = new Dictionary<string, (int X, int Y)>(g.Cells.Count);
+            foreach (var kv in g.Cells)
+            {
+                cells[kv.Key] = kv.Value;
+            }
+            return new TopologyView(cells, g.EdgesView);
+        }
+    }
 
     /// <summary>เรียกเมื่อ layout/anchor/position เปลี่ยน — rebuild กราฟ + ยิง set_layout (logic ย้าย HostTopologyService)</summary>
     public void ReloadLayout() => _topo.Reload();
@@ -547,8 +594,8 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks
     void IHostLinkCallbacks.OnFileCompleteReceived(string nodeId, string transferId, bool success) => _clip.OnFileCompleteReceived(nodeId, transferId, success);
 
     public bool IsWindowHiddenInTray { get; set; } = false;
-    public Action<string, bool>? OnNodeAudioActivityChanged;
-    public Action<bool>? OnFocusMicAction;
+    public Action<string, bool>? OnNodeAudioActivityChanged { get; set; }
+    public Action<bool>? OnFocusMicAction { get; set; }
 
     void IHostLinkCallbacks.OnAudioActivityReported(string nodeId, bool active)
     {

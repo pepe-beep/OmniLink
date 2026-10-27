@@ -1,5 +1,6 @@
 using System.Windows;
 using OmniLink.Core;
+using OmniLink.Core.Abstractions;
 
 namespace OmniLink.Views.Settings;
 
@@ -10,7 +11,7 @@ namespace OmniLink.Views.Settings;
 public interface ISettingsHost
 {
     OmniConfig Config { get; }
-    KvmHostService Kvm { get; }
+    IKvmHost Kvm { get; }
     OmniDiscoveryService Discovery { get; }
     Window Self { get; }
 

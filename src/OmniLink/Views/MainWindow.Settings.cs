@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using OmniLink.Core;
+using OmniLink.Core.Abstractions;
 using OmniLink.Interop;
 using OmniLink.ViewModels;
 using OmniLink.Views.Settings;
@@ -99,7 +100,7 @@ public partial class MainWindow
     // ================= ISettingsHost =================
 
     OmniConfig ISettingsHost.Config => _config;
-    KvmHostService ISettingsHost.Kvm => _kvm;
+    IKvmHost ISettingsHost.Kvm => _kvm;
     OmniDiscoveryService ISettingsHost.Discovery => _discovery;
     Window ISettingsHost.Self => this;
 

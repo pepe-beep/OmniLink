@@ -46,12 +46,12 @@ public partial class MainWindow
     private void RenderTopologyMap()
     {
         if (TopologyCanvas is null) return;
-        var graph = _kvm.Topology;
+        var graph = _kvm.TopologyView;
 
         var sig = "v4";
         foreach (var n in _config.Nodes)
         {
-            _kvm.Sessions.TryGetValue(n.NodeId, out var sess);
+            _kvm.SessionViews.TryGetValue(n.NodeId, out var sess);
             sig += "|" + n.NodeId + "," + n.Anchor + "," + n.Position + "," + n.Enabled + ","
                  + (sess is not null && sess.Connected ? 1 : 0) + "," + (_kvm.ActiveNodeId == n.NodeId ? 1 : 0);
         }
@@ -91,8 +91,8 @@ public partial class MainWindow
                 var pairKey = string.CompareOrdinal(kv.Key, nb) < 0 ? kv.Key + "|" + nb : nb + "|" + kv.Key;
                 if (!drawnPairs.Add(pairKey)) continue;
                 var ca = kv.Value;
-                _kvm.Sessions.TryGetValue(kv.Key, out var sa);
-                _kvm.Sessions.TryGetValue(nb, out var sb);
+                _kvm.SessionViews.TryGetValue(kv.Key, out var sa);
+                _kvm.SessionViews.TryGetValue(nb, out var sb);
                 var bothOnline = sa is not null && sa.Connected && sb is not null && sb.Connected;
                 System.Windows.Shapes.Shape seam;
                 double sx, sy;
@@ -152,7 +152,7 @@ public partial class MainWindow
         foreach (var n in _config.Nodes)
         {
             if (!graph.Cells.TryGetValue(n.NodeId, out var cell)) continue; // orphan/วงจร: ยังโชว์ในรายการซ้าย
-            _kvm.Sessions.TryGetValue(n.NodeId, out var sess);
+            _kvm.SessionViews.TryGetValue(n.NodeId, out var sess);
             AddNodeCard(graph, n, OriginX(cell.X), OriginY(cell.Y),
                 sess is not null && sess.Connected, _kvm.ActiveNodeId == n.NodeId);
         }
@@ -395,7 +395,7 @@ public partial class MainWindow
 
     private Point _listDragStart;
 
-    private void AddHostCard(TopologyGraph graph, double cx, double cy)
+    private void AddHostCard(TopologyView graph, double cx, double cy)
     {
         var hostActive = _kvm.ActiveNodeId is null;
         var isTh = _kvm.MasterLangGroup == 1;
@@ -459,9 +459,9 @@ public partial class MainWindow
         TopologyCanvas.Children.Add(card);
     }
 
-    private void AddNodeCard(TopologyGraph graph, NodeConfig node, double cx, double cy, bool online, bool focused)
+    private void AddNodeCard(TopologyView graph, NodeConfig node, double cx, double cy, bool online, bool focused)
     {
-        _kvm.Sessions.TryGetValue(node.NodeId, out var sess);
+        _kvm.SessionViews.TryGetValue(node.NodeId, out var sess);
         var card = new Border
         {
             Width = MapCardW, Height = MapCardH,

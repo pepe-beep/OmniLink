@@ -37,6 +37,20 @@ public sealed class TopologyGraph
     /// <summary>cell ของแต่ละ node (จาก anchor chain — host=(0,0)) ใช้วาด minimap; node ตกวงจร/ชน cell = ไม่มี</summary>
     public IReadOnlyDictionary<string, (int X, int Y)> Cells => _cells;
 
+    /// <summary>S2: snapshot directed edges (anchor→node) เพื่อสร้าง TopologyView ให้ dashboard ข้าม IPC</summary>
+    public IReadOnlyDictionary<string, IReadOnlyDictionary<ScreenEdge, string>> EdgesView
+    {
+        get
+        {
+            var copy = new Dictionary<string, IReadOnlyDictionary<ScreenEdge, string>>(_edges.Count);
+            foreach (var kv in _edges)
+            {
+                copy[kv.Key] = new Dictionary<ScreenEdge, string>(kv.Value);
+            }
+            return copy;
+        }
+    }
+
     /// <summary>จำนวน (anchor+side) ที่ชนกัน — ตัวแรกชนะ ตัวถัดไปถูกข้าม (UI ใช้เตือน)</summary>
     public int ConflictCount { get; private set; }
 
