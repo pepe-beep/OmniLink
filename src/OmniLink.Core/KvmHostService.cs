@@ -323,6 +323,20 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     public void Start()
     {
         _startTick = Environment.TickCount64;
+        // godclass-G5 (root cause 27 ต.ค.): engine = latency-critical — High priority กัน CPU starvation
+        // ที่ทำ hook callback เกิน LowLevelHooksTimeout จน Windows ถอด hook เป็นรอบ (เงียบกระจุก 15-33 วิ)
+        if (Config.ProcessPriorityHigh)
+        {
+            try
+            {
+                System.Diagnostics.Process.GetCurrentProcess().PriorityClass = System.Diagnostics.ProcessPriorityClass.High;
+                OmniLog.Write("boot", "[priority] engine process PriorityClass=High (anti-starvation, config process_priority_high)");
+            }
+            catch (Exception ex)
+            {
+                OmniLog.Warn($"[priority] set High failed: {ex.Message}");
+            }
+        }
         ReloadLayout(); // v1.9.1: build กราฟ topology ก่อนติด hook
         ReloadHotkeys(); // v1.9 C1: build ดัชนีสูตรลัดก่อนติด hook
         if (Config.StopDeskflowOnStart)

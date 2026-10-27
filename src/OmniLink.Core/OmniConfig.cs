@@ -106,6 +106,12 @@ public sealed class OmniConfig
     [JsonPropertyName("low_memory_mode")]
     public bool LowMemoryMode { get; set; } = false;
 
+    /// <summary>godclass-G5 (root cause 27 ต.ค.): process PriorityClass=High — KVM input เป็น latency-critical
+    /// ใต้โหลดหนัก (AI tools/compile) process Normal ถูก starve จน hook callback เกิน LowLevelHooksTimeout
+    /// → Windows ถอด hook (ตายเป็นรอบ 15-33 วิ) · default true · ปิดได้ถ้าไม่ต้องการ</summary>
+    [JsonPropertyName("process_priority_high")]
+    public bool ProcessPriorityHigh { get; set; } = true;
+
     // ─── v1.8 Low-Mem Profile v2: sub-toggles (ใช้เมื่อ profile active — ปรับแต่งลึกใน Advanced) ───
     [JsonPropertyName("lowmem_software_render")]
     public bool LowMemSoftwareRender { get; set; } = true;
