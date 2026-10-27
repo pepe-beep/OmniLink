@@ -1187,8 +1187,15 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
                         }
                         // KV-3/PY-F8 fix: แจ้ง agent ให้เคลียร์ active_focus (เดิมส่งแค่ release ผ่าน UDP —
                         // agent ติดสถานะ Active ค้าง, edge detection ยัง armed จนกว่าจะกด hotkey ฝั่งลูก)
-                        sess.SendTcp(new { type = "leave_screen" });
-                        sess.SendUdp(OmniProtocol.PackReleaseAll());
+                        // godclass-K6c-fix: SendTcp = SslStream.Write ใต้ _tcpLock **ไม่มี timeout** —
+                        // ถ้า connection ค้าง callback บล็อกเป็นวินาที → LL hook timeout → Windows ถอด hook
+                        // (ต้นตอ "hook เงียบ 16 วิ" 27 ต.ค.) — hook thread ห้าม block: โพสต์งาน network ออกไปทำ
+                        var leaveSess = sess;
+                        Task.Run(() =>
+                        {
+                            try { leaveSess.SendTcp(new { type = "leave_screen" }); } catch { }
+                            try { leaveSess.SendUdp(OmniProtocol.PackReleaseAll()); } catch { }
+                        });
                         _pipeline.Post(InputPipeline.CmdType.EdgeReturn, activeId, "left", 0, 0.5); // godclass-K6b
                         return true;
                     }
@@ -1197,7 +1204,9 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
                     if (isDown && kb.VkCode == 0x91 && Config.LockToScreenEnabled)
                     {
                         ToggleScreenLock();
-                        sess.SendTcp(new { type = "lock", on = LockedToScreen });
+                        var lockSess = sess;
+                        var lockOn = LockedToScreen;
+                        Task.Run(() => { try { lockSess.SendTcp(new { type = "lock", on = lockOn }); } catch { } }); // godclass-K6c-fix
                         return true;
                     }
 
