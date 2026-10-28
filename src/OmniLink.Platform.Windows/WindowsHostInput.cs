@@ -31,6 +31,7 @@ public sealed class WindowsHostInput : IHostInputGateway
     private uint _hookThreadId;
 
     private long _lastHookEventTick = Environment.TickCount64;
+    private nint _mmcssHandle; // GroupA-M: ลงทะเบียน hook thread กับ MMCSS ("Pro Audio")
     private long _msEventCount; // Stage A: จำนวน mouse event ที่ hook รับ
     private long _kbEventCount; // Stage A: จำนวน keyboard event ที่ hook รับ
     private long _lastRehookTick = 0;
@@ -173,6 +174,27 @@ public sealed class WindowsHostInput : IHostInputGateway
     private void HookThreadLoop()
     {
         _hookThreadId = NativeMethods.GetCurrentThreadId();
+
+        // GroupA-M: MMCSS ("Pro Audio") — scheduler ของ Windows จะคุ้มครอง thread นี้จาก
+        // CPU starvation โดยเฉพาะ (root cause ของ hook-death ใต้โหลด — ดู BUGS-SEEN 27-28 ต.ค.)
+        // ล้มเหลว = ทำงานต่อแบบ priority เดิม (Highest) — ไม่ fatal
+        try
+        {
+            if (NativeMethods.AvSetMmThreadCharacteristics("Pro Audio", out var idx))
+            {
+                _mmcssHandle = NativeMethods.LastMmcssHandle;
+                OmniLog.Info($"[hook] MMCSS: hook thread เข้าร่วม 'Pro Audio' (idx={idx}) — ป้องกัน starvation");
+            }
+            else
+            {
+                OmniLog.Warn("[hook] MMCSS: AvSetMmThreadCharacteristics ล้มเหลว — ใช้ priority ปกติต่อ");
+            }
+        }
+        catch (Exception ex)
+        {
+            OmniLog.Warn("[hook] MMCSS: " + ex.Message);
+        }
+
         var hMod = NativeMethods.GetModuleHandleW(null);
 
         // Win32 Trap: บังคับให้ OS สร้าง Message Queue ให้ worker thread นี้ก่อนเรียก SetWindowsHookEx
@@ -203,6 +225,11 @@ public sealed class WindowsHostInput : IHostInputGateway
         }
 
         UninstallHooks();
+        if (_mmcssHandle != 0)
+        {
+            try { NativeMethods.AvRevertMmThreadCharacteristics(_mmcssHandle); } catch { }
+            _mmcssHandle = 0;
+        }
     }
 
     /// <summary>

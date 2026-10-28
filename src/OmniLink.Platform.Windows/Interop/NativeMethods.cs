@@ -473,6 +473,27 @@ internal static partial class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
 
+    // GroupA-M: MMCSS (avrt.dll) — จดทะเบียน thread กับ scheduler ของงาน latency-critical
+    private static nint _mmcssHandle;
+    public static nint LastMmcssHandle => _mmcssHandle;
+
+    [DllImport("avrt.dll", CharSet = CharSet.Unicode)]
+    private static extern nint AvSetMmThreadCharacteristicsW(string taskName, out uint taskIndex);
+
+    [DllImport("avrt.dll")]
+    private static extern bool AvRevertMmThreadCharacteristics_(nint avrtHandle);
+
+    public static bool AvSetMmThreadCharacteristics(string taskName, out uint taskIndex)
+    {
+        _mmcssHandle = AvSetMmThreadCharacteristicsW(taskName, out taskIndex);
+        return _mmcssHandle != 0;
+    }
+
+    public static void AvRevertMmThreadCharacteristics(nint avrtHandle)
+    {
+        if (avrtHandle != 0) AvRevertMmThreadCharacteristics_(avrtHandle);
+    }
+
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool DestroyIcon(nint hIcon);
