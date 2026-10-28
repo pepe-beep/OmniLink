@@ -194,6 +194,15 @@ def t2_keyboard_relay():
     u32.keybd_event(VK_CAPS, 0x3A, 0x0002, 0); time.sleep(0.05)
     u32.keybd_event(VK_CAPS, 0x3A, 0, 0)
 
+def push_left_via_host():
+    """GroupA-E ต่อยอด: จำลอง "ผู้ใช้ดันซ้าย" ขณะคุม L440 — inject ที่ฝั่ง HOST
+    (hook → forward UDP → agent ขยับเคอร์เซอร์ L440 ชนขอบซ้าย → edge_return)
+    บทเรียน 28 ต.ค. 23:03 (agent log): edge detection ต้องถูก arm ด้วย UDP mouse
+    activity จากฝั่ง host — SSH/xdotool ฝั่ง L440 เพียวล้วยไม่กระตุ้น detector"""
+    for _ in range(24):
+        sendrel(-80, 0)   # ถูก forward ไป L440 ขณะคุม — เคอร์เซอร์ L440 วิ่งซ้าย
+        time.sleep(0.03)
+
 def t3_node_to_host():
     """node → host: บน L440 ดันเคอร์เซอร์ชนขอบซ้าย (หันหา host) = edge_return กลับ
     assert ที่ active_node → None (authoritative) — เดิมใช้ host_cursor<1500
@@ -202,12 +211,8 @@ def t3_node_to_host():
         check("T3 node→host: edge_return กลับ PSPV", False, "skip — ไม่ได้คุม L440 อยู่ (T1 ไม่ผ่าน)")
         return
     mark = log_size()
-    ssh("DISPLAY=:0 xdotool mousemove 30 430")
-    time.sleep(0.1)
     t0 = now_ms()
-    for _ in range(8):
-        ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0")
-        time.sleep(0.04)
+    push_left_via_host()
     ok, elapsed = wait_log("edge_return_to_host from=psl440", mark, timeout_s=8.0)
     if ok:
         time.sleep(0.5)  # ให้ engine warp cursor กลับ anchor ก่อน
@@ -226,9 +231,8 @@ def t5_cycle(n=3):
         went, lat = wait_log("switch_to_node node=psl440-ThinkPad-L440", mark, timeout_s=8.0)
         if not went:
             fails += 1; print(f"  cycle {i}: ไป L440 ไม่สำเร็จ (active={active_node()})"); continue
-        ssh("DISPLAY=:0 xdotool mousemove 30 430"); time.sleep(0.15)
-        for _ in range(8):
-            ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0"); time.sleep(0.04)
+        time.sleep(0.4)
+        push_left_via_host()
         back, lat2 = wait_log("edge_return_to_host from=psl440", mark, timeout_s=8.0)
         if not back:
             fails += 1; print(f"  cycle {i}: กลับ PSPV ไม่สำเร็จ"); continue
