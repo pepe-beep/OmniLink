@@ -185,23 +185,26 @@ def t2_keyboard_relay():
     u32.keybd_event(VK_CAPS, 0x3A, 0, 0)
 
 def t3_node_to_host():
-    """node → host: บน L440 ดันเคอร์เซอร์ชนขอบซ้าย (หันหา host) = edge_return กลับ"""
+    """node → host: บน L440 ดันเคอร์เซอร์ชนขอบซ้าย (หันหา host) = edge_return กลับ
+    assert ที่ active_node → None (authoritative) — เดิมใช้ host_cursor<1500
+    ซึ่ง false-pass เมื่อ cursor นั่งที่ anchor อยู่แล้ว (จับได้ 28 ต.ค. 22:31)"""
+    if active_node() is None:
+        check("T3 node→host: edge_return กลับ PSPV", False, "skip — ไม่ได้คุม L440 อยู่ (T1 ไม่ผ่าน)")
+        return
     ssh("DISPLAY=:0 xdotool mousemove 30 430")
     time.sleep(0.1)
     t0 = now_ms()
     for _ in range(8):
         ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0")
         time.sleep(0.04)
-    # รอ host cursor กลับ (ไม่อยู่บนขอบซ้ายของ L440 อีก)
-    t1s = now_ms()
     back = None
+    t1s = now_ms()
     while now_ms() - t1s < 6000:
-        hx, hy = host_cursor()
-        if hx < 1500:  # กลับมาบนจอ PSPV
-            back = (hx, hy); break
+        if active_node() is None:
+            back = host_cursor(); break
         time.sleep(0.15)
     ok = back is not None
-    check("T3 node→host: edge_return กลับ PSPV", ok, f"host cursor={back}")
+    check("T3 node→host: edge_return กลับ PSPV", ok, f"latency={now_ms()-t0}ms host cursor={back}")
     time.sleep(0.5)
 
 def t5_cycle(n=3):
@@ -209,15 +212,19 @@ def t5_cycle(n=3):
     fails = 0
     for i in range(1, n + 1):
         push_right_edge()
-        _, cur = poll_l440_cursor(lambda c: c[0] < 120, timeout_s=6.0)
-        if cur is None:
-            fails += 1; print(f"  cycle {i}: ไป L440 ไม่สำเร็จ"); continue
+        went = active_node() == "psl440-ThinkPad-L440"
+        if not went:
+            fails += 1; print(f"  cycle {i}: ไป L440 ไม่สำเร็จ (active={active_node()})"); continue
         ssh("DISPLAY=:0 xdotool mousemove 30 430"); time.sleep(0.15)
         for _ in range(8):
             ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0"); time.sleep(0.04)
-        time.sleep(1.2)
-        hx, _ = host_cursor()
-        if hx >= 1500:
+        back = None
+        t1s = now_ms()
+        while now_ms() - t1s < 6000:
+            if active_node() is None:
+                back = True; break
+            time.sleep(0.15)
+        if not back:
             fails += 1; print(f"  cycle {i}: กลับ PSPV ไม่สำเร็จ"); continue
         print(f"  cycle {i}: ไป-กลับสำเร็จ")
     check(f"T5 วนสลับ {n} รอบ", fails == 0, f"fails={fails}/{n}")
@@ -250,6 +257,16 @@ def main():
     t2_keyboard_relay()
     t3_node_to_host()
     t5_cycle(3)
+    # cleanup: ห้ามทิ้งเครื่องผู้ใช้ในสถานะควบคุม L440 (เคส test fail กลาง cycle)
+    if active_node() is not None:
+        print("cleanup: ติดสถานะควบคุมค้าง → ฉีด panic (Ctrl+Alt+Backspace)")
+        VK_CTRL, VK_ALT, VK_BACK = 0x11, 0x12, 0x08
+        for vk in (VK_CTRL, VK_ALT, VK_BACK): u32.keybd_event(vk, 0, 0, 0)
+        time.sleep(0.06)
+        for vk in (VK_BACK, VK_ALT, VK_CTRL): u32.keybd_event(vk, 0, 0x0002, 0)
+        time.sleep(1.5)
+        print(f"cleanup: active_node={active_node()}")
+
     passed = sum(1 for _, ok, _ in RESULTS if ok)
     print("══════════════════════════════")
     print(f"สรุป: {passed}/{len(RESULTS)} PASS")
