@@ -1947,6 +1947,7 @@ class OmniLinkAgentServer:
         self._last_udp_move = 0.0
         self._udp_idle_logged = True
         self._tcp_drop_logged = 0.0
+        self._pending_edge_return = None  # G-fix: edge_return ที่ยิงตอนขาด conn — ส่งทันทีเมื่อ Host reconnect
 
         # P0: hotkey ฉุกเฉินบนคีย์บอร์ดจริงของเครื่องนี้ — หนีได้เสมอแม้ระบบเมาส์พัง
         self.x11.start_escape_hotkey(self.emergency_return)
@@ -2181,6 +2182,11 @@ class OmniLinkAgentServer:
                     self._tcp_drop_logged = now
                     log("[tcp] !! DROP ข้อความ type=" + str(payload.get("type")) +
                         " (active_tcp_conn=None — Host conn ถูก orphan หรือยังไม่ reconnect)")
+                # G-fix (28 ต.ค.): edge_return ห้ามหาย — เก็บ pending ส่งทันทีเมื่อ Host reconnect
+                # (อาการจริง: ผู้ใช้ดันขอบกลับช่วง engine reconnect → return หาย → ติดบน node)
+                if payload.get("type") == "edge_return":
+                    self._pending_edge_return = payload
+                    log("[tcp] edge_return เก็บเป็น pending — ส่งทันทีเมื่อ Host reconnect")
                 return
             try:
                 raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -2687,6 +2693,19 @@ class OmniLinkAgentServer:
             except Exception:
                 pass
             log("[tcp] การเชื่อมต่อใหม่เข้ามาแทน — ปิด conn เดิมทิ้ง (ป้องกัน orphaned conn)")
+
+        # G-fix (28 ต.ค.): ส่ง edge_return ที่ค้างจากช่วงขาด conn ทันที (นอก tcp_lock —
+        # conn.sendall ตรง; ถ้าส่งไม่ได้เก็บ pending คืนไว้รอบหน้า)
+        pending = getattr(self, "_pending_edge_return", None)
+        if pending is not None:
+            self._pending_edge_return = None
+            try:
+                raw = json.dumps(pending, ensure_ascii=False).encode("utf-8")
+                conn.sendall(struct.pack("!I", len(raw)) + raw)
+                log("[tcp] ส่ง edge_return ค้างจากช่วงขาด conn — ผู้ใช้ไม่ต้องดันซ้ำ")
+            except Exception as ex:
+                self._pending_edge_return = pending
+                log(f"[tcp] ส่ง edge_return ค้างล้มเหลว เก็บไว้ต่อ: {ex}")
 
         # INCIDENT#2 ส่วนที่สอง: auth_ok/hello ต้องส่ง "ตรง" ไปที่ socket นี้เสมอ
         # เดิมส่งผ่าน active_tcp_conn ซึ่ง thread อื่นเปลี่ยนได้ระหว่างนั้น → ข้อความไผ่คนละซอง
