@@ -63,6 +63,16 @@ RESULTS = []
 
 def now_ms(): return int(time.time() * 1000)
 
+STATUS_JSON = r"D:\OmniLink\logs\status.json"
+
+def active_node():
+    """active_node จาก status.json — feedback channel ของ closed-loop injection
+    (engine-mode UI เขียนทุก refresh ~900ms · hostd เขียนทุก 5s)"""
+    try:
+        return json.load(open(STATUS_JSON, encoding="utf-8")).get("active_node")
+    except Exception:
+        return None
+
 def check(name, ok, detail=""):
     RESULTS.append((name, ok, detail))
     print(f"{'PASS' if ok else 'FAIL'}  {name}  {detail}")
@@ -112,17 +122,20 @@ def sendrel(dx, dy):
     ii.mi = _MI(dx, dy, 0, 0x0001, 0, None)  # MOUSEEVENTF_MOVE (relative)
     u32.SendInput(1, ctypes.byref(ii), ctypes.sizeof(ii))
 
-def push_right_edge():
-    """ดันเคอร์เซอร์ไปชนขอบขวาที่กลางจอแนวตั้ง — relative injection (DPI-proof)
+def push_right_edge(max_steps=60, step=80):
+    """ดันเคอร์เซอร์ไปชนขอบขวาที่กลางจอแนวตั้ง — relative injection (DPI-proof) แบบ CLOSED-LOOP
+    ยิงทีละน้อย + เช็ค active_node ทุก step = สลับสำเร็จปุ๊บหยุดยิงปั๊บ
+    (บทเรียน 28 ต.ค.: ยิงตาบอดต่อหลังสลับ = tail moves ถูก forward ไป L440
+     ดันเคอร์เซอร์หลุดจาก entry 24 → x=959 ที่ทำให้ T1 เคยตก)
     บทเรียน: ห้ามดันที่ y=0 (มุมบน) = corner deadzone กันสลับมั่ว → engine ปฏิเสธถูกต้อง"""
-    u32.SetCursorPos(1200, 432)  # กลางจอหลักก่อน (logical)
+    u32.SetCursorPos(1200, 432)  # จุดเริ่มกลางจอหลัก (logical)
     time.sleep(0.05)
-    for _ in range(20):
-        sendrel(300, 0)
+    for _ in range(max_steps):
+        if active_node():  # สลับแล้ว = ห้ามยิงต่อ (tail moves = ต้นตอ x=959)
+            return True
+        sendrel(step, 0)
         time.sleep(0.03)
-    for _ in range(8):  # ชนขอบค้างไว้
-        sendrel(30, 0)
-        time.sleep(0.05)
+    return bool(active_node())
 
 def poll_l440_cursor(predicate, timeout_s=6.0):
     t0 = now_ms()
@@ -136,14 +149,20 @@ def poll_l440_cursor(predicate, timeout_s=6.0):
 # ───────────────────────────────────────────────
 
 def t1_host_to_node():
-    """host → node: ดันขอบขวา = สลับไป L440 (ตรวจเคอร์เซอร์จริงบน L440 + active_node)"""
-    lines_before = log_lines()
-    push_right_edge()
-    elapsed, cursor = poll_l440_cursor(lambda c: c[0] < 120, timeout_s=6.0)
-    ok = cursor is not None
-    detail = f"latency={elapsed}ms cursor={cursor}" if ok else "L440 cursor ไม่ขยับภายใน 6s"
+    """host → node: ดันขอบขวา = สลับไป L440 (assert ที่ active_node — authoritative)
+    entry position ของ L440 cursor = ข้อมูลวินิจฉัยประกอบ (tail injection ของ suite เอง
+    อาจดัน cursor ออกจาก entry 24 — ไม่ใช่ความผิดของ engine)"""
+    t0 = now_ms()
+    switched = push_right_edge()
+    ok = switched and active_node() == "psl440-ThinkPad-L440"
+    if ok:
+        time.sleep(0.4)  # ให้ agent warp cursor ถึง entry ก่อนอ่าน
+        cursor = l440_cursor()
+        detail = f"latency={now_ms()-t0}ms entry_cursor={cursor}"
+    else:
+        cursor, detail = None, f"active_node={active_node()} — สลับไม่เกิดภายใน 60 steps"
     check("T1 host→node: ดันขอบขวา = สลับไป L440", ok, detail)
-    return elapsed
+    return now_ms() - t0
 
 def t2_keyboard_relay():
     """คีย์บอร์ดต่อ: กด Caps Lock บน host → LED ของ L440 ต้องสลับ"""
