@@ -290,4 +290,148 @@ public class NodeAgentServerTests : IDisposable
         Assert.Equal(1080, pong.GetProperty("height").GetInt32());
         ssl2.Dispose();
     }
+
+    // ─────────────── B9 (sub-mode clipboard image + file receive) ───────────────
+
+    private sealed class RecordingClipboard : IClipboardBridge
+    {
+        public byte[]? PngSet;
+        public List<string> FilePathsSet = new();
+        public bool FilesCut;
+
+        public string? GetText() => null;
+        public bool SetText(string text) => true;
+        public bool TryGetPng(out byte[] pngBytes) { pngBytes = PngSet ?? Array.Empty<byte>(); return PngSet != null; }
+        public bool SetPng(byte[] pngBytes) { PngSet = pngBytes; return true; }
+        public bool ContainsFileDropList() => FilePathsSet.Count > 0;
+        public System.Collections.Generic.IReadOnlyList<string>? GetFileDropList(out bool isCut) { isCut = FilesCut; return FilePathsSet; }
+        public bool SetFileDropList(System.Collections.Generic.IReadOnlyList<string> paths, bool isCut)
+        {
+            FilePathsSet = new List<string>(paths); FilesCut = isCut; return true;
+        }
+    }
+
+    /// <summary>pair + auth + คืน connection ที่พร้อมส่งคำสั่ง (full policy default)</summary>
+    private (SslStream Ssl, NodeAgentServer Server) AuthenticatedConnection(RecordingClipboard clip)
+    {
+        _server = new NodeAgentServer(_config, _injector, new NullHostInputGateway(), clip, new NullEscapeHotkeyHook());
+        _server.Start();
+        var pin = _server.PairingPin;
+        string token;
+        using (var sslPair = ConnectTls(_server))
+        {
+            sslPair.Write(Frame(new { type = "pair_request", pin, host_name = "test-host" }));
+            sslPair.Flush();
+            var (t, root) = ReadMessage(sslPair);
+            Assert.Equal("pair_accept", t);
+            token = root.GetProperty("token").GetString()!;
+        }
+        var ssl = ConnectTls(_server);
+        ssl.Write(Frame(new { type = "auth", token }));
+        ssl.Flush();
+        var (ok, _) = ReadMessage(ssl);
+        Assert.Equal("auth_ok", ok);
+        var (hello, _) = ReadMessage(ssl);
+        Assert.Equal("hello", hello);
+        return (ssl, _server);
+    }
+
+    [Fact]
+    public void SubClipboard_ImageFastPath_SetsPng()
+    {
+        var clip = new RecordingClipboard();
+        var (ssl, server) = AuthenticatedConnection(clip);
+        using var _ = server;
+        try
+        {
+            var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2, 3, 4 };
+            ssl.Write(Frame(new { type = "clipboard", mime = "image/png", data = Convert.ToBase64String(png) }));
+            ssl.Flush();
+            Assert.True(SpinUntil(() => clip.PngSet != null, 5000), "SetPng ต้องถูกเรียกจาก fast-path");
+            Assert.Equal(png, clip.PngSet);
+        }
+        finally { ssl.Dispose(); }
+    }
+
+    [Fact]
+    public void SubClipboard_ImageAckGate_CompletesViaClipFetch()
+    {
+        var clip = new RecordingClipboard();
+        var (ssl, server) = AuthenticatedConnection(clip);
+        try
+        {
+            var png = new byte[70000]; // >64KB = host ใช้ ACK-gate
+            for (var i = 0; i < png.Length; i++) png[i] = (byte)(i % 251);
+
+            // host: clip_meta → sub ต้องตอบ clip_fetch กลับ (ขอข้อมูลเต็ม)
+            ssl.Write(Frame(new { type = "clip_meta", mime = "image/png", token = "tok-ack", size = png.Length }));
+            ssl.Flush();
+            var (ft, fr) = ReadMessage(ssl);
+            Assert.Equal("clip_fetch", ft);
+            Assert.Equal("tok-ack", fr.GetProperty("token").GetString());
+
+            // host: clip_data (ข้อมูลเต็ม) → sub SetPng
+            ssl.Write(Frame(new { type = "clip_data", mime = "image/png", data = Convert.ToBase64String(png) }));
+            ssl.Flush();
+            Assert.True(SpinUntil(() => clip.PngSet != null, 5000), "SetPng ต้องถูกเรียกจาก clip_data (จบ ACK-gate)");
+            Assert.Equal(png, clip.PngSet);
+        }
+        finally { ssl.Dispose(); }
+    }
+
+    [Fact]
+    public void SubFiles_FullReceiveCycle_WritesFileAndSetsDropList()
+    {
+        var clip = new RecordingClipboard();
+        var (ssl, server) = AuthenticatedConnection(clip);
+        try
+        {
+            var content = new byte[8000]; // < chunk size
+            for (var i = 0; i < content.Length; i++) content[i] = (byte)(i * 7 % 256);
+            var sha = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(content)).ToLowerInvariant();
+
+            var manifest = new OmniLink.Core.FileExchange.FileManifest
+            {
+                Effect = "copy",
+                TotalBytes = content.Length,
+                Files = new List<OmniLink.Core.FileExchange.FileEntry>
+                {
+                    new() { RelativePath = "test-file.bin", Size = content.Length, Sha256 = sha },
+                },
+            };
+
+            ssl.Write(Frame(new { type = "file_offer", manifest = manifest.ToJson() }));
+            ssl.Flush();
+            var (ft, fr) = ReadMessage(ssl);
+            Assert.Equal("file_accept", ft);
+            Assert.Equal(manifest.Id, fr.GetProperty("id").GetString());
+
+            ssl.Write(Frame(new { type = "file_chunk", id = manifest.Id, idx = 0, offset = 0, data = Convert.ToBase64String(content) }));
+            ssl.Write(Frame(new { type = "file_done", id = manifest.Id, idx = 0 }));
+            ssl.Flush();
+            var (rt, rr) = ReadMessage(ssl);
+            Assert.Equal("file_result", rt);
+            Assert.Equal("ok", rr.GetProperty("status").GetString());
+
+            ssl.Write(Frame(new { type = "file_complete", id = manifest.Id }));
+            ssl.Flush();
+            Assert.True(SpinUntil(() => clip.FilePathsSet.Count > 0, 5000), "file_complete ต้องตั้ง clipboard file list");
+            Assert.Contains("test-file.bin", clip.FilePathsSet[0]);
+            Assert.True(File.Exists(clip.FilePathsSet[0]), "ไฟล์ต้องถูกเขียนจริง");
+            Assert.Equal(content, File.ReadAllBytes(clip.FilePathsSet[0]));
+            Assert.False(clip.FilesCut);
+        }
+        finally { ssl.Dispose(); }
+    }
+
+    private static bool SpinUntil(Func<bool> cond, int timeoutMs)
+    {
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        while (sw.ElapsedMilliseconds < timeoutMs)
+        {
+            if (cond()) return true;
+            Thread.Sleep(20);
+        }
+        return cond();
+    }
 }

@@ -9,6 +9,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using OmniLink.Core.Abstractions;
+using OmniLink.Core.Events;
+using OmniLink.Core.FileExchange;
 using OmniLink.Core.Security;
 
 namespace OmniLink.Core;
@@ -33,6 +35,7 @@ public sealed class NodeAgentServer : IDisposable
 
     private readonly object _sendLock = new();
     private SslStream? _activeStream;
+    private readonly FileTransferManager _files = new(OmniEventHub.Default); // B9: รับไฟล์จาก host จริง (เดิม v1 ข้าม)
 
     private TcpListener? _tcp;
     private UdpClient? _udp;
@@ -739,7 +742,21 @@ public sealed class NodeAgentServer : IDisposable
                         OmniLog.Write("sub", $"[sub] รับ clipboard จาก host len={text.Length}");
                     }
                 }
-                // ภาพ/ไฟล์ (data/files) — เฟสถัดไปสำหรับโหมด sub (บันทึกไว้ในรายงาน)
+                // B9a: ภาพ fast-path (<64KB) — host ส่ง direct {mime:"image/png", data:base64}
+                else if (root.TryGetProperty("mime", out var mp2) && mp2.GetString() == "image/png" &&
+                         root.TryGetProperty("data", out var dp3) && dp3.GetString() is { Length: > 0 } pngB64)
+                {
+                    var png = OmniImage.FromBase64(pngB64);
+                    if (png.Length > 0)
+                    {
+                        var hash = ClipboardRouter.ClipHash("image", Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(png)));
+                        if (hash != _lastClipHash && (_clipboard?.SetPng(png) ?? false))
+                        {
+                            _lastClipHash = hash;
+                            OmniLog.Write("sub", $"[sub] รับรูปจาก host len={png.Length}B");
+                        }
+                    }
+                }
                 break;
             }
 
@@ -758,7 +775,22 @@ public sealed class NodeAgentServer : IDisposable
                 if (_remotePolicy == "view") break;
                 var mime = root.TryGetProperty("mime", out var mp) ? mp.GetString() : "text/plain";
                 var data = root.TryGetProperty("data", out var dp2) ? dp2.GetString() : null;
-                if (!string.IsNullOrEmpty(data) && mime != "image/png")
+                if (string.IsNullOrEmpty(data)) break;
+                if (mime == "image/png")
+                {
+                    // B9a: จบ ACK-gate ภาพ — host ส่งข้อมูลเต็มตาม token ที่เราขอ (clip_meta → clip_fetch → clip_data)
+                    var png = OmniImage.FromBase64(data);
+                    if (png.Length > 0)
+                    {
+                        var hash = ClipboardRouter.ClipHash("image", Convert.ToBase64String(System.Security.Cryptography.SHA256.HashData(png)));
+                        if (hash != _lastClipHash && (_clipboard?.SetPng(png) ?? false))
+                        {
+                            _lastClipHash = hash;
+                            OmniLog.Write("sub", $"[sub] รับรูป (ACK-gate) len={png.Length}B");
+                        }
+                    }
+                }
+                else
                 {
                     var text = Encoding.UTF8.GetString(OmniImage.FromBase64(data));
                     var ok = _clipboard?.SetText(text) ?? false;
@@ -772,11 +804,76 @@ public sealed class NodeAgentServer : IDisposable
                 break;
 
             case "file_offer":
-                OmniLog.Write("sub", "ได้รับ file_offer — โหมด sub v1 ยังไม่รับไฟล์ (ข้าม)");
+            {
+                // B9b: รับไฟล์จริง — protocol เดียวกับ agent: offer → accept → chunk* → done* → complete
+                if (_remotePolicy != "full") break;
+                var manifestJson = root.TryGetProperty("manifest", out var fmp) ? fmp.GetString() : null;
+                if (string.IsNullOrEmpty(manifestJson)) break;
+                var manifest = FileManifest.FromJson(manifestJson);
+                if (manifest is null) break;
+                var targetDir = Path.Combine(OmniPaths.Root, "Downloads", "OmniLink"); // กติกา OmniPaths (test ตั้ง root จำลองได้)
+                if (_files.Streamer.HandleOffer(manifest, targetDir, out _))
+                {
+                    SendToHost(new { type = "file_accept", id = manifest.Id });
+                    OmniLog.Write("sub", $"[sub] รับ file_offer {manifest.Files.Count} ไฟล์ ({manifest.TotalBytes / 1024}KB) id={manifest.Id}");
+                }
                 break;
+            }
+
+            case "file_chunk":
+            {
+                if (_remotePolicy != "full") break;
+                var cid = root.TryGetProperty("id", out var cip) ? cip.GetString() : null;
+                var cidx = root.TryGetProperty("idx", out var cxp) ? cxp.GetInt32() : 0;
+                var coff = root.TryGetProperty("offset", out var cop) ? cop.GetInt64() : 0;
+                var cdat = root.TryGetProperty("data", out var cdp) ? cdp.GetString() : null;
+                if (!string.IsNullOrEmpty(cid) && !string.IsNullOrEmpty(cdat))
+                {
+                    _files.Streamer.HandleChunk(cid, cidx, coff, cdat);
+                }
+                break;
+            }
+
+            case "file_done":
+            {
+                if (_remotePolicy != "full") break;
+                var did = root.TryGetProperty("id", out var dip) ? dip.GetString() : null;
+                var didx = root.TryGetProperty("idx", out var dxp) ? dxp.GetInt32() : 0;
+                if (!string.IsNullOrEmpty(did))
+                {
+                    // protocol: ผู้รับยืนยันต่อไฟล์ด้วย file_result (ฝั่ง host รอก่อนส่งไฟล์ถัดไป)
+                    _files.Streamer.HandleFileDone(did, didx, out var status);
+                    SendToHost(new { type = "file_result", id = did, idx = didx, status });
+                }
+                break;
+            }
+
+            case "file_complete":
+            {
+                if (_remotePolicy != "full") break;
+                var pid = root.TryGetProperty("id", out var pip) ? pip.GetString() : null;
+                if (string.IsNullOrEmpty(pid)) break;
+                if (_files.Streamer.FinalizeInboundSession(pid, out var completedPaths, out var effect))
+                {
+                    _lastClipHash = ClipboardRouter.ClipHash("files", string.Join(";", completedPaths) + "|" + effect); // กัน echo
+                    if (completedPaths.Count > 0 && _clipboard is not null)
+                    {
+                        try
+                        {
+                            _clipboard.SetFileDropList(completedPaths, effect == "cut");
+                            OmniLog.Write("sub", $"[sub] ได้รับไฟล์ {completedPaths.Count} ไฟล์ — ตั้ง clipboard file list แล้ว (วางด้วย Ctrl+V)");
+                        }
+                        catch (Exception ex)
+                        {
+                            OmniLog.Warn("[sub] ตั้ง file clipboard ล้มเหลว: " + ex.Message);
+                        }
+                    }
+                }
+                break;
+            }
 
             case "audio_control":
-                // เฟสถัดไป: เสียงบนโหมด sub
+                // เฟสถัดไป: เสียงบนโหมด sub (ต้อง wiring gst ฝั่ง sub + live test — งานแยกตาม roadmap)
                 break;
 
             case "ping":
