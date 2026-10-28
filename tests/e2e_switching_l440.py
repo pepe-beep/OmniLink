@@ -10,7 +10,7 @@ Latency  : วัดจาก push → เคอร์เซอร์มาถ�
 
 ข้อควรระวัง: ระหว่างรัน ห้ามแตะเมาส์จริง (จะรบกวน injection)
 """
-import ctypes, subprocess, time, sys, json
+import ctypes, os, subprocess, time, sys, json
 from datetime import datetime
 from ctypes import wintypes
 
@@ -101,20 +101,29 @@ def l440_cursor():
     except Exception:
         return None
 
-def log_lines():
-    try:
-        with open(r"D:\OmniLink\logs\omnilink-20261028.log", encoding="utf-8", errors="replace") as f:
-            return f.read().splitlines()
-    except Exception:
-        return []
+LOG_PATH = rf"D:\OmniLink\logs\omnilink-{datetime.now():%Y%m%d}.log"
 
-def count_log(pattern, since_line=-1):
-    lines = log_lines()
-    hits = 0
-    for i, ln in enumerate(lines):
-        if i > since_line and pattern in ln:
-            hits += 1
-    return hits, len(lines) - 1
+def log_size():
+    try:
+        return os.path.getsize(LOG_PATH)
+    except Exception:
+        return 0
+
+def wait_log(pattern, start_offset, timeout_s=8.0):
+    """รอ pattern ใน engine log หลัง offset — feedback channel แบบ real-time
+    (engine เขียน log ทันทีบน thread ของมัน — status.json lag ได้ 1-9s เมื่อ UI ซ่อน tray)"""
+    t0 = now_ms()
+    while now_ms() - t0 < timeout_s * 1000:
+        try:
+            with open(LOG_PATH, encoding="utf-8", errors="replace") as f:
+                f.seek(start_offset)
+                for ln in f:
+                    if pattern in ln:
+                        return True, now_ms() - t0
+        except Exception:
+            pass
+        time.sleep(0.1)
+    return False, now_ms() - t0
 
 def sendrel(dx, dy):
     """SendInput relative move — physical space ตรง ๆ ไม่ผิด DPI (บทเรียน 28 ต.ค.)"""
@@ -153,14 +162,15 @@ def t1_host_to_node():
     entry position ของ L440 cursor = ข้อมูลวินิจฉัยประกอบ (tail injection ของ suite เอง
     อาจดัน cursor ออกจาก entry 24 — ไม่ใช่ความผิดของ engine)"""
     t0 = now_ms()
-    switched = push_right_edge()
-    ok = switched and active_node() == "psl440-ThinkPad-L440"
+    mark = log_size()
+    push_right_edge()
+    ok, elapsed = wait_log("switch_to_node node=psl440-ThinkPad-L440", mark, timeout_s=8.0)
     if ok:
         time.sleep(0.4)  # ให้ agent warp cursor ถึง entry ก่อนอ่าน
         cursor = l440_cursor()
-        detail = f"latency={now_ms()-t0}ms entry_cursor={cursor}"
+        detail = f"latency={elapsed}ms entry_cursor={cursor}"
     else:
-        cursor, detail = None, f"active_node={active_node()} — สลับไม่เกิดภายใน 60 steps"
+        cursor, detail = None, f"ไม่พบ switch_to_node ใน engine log ภายใน 8s (active_node={active_node()})"
     check("T1 host→node: ดันขอบขวา = สลับไป L440", ok, detail)
     return now_ms() - t0
 
@@ -191,39 +201,35 @@ def t3_node_to_host():
     if active_node() is None:
         check("T3 node→host: edge_return กลับ PSPV", False, "skip — ไม่ได้คุม L440 อยู่ (T1 ไม่ผ่าน)")
         return
+    mark = log_size()
     ssh("DISPLAY=:0 xdotool mousemove 30 430")
     time.sleep(0.1)
     t0 = now_ms()
     for _ in range(8):
         ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0")
         time.sleep(0.04)
-    back = None
-    t1s = now_ms()
-    while now_ms() - t1s < 6000:
-        if active_node() is None:
-            back = host_cursor(); break
-        time.sleep(0.15)
-    ok = back is not None
-    check("T3 node→host: edge_return กลับ PSPV", ok, f"latency={now_ms()-t0}ms host cursor={back}")
+    ok, elapsed = wait_log("edge_return_to_host from=psl440", mark, timeout_s=8.0)
+    if ok:
+        time.sleep(0.5)  # ให้ engine warp cursor กลับ anchor ก่อน
+        back = host_cursor()
+    else:
+        back = None
+    check("T3 node→host: edge_return กลับ PSPV", ok, f"latency={elapsed}ms host cursor={back}")
     time.sleep(0.5)
 
 def t5_cycle(n=3):
     """วนสลับไป-กลับ n รอบ — จับ state machine regression (EdgeSwitchBusy class)"""
     fails = 0
     for i in range(1, n + 1):
+        mark = log_size()
         push_right_edge()
-        went = active_node() == "psl440-ThinkPad-L440"
+        went, lat = wait_log("switch_to_node node=psl440-ThinkPad-L440", mark, timeout_s=8.0)
         if not went:
             fails += 1; print(f"  cycle {i}: ไป L440 ไม่สำเร็จ (active={active_node()})"); continue
         ssh("DISPLAY=:0 xdotool mousemove 30 430"); time.sleep(0.15)
         for _ in range(8):
             ssh("DISPLAY=:0 xdotool mousemove_relative -- -60 0"); time.sleep(0.04)
-        back = None
-        t1s = now_ms()
-        while now_ms() - t1s < 6000:
-            if active_node() is None:
-                back = True; break
-            time.sleep(0.15)
+        back, lat2 = wait_log("edge_return_to_host from=psl440", mark, timeout_s=8.0)
         if not back:
             fails += 1; print(f"  cycle {i}: กลับ PSPV ไม่สำเร็จ"); continue
         print(f"  cycle {i}: ไป-กลับสำเร็จ")
@@ -265,7 +271,7 @@ def main():
         time.sleep(0.06)
         for vk in (VK_BACK, VK_ALT, VK_CTRL): u32.keybd_event(vk, 0, 0x0002, 0)
         time.sleep(1.5)
-        print(f"cleanup: active_node={active_node()}")
+        print(f"cleanup: active_node={active_node()}")  # ถ้ายังติด = รัน panic อีกครั้งหรือ restart OmniLink
 
     passed = sum(1 for _, ok, _ in RESULTS if ok)
     print("══════════════════════════════")
