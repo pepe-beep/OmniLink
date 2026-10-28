@@ -1672,13 +1672,18 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     private void HandleEdgeHit(string targetId, ScreenEdge edge, ScreenBounds monBounds, int x, int y, bool isHorizontal)
     {
         OmniLog.Write("edgedbg", $"HandleEdgeHit target={targetId} edge={edge}");
-        if (ScreenLockBlocksEdgeSwitch() || ShouldBlockEdgeByFullscreen())
+        var lockBlk = ScreenLockBlocksEdgeSwitch();
+        var fsBlk = ShouldBlockEdgeByFullscreen();
+        var should = _edgeStrategy.ShouldSwitch(x, y, edge, monBounds, Config);
+        var busyVal = Interlocked.CompareExchange(ref _switch.EdgeSwitchBusy, 0, 0);
+        OmniLog.Write("edgedbg", $"decision: lockBlk={lockBlk} fsBlk={fsBlk} should={should} busy={busyVal}");
+        if (lockBlk || fsBlk)
         {
             CancelEdgeDwell();
             return;
         }
 
-        if (_edgeStrategy.ShouldSwitch(x, y, edge, monBounds, Config))
+        if (should)
         {
             CancelEdgeDwell();
             if (Interlocked.CompareExchange(ref _switch.EdgeSwitchBusy, 1, 0) == 0)

@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <!-- godclass-G6: WinExe = windowless daemon — ไม่มี console window โผล่ตอน autostart
+         (Console.WriteLine = no-op, log ยังเขียนไฟล์ผ่าน OmniLog ปกติ) -->
+    <OutputType>WinExe</OutputType>
     <!-- S1: multi-target — net10.0 = Linux hostd (คงเดิม) · net10.0-windows = engine เต็มรูปแบบบน Windows
          (Platform.Windows แบก WPF มาด้วยเพราะ WindowsClipboardBridge ใช้ WPF clipboard — trade-off บันทึกใน roadmap S5/S1) -->
     <TargetFrameworks>net10.0;net10.0-windows</TargetFrameworks>
@@ -19,6 +21,8 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-windows'">
     <DefineConstants>$(DefineConstants);OMNILINK_WINDOWS</DefineConstants>
+    <!-- godclass-G3: RID-specific build ดึง runtime pack ที่มี System.IO.Pipes.AccessControl (publish.ps1 ใช้ win-x64 อยู่แล้ว) -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">

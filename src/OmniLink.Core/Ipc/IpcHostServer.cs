@@ -59,7 +59,7 @@ public sealed class IpcHostServer : IDisposable
             NamedPipeServerStream? server = null;
             try
             {
-                server = new NamedPipeServerStream(_pipeName, PipeDirection.InOut, 8,
+                server = StreamFactoryOverride?.Invoke(_pipeName) ?? new NamedPipeServerStream(_pipeName, PipeDirection.InOut, 8,
                     PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                 var connected = server.WaitForConnectionAsync(_cts.Token);
                 connected.Wait(_cts.Token);
@@ -411,6 +411,9 @@ public sealed class IpcHostServer : IDisposable
         }
         _clients.Clear();
     }
+
+    /// <summary>godclass-G3: Windows hostd inject factory (ACL current user+SYSTEM) จาก Platform.Windows — Core คง zero-dep</summary>
+    public static Func<string, NamedPipeServerStream>? StreamFactoryOverride;
 
     private sealed class ClientCtx(NamedPipeServerStream stream, int seq)
     {
