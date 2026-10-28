@@ -931,6 +931,19 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
             OmniLog.Warn($"[kvm] ปฏิเสธสลับไป {nodeId} — policy='{sess.Config.Policy}' ไม่อนุญาตให้ควบคุม input");
             return;
         }
+
+        // GroupA-D: reconnect readiness gate — node เพิ่ง reconnect ให้ agent พร้อมก่อน
+        // (DESYNC 17:57: switch ยิง 0.9s หลัง connect แล้ว agent รายงาน focused=false)
+        if (SwitchGateBlocked(sess.ConnectedAtTick, Environment.TickCount64, Config.ReconnectSwitchGateMs))
+        {
+            var gateNow = Environment.TickCount64;
+            if (gateNow - _lastGateLogTick > 1000)
+            {
+                _lastGateLogTick = gateNow;
+                OmniLog.Write("kvm", $"[gate] รอ {nodeId} พร้อมหลัง reconnect (เหลือ {Config.ReconnectSwitchGateMs - (gateNow - sess.ConnectedAtTick)}ms)");
+            }
+            return;
+        }
         RefreshMonitors();
 
         int targetClientLang;
@@ -1566,6 +1579,16 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         {
             _mouseEventQueue.Writer.TryWrite(ev);
         }
+    }
+
+    internal long _lastGateLogTick;
+
+    /// <summary>GroupA-D: จริง ๆ gate การสลับหลัง reconnect — true = ยังห้ามสลับ</summary>
+    internal static bool SwitchGateBlocked(long connectedAtTick, long now, int gateMs)
+    {
+        if (gateMs <= 0) return false;
+        var elapsed = now - connectedAtTick;
+        return elapsed >= 0 && elapsed < gateMs; // elapsed ติดลบ = connect นานแล้ว/นาฬิกาคลาด — ไม่ block
     }
 
     private void CheckEdgeSwitch(int x, int y)

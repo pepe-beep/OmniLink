@@ -24,6 +24,9 @@ public sealed class RemoteNodeClient : IDisposable
 {
     public NodeConfig Config { get; }
     public bool Connected { get; private set; }
+
+    /// <summary>GroupA-D: TickCount64 ตอน connection กลับมาเป็น connected ล่าสุด — ใช้กันสวิตช์ทันทีที่ reconnect (DESYNC 17:57)</summary>
+    public long ConnectedAtTick { get; private set; }
     public string? LocalEndpointIp { get; private set; }
     public int Width { get; private set; } = 960;
     public int Height { get; private set; } = 720;
@@ -306,6 +309,7 @@ public sealed class RemoteNodeClient : IDisposable
                         LocalEndpointIp = lep.Address.ToString();
                     }
                     Connected = true;
+                    ConnectedAtTick = Environment.TickCount64;
                     _disconnectedSinceTick = 0;
                     LifecycleState = ConnectionLifecycleState.Hot;
                 }

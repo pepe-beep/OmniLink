@@ -121,7 +121,7 @@ public class EdgePollFallbackTests
             SetActiveNode(kvm, "psl440-ThinkPad-L440");
             Assert.False(kvm.TryPollEdgePosition(out _));
             SetActiveNode(kvm, null); // edge_return กลับ host แล้ว
-            Thread.Sleep(40); // ผ่าน throttle window 33ms ของ hz=30
+            kvm._lastEdgePollTick = -10_000; // เคลียร์ throttle ให้ deterministic (ไม่พึ่ง sleep timing)
             Assert.True(kvm.TryPollEdgePosition(out _));
         }
         finally

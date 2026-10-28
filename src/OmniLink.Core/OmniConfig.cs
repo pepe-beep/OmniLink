@@ -61,7 +61,10 @@ public sealed class OmniConfig
     public string NewNodePolicy { get; set; } = OmniPolicy.Full; // v2.0 §4.5: policy เริ่มต้นของ node ที่จับคู่ใหม่ (full/clipboard/view — เครื่อง host ต่ำสเปกตั้ง view เพื่อประหยัด)
 
     [JsonPropertyName("edge_poll_hz")]
-    public int EdgePollHz { get; set; } = 30; // GroupA-P: polling fallback ตรวจขอบด้วย GetCursorPos (~30Hz) — สลับจอได้แม้ LL hook ตาย · 0 = ปิด
+    public int EdgePollHz { get; set; } = 30;
+
+    [JsonPropertyName("reconnect_switch_gate_ms")]
+    public int ReconnectSwitchGateMs { get; set; } = 1500; // GroupA-D: ห้ามสลับไป node ที่ reconnect มาไม่ถึงเวลานี้ (กัน DESYNC — agent ยังไม่พร้อม focus) · 0 = ปิด // GroupA-P: polling fallback ตรวจขอบด้วย GetCursorPos (~30Hz) — สลับจอได้แม้ LL hook ตาย · 0 = ปิด
 
     [JsonPropertyName("sub_mode_enabled")]
     public bool SubModeEnabled { get; set; } = false; // v2.0 เฟส 3: ให้เครื่องนี้ถูกคุมโดย host ตัวอื่นได้ (โหมด sub ฝัง)
