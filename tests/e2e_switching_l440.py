@@ -106,16 +106,22 @@ def count_log(pattern, since_line=-1):
             hits += 1
     return hits, len(lines) - 1
 
+def sendrel(dx, dy):
+    """SendInput relative move — physical space ตรง ๆ ไม่ผิด DPI (บทเรียน 28 ต.ค.)"""
+    ii = _II(); ii.type = INPUT_MOUSE
+    ii.mi = _MI(dx, dy, 0, 0x0001, 0, None)  # MOUSEEVENTF_MOVE (relative)
+    u32.SendInput(1, ctypes.byref(ii), ctypes.sizeof(ii))
+
 def push_right_edge():
-    """ดันเคอร์เซอร์ไปชนขอบขวาของ virtual screen แบบทีละขั้น (เหมือนมือคน)"""
-    _, y = host_cursor()
-    x = 100
-    while x < RIGHT_EDGE:
-        x = min(RIGHT_EDGE, x + 140)
-        sendmove_abs(x, y)
+    """ดันเคอร์เซอร์ไปชนขอบขวาที่กลางจอแนวตั้ง — relative injection (DPI-proof)
+    บทเรียน: ห้ามดันที่ y=0 (มุมบน) = corner deadzone กันสลับมั่ว → engine ปฏิเสธถูกต้อง"""
+    u32.SetCursorPos(1200, 432)  # กลางจอหลักก่อน (logical)
+    time.sleep(0.05)
+    for _ in range(20):
+        sendrel(300, 0)
         time.sleep(0.03)
-    for _ in range(6):  # ชนขอบค้างไว้
-        sendmove_abs(RIGHT_EDGE, y)
+    for _ in range(8):  # ชนขอบค้างไว้
+        sendrel(30, 0)
         time.sleep(0.05)
 
 def poll_l440_cursor(predicate, timeout_s=6.0):
