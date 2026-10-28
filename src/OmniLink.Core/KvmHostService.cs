@@ -363,6 +363,10 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
 
         _input.Start(OnKeyHook, OnMouseHook);
 
+        // GroupA-P: polling fallback — GetCursorPos 20ms/tick เสียบเข้าคิวเดียวกับ hook
+        // (hook ตายใต้โหลด = ตรวจขอบยังทำงานผ่านทางนี้ · dedupe โดย strategy/ActiveNodeId เดิม)
+        _edgePollTimer ??= new System.Threading.Timer(EdgePollTick, null, 200, 20);
+
         if (_mouseWorkerThread is null)
         {
             _mouseWorkerThread = new Thread(MouseWorkerLoop)
@@ -1534,6 +1538,36 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
 
     private long _edgeDbgTick;
 
+    private System.Threading.Timer? _edgePollTimer;
+    internal long _lastEdgePollTick;
+
+    /// <summary>
+    /// GroupA-P: อ่านพิกัดเคอร์เซอร์จริงจาก OS (GetCursorPos — ไม่มีทาง "ถูกถอด" แบบ LL hook)
+    /// แล้วคืน synthetic Move event ให้ไหลเข้าคิวเดียวกับ hook → CheckEdgeSwitch logic เดิมทั้งเส้น
+    /// เงื่อนไข: edge_poll_hz>0 · ไม่ throttle ซ้ำ · ไม่ทำขณะคุม remote (synthetic move จะถูก forward หา node)
+    /// </summary>
+    internal bool TryPollEdgePosition(out MouseHookData ev)
+    {
+        ev = default;
+        if (Config.EdgePollHz <= 0) return false;
+        var now = Environment.TickCount64;
+        if (now - _lastEdgePollTick < Math.Max(8, 1000 / Config.EdgePollHz)) return false;
+        _lastEdgePollTick = now;
+        if (ActiveNodeId is not null) return false;
+        if (!_input.GetCursorPos(out var x, out var y)) return false;
+        ev = new MouseHookData(MouseInputMessage.Move, x, y, 0, unchecked((uint)now));
+        return true;
+    }
+
+    private void EdgePollTick(object? state)
+    {
+        if (!Volatile.Read(ref _running)) return;
+        if (TryPollEdgePosition(out var ev))
+        {
+            _mouseEventQueue.Writer.TryWrite(ev);
+        }
+    }
+
     private void CheckEdgeSwitch(int x, int y)
     {
         // KV-2 fix: ฟังก์ชันนี้รัน "ต่อทุก mouse move" (1000Hz mouse = ~1000 ครั้ง/วิ) —
@@ -1712,6 +1746,8 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     public void Dispose()
     {
         _running = false;
+        _edgePollTimer?.Dispose();
+        _edgePollTimer = null;
         _watchdogTimer?.Dispose();
         _watchdogTimer = null;
         _knock.Dispose();

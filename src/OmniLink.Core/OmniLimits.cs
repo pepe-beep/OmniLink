@@ -37,6 +37,7 @@ public static class OmniLimits
 
         // v1.9.1 (Bar test เจอจริง): ตัวเลขทุกตัวต้องถูก clamp ที่ normalize — เดิม clamp อยู่แค่ใน UI path
         // ทำให้ config ที่แก้มือเป็นค่าติดลบ/ยักษ์ ผ่านเข้า engine ได้
+        cfg.EdgePollHz = ClampInt(cfg.EdgePollHz, 0, 120); // GroupA-P: 0=ปิด, สูงสุด 120Hz
         cfg.SwitchDelayMs = ClampInt(cfg.SwitchDelayMs, SwitchDelayMin, SwitchDelayMax);
         cfg.DoubleTapMs = ClampInt(cfg.DoubleTapMs, DoubleTapMin, DoubleTapMax);
         cfg.CornerSize = ClampInt(cfg.CornerSize, CornerMin, CornerMax);

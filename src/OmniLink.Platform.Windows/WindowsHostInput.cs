@@ -86,6 +86,10 @@ public sealed class WindowsHostInput : IHostInputGateway
 
     #region Hook installation + message pump
 
+    /// <summary>GroupA-P (test seam): ปิด mouse hook เพื่อพิสูจน์ว่า polling fallback สลับจอได้เอง — set OMNILINK_TEST_DISABLE_MOUSE_HOOK=1</summary>
+    internal static readonly bool MouseHookDisabled =
+        Environment.GetEnvironmentVariable("OMNILINK_TEST_DISABLE_MOUSE_HOOK") == "1";
+
     private void InstallHooks(nint hMod)
     {
         UninstallHooks();
@@ -101,24 +105,32 @@ public sealed class WindowsHostInput : IHostInputGateway
             OmniLog.Error($"[hook] SetWindowsHookEx(KEYBOARD_LL) ล้มเหลว err={Marshal.GetLastWin32Error()} attempt={attempt}/3");
             Thread.Sleep(300 * attempt);
         }
-        for (var attempt = 1; attempt <= 3; attempt++)
+        if (MouseHookDisabled)
         {
-            _msHook = NativeMethods.SetWindowsHookExW(NativeMethods.WH_MOUSE_LL, _msProcDelegate, 0, 0);
-            if (_msHook == 0 && hMod != 0)
-            {
-                _msHook = NativeMethods.SetWindowsHookExW(NativeMethods.WH_MOUSE_LL, _msProcDelegate, hMod, 0);
-            }
-            if (_msHook != 0) break;
-            OmniLog.Error($"[hook] SetWindowsHookEx(MOUSE_LL) ล้มเหลว err={Marshal.GetLastWin32Error()} attempt={attempt}/3");
-            Thread.Sleep(300 * attempt);
+            _msHook = 0;
+            OmniLog.Warn("[hook] TEST: mouse hook ถูกปิดด้วย OMNILINK_TEST_DISABLE_MOUSE_HOOK — โหมด polling-only (GroupA-P)");
         }
-        if (_kbHook == 0 || _msHook == 0)
+        else
+        {
+            for (var attempt = 1; attempt <= 3; attempt++)
+            {
+                _msHook = NativeMethods.SetWindowsHookExW(NativeMethods.WH_MOUSE_LL, _msProcDelegate, 0, 0);
+                if (_msHook == 0 && hMod != 0)
+                {
+                    _msHook = NativeMethods.SetWindowsHookExW(NativeMethods.WH_MOUSE_LL, _msProcDelegate, hMod, 0);
+                }
+                if (_msHook != 0) break;
+                OmniLog.Error($"[hook] SetWindowsHookEx(MOUSE_LL) ล้มเหลว err={Marshal.GetLastWin32Error()} attempt={attempt}/3");
+                Thread.Sleep(300 * attempt);
+            }
+        }
+        if (_kbHook == 0 || (!MouseHookDisabled && _msHook == 0))
         {
             OmniLog.Error("[hook] ติดตั้ง Low-Level Hook ไม่สำเร็จ — โหมด KVM ใช้ไม่ได้ (UI และระบบเสียงยังทำงาน)");
         }
         else
         {
-            OmniLog.Info($"[hook] Low-Level Hooks พร้อมทำงาน (kb={_kbHook != 0}, ms={_msHook != 0})");
+            OmniLog.Info($"[hook] Low-Level Hooks พร้อมทำงาน (kb={_kbHook != 0}, ms={_msHook != 0}{(MouseHookDisabled ? ", mouse=TEST-DISABLED" : "")})");
 
             // F2: เพิ่มงบเวลา callback เป็น 5000ms (default ~300ms; Win10 1709+ cap ที่ 1000ms)
             // เขียนเฉพาะเมื่อยังไม่มีค่า — ไม่ทับที่ผู้ใช้ตั้งเอง
@@ -203,6 +215,7 @@ public sealed class WindowsHostInput : IHostInputGateway
         try
         {
             if (_hookThreadId == 0) return;
+            if (MouseHookDisabled) return; // GroupA-P: watchdog ของ mouse hook ไม่ทำงานในโหมด polling-only (กัน rehook วน)
 
             var lii = new NativeMethods.LASTINPUTINFO();
             lii.cbSize = (uint)Marshal.SizeOf<NativeMethods.LASTINPUTINFO>();
