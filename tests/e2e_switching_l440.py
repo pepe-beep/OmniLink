@@ -16,6 +16,13 @@ from ctypes import wintypes
 
 u32 = ctypes.windll.user32
 
+# godclass-fix: DPI-aware ก่อนทุกอย่าง — ไม่งั้น SendInput VIRTUALDESK absolute
+# จาก process DPI-unaware ถูก OS scale ผิดบนจอ dual mixed-DPI → เคอร์เซอร์หายนอกจอ
+try:
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PER_MONITOR_AWARE_V2
+except Exception:
+    u32.SetProcessDPIAware()
+
 def virtual_screen():
     class RECT(ctypes.Structure):
         _fields_ = [("l", ctypes.c_long), ("t", ctypes.c_long), ("r", ctypes.c_long), ("b", ctypes.c_long)]
@@ -190,12 +197,30 @@ def t5_cycle(n=3):
         print(f"  cycle {i}: ไป-กลับสำเร็จ")
     check(f"T5 วนสลับ {n} รอบ", fails == 0, f"fails={fails}/{n}")
 
+def t0_precondition():
+    """T0: engine ต้องอยู่สถานะ host (active_node=None) — ถ้าติดสถานะควบคุมค้าง
+    (เช่น engine restart กลางการควบคุม) ทุก test จะล้มเหลวโดยไม่มีความหมาย"""
+    try:
+        s = json.load(open(r"D:\OmniLink\logs\status.json", encoding="utf-8"))
+        active = s.get("active_node")
+        if active:
+            check("T0: engine ต้องอยู่สถานะ host", False,
+                  f"engine ติดสถานะควบคุม '{active}' — restart hostd ก่อน (หรือกด panic Ctrl+Alt+Backspace)")
+            return False
+        check("T0: engine อยู่สถานะ host", True)
+        return True
+    except Exception as e:
+        check("T0: อ่าน status.json", False, str(e))
+        return False
+
 def main():
     print(f"=== E2E Switching Suite — start {datetime.now():%H:%M:%S} ===")
     hx, hy = host_cursor()
     print(f"host cursor=({hx},{hy}) — ห้ามแตะเมาส์ระหว่างทดสอบ")
     if ssh("echo ok") != "ok":
         print("FAIL  L440 SSH ไม่ถึง — ยกเลิก"); sys.exit(2)
+    if not t0_precondition():
+        print("ABORT — engine ติดสถานะควบคุม: restart hostd ก่อน"); sys.exit(3)
     t1_host_to_node()
     t2_keyboard_relay()
     t3_node_to_host()
