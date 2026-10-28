@@ -1350,9 +1350,35 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         {
             try
             {
-                var vt = reader.WaitToReadAsync();
-                var hasItems = vt.IsCompleted ? vt.Result : vt.AsTask().GetAwaiter().GetResult();
-                if (!hasItems) break;
+                // godclass-G7 (root-cause fix 28 ต.ค.): WaitToReadAsync แบบ block ไม่จำกัดเวลา
+                // ทำให้คำสั่ง SwitchDirect ที่โพสต์ตอนเมาส์นิ่ง "ค้างจนกว่าเมาส์จะขยับครั้งต่อไป"
+                // = delay หลักวินาที-หลักสิบวินาทีที่ผู้ใช้เจอ — จำกัดรอ 50ms แล้ว drain คำสั่งเสมอ
+                string waitErr;
+                bool hasItems;
+                using (var waitCts = new CancellationTokenSource(50))
+                {
+                    try
+                    {
+                        var vt = reader.WaitToReadAsync(waitCts.Token);
+                        hasItems = vt.IsCompleted ? vt.Result : vt.AsTask().GetAwaiter().GetResult();
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        hasItems = false; // ครบ 50ms — drain คำสั่งแล้ววนใหม่ (CPU แทบไม่ใช้)
+                    }
+                    catch (Exception ex)
+                    {
+                        waitErr = ex.Message;
+                        OmniLog.Warn($"[kvm] mouse queue wait error: {waitErr}");
+                        Thread.Sleep(200);
+                        continue;
+                    }
+                }
+                if (!hasItems)
+                {
+                    _pipeline.Drain(HandlePipelineCommand);
+                    continue;
+                }
 
                 // godclass-K6b: drain คำสั่ง switching ก่อนเมาส์เสมอ — state ถูกแตะบน thread เดียว
                 _pipeline.Drain(HandlePipelineCommand);
@@ -1506,6 +1532,8 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         }
     }
 
+    private long _edgeDbgTick;
+
     private void CheckEdgeSwitch(int x, int y)
     {
         // KV-2 fix: ฟังก์ชันนี้รัน "ต่อทุก mouse move" (1000Hz mouse = ~1000 ครั้ง/วิ) —
@@ -1520,6 +1548,11 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
 
         var mons = _monitors; // C2: capture ครั้งเดียว ใช้ตลอดการตัดสินใจ
         if (mons.Length == 0) return;
+        if (Environment.TickCount64 - _edgeDbgTick > 500)
+        {
+            _edgeDbgTick = Environment.TickCount64;
+            OmniLog.Write("edgedbg", $"CheckEdge x={x} y={y} mons={string.Join("|", mons.Select(m => $"{m.Left}..{m.Right}"))} active={ActiveNodeId ?? "host"}");
+        }
 
         // 1. หาว่าเคอร์เซอร์อยู่บนจอใด (หรือใกล้จอใดที่สุด — for-loop แทน OrderBy)
         ScreenBounds curMon = default;
@@ -1626,6 +1659,11 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         }
         else
         {
+            if (Environment.TickCount64 - _edgeDbgTick > 500)
+            {
+                _edgeDbgTick = Environment.TickCount64;
+                OmniLog.Write("edgedbg", $"no-target: atR={atRight} atL={atLeft} rT={rightTarget != null} lT={leftTarget != null} tT={topTarget != null} bT={bottomTarget != null}");
+            }
             CancelEdgeDwell();
             _edgeStrategy.Reset();
         }
@@ -1633,6 +1671,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
 
     private void HandleEdgeHit(string targetId, ScreenEdge edge, ScreenBounds monBounds, int x, int y, bool isHorizontal)
     {
+        OmniLog.Write("edgedbg", $"HandleEdgeHit target={targetId} edge={edge}");
         if (ScreenLockBlocksEdgeSwitch() || ShouldBlockEdgeByFullscreen())
         {
             CancelEdgeDwell();
