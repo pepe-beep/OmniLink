@@ -49,6 +49,27 @@ if (Test-Path "$PSScriptRoot\Assets\app.ico") {
     Copy-Item "$PSScriptRoot\Assets\app.ico" -Destination $targetAssetsDir -Force
 }
 
+# B10 (distribution hardening): SHA256SUMS — ผู้ใช้/เครื่องลูกตรวจของก่อนติดตั้งได้เสมอ
+$sumsTargets = @(
+    (Join-Path $OutputDir "OmniLink.exe"),
+    (Join-Path $OutputDir "installers\OmniLink-Node-Win-Portable.zip")
+)
+$hostdExe = Join-Path $OutputDir "hostd\omnilink-hostd.exe"
+if (Test-Path $hostdExe) { $sumsTargets += $hostdExe }
+$sumsLines = @()
+foreach ($t in $sumsTargets) {
+    if (Test-Path $t) {
+        $rel = [System.IO.Path]::GetFullPath($t).Substring([System.IO.Path]::GetFullPath($OutputDir).Length).Replace('\', '/').TrimStart('/')
+        $h = (Get-FileHash $t -Algorithm SHA256).Hash.ToLowerInvariant()
+        $sumsLines += "$h  $rel"
+    }
+}
+if ($sumsLines.Count -gt 0) {
+    $sumsPath = Join-Path $OutputDir "SHA256SUMS.txt"
+    [System.IO.File]::WriteAllLines($sumsPath, $sumsLines)
+    Write-Host "SHA256SUMS written: $sumsPath ($($sumsLines.Count) entries)" -ForegroundColor Green
+}
+
 Write-Host "Published to: $OutputDir" -ForegroundColor Green
 $sizeMb = ((Get-ChildItem $OutputDir -Recurse | Measure-Object Length -Sum).Sum / 1MB)
 Write-Host ("Size: {0:N1} MB" -f $sizeMb) -ForegroundColor Green
