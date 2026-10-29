@@ -48,6 +48,8 @@ public partial class MainWindow : Window, ISettingsHost
     private readonly System.Threading.Timer _idleTrimTimer;
     private readonly DispatcherTimer _configSaveDebounce; // E1: รวมการเซฟ config ที่ถี่ให้เป็นช่วงๆ ไม่ลงดิสก์ทุก tick
     private readonly StatusJsonReporter _statusJson = new(); // godclass-M1
+    private readonly ClipboardHistoryStore _clipboardHistory; // C2: ประวัติคลิปบอร์ด persistent (แชร์กับ HistoryVM)
+    private long _clipSuppressUntilTick; // C2 echo suppression: ช่วงเวลาที่ "เราตั้ง clipboard เอง" — ไม่จับกลับ
     private bool _initializingControls = true;
     private bool _allowExit;
     private bool _exitStarted;
@@ -73,7 +75,8 @@ public partial class MainWindow : Window, ISettingsHost
         _dashboard = string.Equals(_config.UiRole, "dashboard", StringComparison.OrdinalIgnoreCase);
         _clipboardBridge = new WindowsClipboardBridge();
 
-        HistoryVM = new HistoryViewModel();
+        _clipboardHistory = new ClipboardHistoryStore(OmniPaths.RunStateDir, m => OmniLog.Warn(m));
+        HistoryVM = new HistoryViewModel(_clipboardHistory);
         DataContext = this;
 
         // callback ของ discovery จะยิงหลังหน้า Settings ถูกสร้างแล้วเสมอ (scan เกิดหลังบูตเท่านั้น)
@@ -273,6 +276,7 @@ public partial class MainWindow : Window, ISettingsHost
                     var cur = _clipboardBridge.GetText();
                     if (cur != text)
                     {
+                        SuppressClipboardCapture(); // C2: เราตั้งเอง — ไม่จับกลับ
                         _clipboardBridge.SetText(text);
                     }
                 }
@@ -286,6 +290,7 @@ public partial class MainWindow : Window, ISettingsHost
                 try
                 {
                     HistoryVM.AddEntry("image/png", "", png, "client");
+                    SuppressClipboardCapture(); // C2
                     _clipboardBridge.SetPng(png);
                 }
                 catch { }
@@ -298,6 +303,7 @@ public partial class MainWindow : Window, ISettingsHost
             {
                 try
                 {
+                    SuppressClipboardCapture(); // C2
                     _clipboardBridge.SetFileDropList(files, isCut);
                     HistoryVM.AddEntry("application/x-file-list", string.Join("\n", files), null, "client");
                 }
@@ -412,6 +418,48 @@ public partial class MainWindow : Window, ISettingsHost
         var helper = new WindowInteropHelper(this);
         NativeMethods.ApplyAppIcon(helper.Handle);
         ApplyWindowVisual(helper.Handle);
+
+        // C2: จับ local clipboard change ด้วย OS listener (เบา — ไม่ใช่ polling)
+        if (helper.Handle != 0)
+        {
+            NativeMethods.AddClipboardFormatListener(helper.Handle);
+            if (PresentationSource.FromVisual(this) is HwndSource source)
+            {
+                source.AddHook(ClipboardWndProc);
+            }
+        }
+    }
+
+    /// <summary>C2: echo suppression — เรียกก่อน "เราตั้ง clipboard เอง" เพื่อไม่จับกลับ (flag+timestamp)</summary>
+    private void SuppressClipboardCapture()
+    {
+        _clipSuppressUntilTick = Environment.TickCount64 + 600;
+    }
+
+    private nint ClipboardWndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg != NativeMethods.WM_CLIPBOARDUPDATE) return nint.Zero;
+        // echo: การตั้ง clipboard ของเราเอง (จาก node / history picker) — ข้าม
+        if (Environment.TickCount64 < _clipSuppressUntilTick) return nint.Zero;
+
+        try
+        {
+            // อ่านบน UI thread (STA — bridge มี retry กัน CLIPBRD_E_CANT_OPEN อยู่แล้ว)
+            if (_clipboardBridge.TryGetPng(out var png) && png.Length > 0)
+            {
+                _clipboardHistory.AddImage(png, "local");
+            }
+            else
+            {
+                var text = _clipboardBridge.GetText();
+                if (!string.IsNullOrEmpty(text))
+                {
+                    _clipboardHistory.AddTextEntry(text, "local");
+                }
+            }
+        }
+        catch { }
+        return nint.Zero;
     }
 
     private void OnWindowLoaded(object sender, RoutedEventArgs e)
@@ -987,6 +1035,12 @@ public partial class MainWindow : Window, ISettingsHost
             try { _kvm.Dispose(); } catch { } // engine: unhook+ปิด sessions · dashboard: ปิดท่อ IPC
             if (!_dashboard) EngineSingleton.Release(); // godclass-G2
             try { _audio?.Dispose(); } catch { }
+            try
+            {
+                var hwnd = new WindowInteropHelper(this).Handle;
+                if (hwnd != 0) NativeMethods.RemoveClipboardFormatListener(hwnd); // C2
+            }
+            catch { }
         });
 
         var timeout = Task.Delay(TimeSpan.FromSeconds(quick ? 2 : 8));
