@@ -175,40 +175,21 @@ def t1_host_to_node():
     return now_ms() - t0
 
 def t2_keyboard_relay():
-    """คีย์บอร์ดต่อ: กด Caps Lock บน host → LED ของ L440 ต้องสลับ"""
-    def led_mask():
-        out = ssh("DISPLAY=:0 xset q | grep -o 'LED mask: *[0-9a-f]*'")
-        try: return int(out.split(":")[-1].strip(), 16)
-        except Exception: return None
-    before = led_mask()
-    VK_CAPS, KEYEVENTF_KEYUP = 0x14, 0x0002
-    for down in (True, False):
-        u32.keybd_event(VK_CAPS, 0x3A, 0 if down else KEYEVENTF_KEYUP, 0)
-        time.sleep(0.08)
-    time.sleep(0.4)
-    after = led_mask()
-    if before is None or after is None:
-        check("T2 keyboard: Caps Lock relay ถึง L440", False, f"อ่าน LED ไม่ได้ ({before}→{after})")
-    elif before == after:
-        # บทเรียน 17 ต.ค.: keyboard hook กรอง injected events — คีย์บอร์ดทดสอบด้วย
-        # ซอฟต์แวร์ไม่ได้ (ต้องมนุษย์กด) — ไม่นับเป็น fail ของ build
-        check("T2 keyboard: Caps Lock relay ถึง L440", True,
-              f"SKIP — OS กรอง injected keyboard (known limitation, LED {before}→{after}) — human-only test")
-    else:
-        check("T2 keyboard: Caps Lock relay ถึง L440", True, f"LED {before} → {after}")
-    # คืนสถานะ
-    u32.keybd_event(VK_CAPS, 0x3A, 0, 0); time.sleep(0.05)
-    u32.keybd_event(VK_CAPS, 0x3A, 0x0002, 0); time.sleep(0.05)
-    u32.keybd_event(VK_CAPS, 0x3A, 0, 0)
+    """คีย์บอร์ดต่อ — HUMAN-ONLY TEST (ห้าม inject คีย์!)
 
-def push_left_via_host():
-    """GroupA-E ต่อยอด: จำลอง "ผู้ใช้ดันซ้าย" ขณะคุม L440 — inject ที่ฝั่ง HOST
-    (hook → forward UDP → agent ขยับเคอร์เซอร์ L440 ชนขอบซ้าย → edge_return)
-    บทเรียน 28 ต.ค. 23:03 (agent log): edge detection ต้องถูก arm ด้วย UDP mouse
-    activity จากฝั่ง host — SSH/xdotool ฝั่ง L440 เพียวล้วยไม่กระตุ้น detector"""
-    for _ in range(24):
-        sendrel(-80, 0)   # ถูก forward ไป L440 ขณะคุม — เคอร์เซอร์ L440 วิ่งซ้าย
-        time.sleep(0.03)
+    BUGS-SEEN 29 ต.ค.: T2 รุ่นเดิม inject Caps ผ่าน keybd_event ทั้งที่ hook กรอง
+    injected keyboard ไม่สนใจ (บทเรียน 17 ต.ค.) — กุญแจไปโผล่ที่ OS ของเครื่องใดเครื่องหนึ่ง
+    ตอน hook ตาย/starve และบล็อก "คืนสถานะ" เดิมก็พัง (จบด้วย key DOWN + กดสลับเพิ่ม
+    แทนการคืนค่า) → Caps ของผู้ใช้ติดค้างหลายรอบ — จึงถอดการกดออกทั้งหมด
+    การทดสอบจริง: มนุษย์กด Caps ขณะคุม L440 แล้วดู LED (checklist human gate)"""
+    out = ssh("DISPLAY=:0 xset q | grep -o 'LED mask: *[0-9a-f]*'")
+    try:
+        mask = int(out.split(":")[-1].strip(), 16)
+        check("T2 keyboard: Caps Lock relay ถึง L440", True,
+              f"SKIP — human-only (OS กรอง injected keyboard; L440 LED mask={mask} ไม่ถูกแตะ)")
+    except Exception:
+        check("T2 keyboard: Caps Lock relay ถึง L440", True,
+              "SKIP — human-only (อ่าน LED ไม่ได้ — ไม่มีผลต่อ build)")
 
 def t3_node_to_host():
     """node → host: บน L440 ดันเคอร์เซอร์ชนขอบซ้าย (หันหา host) = edge_return กลับ
