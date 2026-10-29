@@ -416,19 +416,6 @@ public partial class MainWindow : Window, ISettingsHost
             _configSaveDebounce.Stop();
             PersistConfig(); // S3: engine mode = เขียนไฟล์ · dashboard = push ทั้งฉบับให้ hostd apply+save
         };
-
-        // C2: seed default rule Ctrl+Alt+V → history_picker ครั้งแรก (ผู้ใช้แก้/ลบผ่าน Settings ได้)
-        // (วางหลัง debounce สร้าง — ScheduleConfigSave ต้องมี timer)
-        if (!_config.Hotkeys.Any(r => r.Actions.Any(a => a.Type == HotkeyActionConfig.HistoryPicker)))
-        {
-            _config.Hotkeys.Add(new HotkeyRuleConfig
-            {
-                Key = "Ctrl+Alt+V",
-                Actions = new List<HotkeyActionConfig> { new(HotkeyActionConfig.HistoryPicker) },
-            });
-            ScheduleConfigSave();
-            OmniLog.Write("config", "C2: seed default hotkey Ctrl+Alt+V → history picker");
-        }
     }
 
     // ================= BOOT / WINDOW LIFECYCLE =================
