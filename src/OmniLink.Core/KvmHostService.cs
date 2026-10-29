@@ -924,7 +924,19 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     {
         CancelEdgeDwell();
         if (ActiveNodeId == nodeId) return; // C3: อยู่จอเดิม — ไม่สลับซ้ำ
-        if (!Sessions.TryGetValue(nodeId, out var sess) || !sess.Connected) return;
+        if (!Sessions.TryGetValue(nodeId, out var sess) || !sess.Connected)
+        {
+            // BUGS-SEEN 29 ต.ค. 01:25: เดิม return เงียบ — ผู้ใช้ดันขอบตอน node offline
+            // แล้วไม่รู้ว่าทำไมไม่สลับ (งงว่า hook พัง) → log+banner แบบ throttle
+            var offNow = Environment.TickCount64;
+            if (offNow - _lastOfflineLogTick > 2000)
+            {
+                _lastOfflineLogTick = offNow;
+                OmniLog.Write("kvm", $"[switch] ปฏิเสธสลับไป {nodeId} — node offline");
+                try { _eventHub.Publish(new StatusBannerEvent(Loc.T("banner.switch.offline", "สลับไป {0} ไม่ได้ — เครื่องลูกออฟไลน์อยู่", nodeId))); } catch { }
+            }
+            return;
+        }
         // v1.7 C2: node ที่ policy ไม่ใช่ full = ไม่รับ input — การสลับจอ (ส่งมอบเมาส์/คีย์) จึงปฏิเสธ
         if (!OmniPolicy.CanControl(sess.Config.Policy))
         {
@@ -1582,6 +1594,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     }
 
     internal long _lastGateLogTick;
+    internal long _lastOfflineLogTick;
 
     /// <summary>GroupA-D: จริง ๆ gate การสลับหลัง reconnect — true = ยังห้ามสลับ</summary>
     internal static bool SwitchGateBlocked(long connectedAtTick, long now, int gateMs)

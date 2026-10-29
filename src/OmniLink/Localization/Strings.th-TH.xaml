@@ -143,6 +143,7 @@
     <sys:String x:Key="Loc.banner.dashboard.connected">โหมด dashboard: เชื่อม engine (hostd) สำเร็จ</sys:String>
     <sys:String x:Key="Loc.banner.dashboard.offline">โหมด dashboard: engine ไม่ตอบ — กำลังลองเชื่อมต่อใหม่...</sys:String>
     <sys:String x:Key="Loc.sub.dashboard.engine">โหมด sub จัดการที่ฝั่ง engine (hostd) ตาม config — หน้าต่างนี้ไม่ฝังเอง</sys:String>
+    <sys:String x:Key="Loc.banner.switch.offline">สลับไป {0} ไม่ได้ — เครื่องลูกออฟไลน์อยู่</sys:String>
     <sys:String x:Key="Loc.sub.stopped">ปิดโหมด sub แล้ว</sys:String>
     <sys:String x:Key="Loc.settings.theme.title">ธีมสี</sys:String>
     <sys:String x:Key="Loc.settings.theme.desc">เปลี่ยนโทนสีของโปรแกรม (หน้าต่างทึบตลอด — ไม่มีเอฟเฟกต์โปร่งแสง)</sys:String>
