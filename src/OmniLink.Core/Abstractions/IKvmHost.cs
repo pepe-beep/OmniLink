@@ -51,4 +51,7 @@ public interface IKvmHost : IDisposable
     bool RemoveNode(string nodeId);
     bool SendNodeCommand(string ip, object payload);
     string? GetLocalEndpointIpForNode(string ip);
+
+    /// <summary>C2: ดัน clipboard ปัจจุบันไป node ที่กำลังควบคุม (dashboard mode = no-op — push เกิดตอนสลับจอ)</summary>
+    void PushClipboardToActiveNode();
 }

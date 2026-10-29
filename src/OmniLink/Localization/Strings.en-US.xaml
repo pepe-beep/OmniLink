@@ -144,6 +144,10 @@
     <sys:String x:Key="Loc.banner.dashboard.offline">Dashboard mode: engine unreachable — reconnecting...</sys:String>
     <sys:String x:Key="Loc.sub.dashboard.engine">Sub mode is managed by the engine (hostd) via config — this window does not host it</sys:String>
     <sys:String x:Key="Loc.banner.switch.offline">Can't switch to {0} — the node is offline</sys:String>
+    <sys:String x:Key="Loc.action.history_picker">Open clipboard history (Ctrl+Alt+V)</sys:String>
+    <sys:String x:Key="Loc.picker.title">Clipboard History</sys:String>
+    <sys:String x:Key="Loc.picker.hint">Pick one to set as current clipboard (pushed to node if controlling) · Enter or double-click</sys:String>
+    <sys:String x:Key="Loc.picker.footer">Esc = close</sys:String>
     <sys:String x:Key="Loc.sub.stopped">Sub mode turned off</sys:String>
     <sys:String x:Key="Loc.settings.theme.title">Color theme</sys:String>
     <sys:String x:Key="Loc.settings.theme.desc">Change the app color scheme (windows are always solid — no transparency effects)</sys:String>

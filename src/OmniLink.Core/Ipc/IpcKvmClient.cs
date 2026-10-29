@@ -353,6 +353,9 @@ public sealed class IpcKvmClient : IKvmHost
 
     public string? GetLocalEndpointIpForNode(string ip) => null; // audio seam — dashboard ไม่รัน audio เอง จึงไม่ถูกเรียก
 
+    /// <summary>C2: dashboard mode — push ตอนสลับจอเองอยู่แล้ว (engine ทำให้)</summary>
+    public void PushClipboardToActiveNode() { }
+
     /// <summary>S3: dashboard ยังต้อง "อ่าน/สั่ง" เสียง (engine เป็นคนรัน gst จริง)</summary>
     public bool AudioStreamRunning => S.Audio?.StreamRunning ?? false;
     public bool AudioMicRunning => S.Audio?.MicRunning ?? false;

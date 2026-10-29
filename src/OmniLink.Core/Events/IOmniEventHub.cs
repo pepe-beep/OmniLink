@@ -12,6 +12,7 @@ public record StatusBannerEvent(string Message);
 
 /// <summary>v1.9 C1: คำขอ toggle เสียงจาก user hotkey — Kvm hook จับปุ่มแล้วส่งต่อให้ผู้ถือ audio (MainWindow)</summary>
 public record HotkeyAudioRequestedEvent(string ActionType); // toggle_stream | toggle_mic
+public record HotkeyHistoryRequestedEvent(); // C2: เปิด clipboard history picker
 public record ClipboardReceivedEvent(string Text, string SourceNodeId);
 public record LanguageChangedEvent(int LangGroup, bool IsHost, string? NodeId);
 

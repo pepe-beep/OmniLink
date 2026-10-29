@@ -222,6 +222,9 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
                     case HotkeyActionConfig.ToggleMic:
                         _eventHub.Publish(new HotkeyAudioRequestedEvent(action.Type)); // audio เป็นของ MainWindow
                         break;
+                    case HotkeyActionConfig.HistoryPicker:
+                        _eventHub.Publish(new HotkeyHistoryRequestedEvent()); // C2: UI เปิด picker
+                        break;
                     case HotkeyActionConfig.CalibrateEn:
                         CalibrateAllLanguages(0);
                         break;
@@ -782,6 +785,13 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     public void SetWindowsLangGroupTracked(int group) => _lang.SetWindowsLangGroupTracked(group);
     public void CalibrateAllLanguages(int targetGroup) => _lang.CalibrateAllLanguages(targetGroup);
     public void TriggerLanguageToggle() => _lang.TriggerLanguageToggle();
+
+    public void PushClipboardToActiveNode()
+    {
+        var id = ActiveNodeId;
+        if (id is null || !Sessions.TryGetValue(id, out var sess) || !sess.Connected) return;
+        try { _clip.TryPushClipboardTo(sess); } catch { }
+    }
 
     public bool SendNodeCommand(string ip, object payload)
     {

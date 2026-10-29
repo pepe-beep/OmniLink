@@ -75,6 +75,17 @@ public partial class MainWindow : Window, ISettingsHost
         _dashboard = string.Equals(_config.UiRole, "dashboard", StringComparison.OrdinalIgnoreCase);
         _clipboardBridge = new WindowsClipboardBridge();
 
+        // C2: seed default rule Ctrl+Alt+V → history_picker ครั้งแรก (ผู้ใช้แก้/ลบผ่าน Settings ได้)
+        if (!_config.Hotkeys.Any(r => r.Actions.Any(a => a.Type == HotkeyActionConfig.HistoryPicker)))
+        {
+            _config.Hotkeys.Add(new HotkeyRuleConfig
+            {
+                Key = "Ctrl+Alt+V",
+                Actions = new List<HotkeyActionConfig> { new(HotkeyActionConfig.HistoryPicker) },
+            });
+            ScheduleConfigSave();
+            OmniLog.Write("config", "C2: seed default hotkey Ctrl+Alt+V → history picker");
+        }
         _clipboardHistory = new ClipboardHistoryStore(OmniPaths.RunStateDir, m => OmniLog.Warn(m));
         HistoryVM = new HistoryViewModel(_clipboardHistory);
         DataContext = this;
@@ -190,6 +201,24 @@ public partial class MainWindow : Window, ISettingsHost
                         }
                     });
                 }
+            });
+
+            // C2: hotkey history_picker → เปิด picker window (ตาม spec: กดที่ไหนก็ได้)
+            _eventHub.Subscribe<HotkeyHistoryRequestedEvent>(_ =>
+            {
+                Dispatcher.BeginInvoke(() =>
+                {
+                    try
+                    {
+                        var picker = new ClipboardPickerWindow(this, _kvm, _clipboardBridge, _clipboardHistory)
+                        {
+                            Owner = this,
+                        };
+                        picker.Show();
+                        picker.Activate();
+                    }
+                    catch (Exception ex) { OmniLog.Warn("[picker] เปิดไม่ได้: " + ex.Message); }
+                });
             });
         }
 
@@ -431,6 +460,9 @@ public partial class MainWindow : Window, ISettingsHost
     }
 
     /// <summary>C2: echo suppression — เรียกก่อน "เราตั้ง clipboard เอง" เพื่อไม่จับกลับ (flag+timestamp)</summary>
+    /// <summary>C2: picker เป็น window ลูก — เรียกผ่าน method นี้ (suppress การจับกลับหลังตั้ง clipboard)</summary>
+    public void SuppressClipboardCaptureForPicker() => SuppressClipboardCapture();
+
     private void SuppressClipboardCapture()
     {
         _clipSuppressUntilTick = Environment.TickCount64 + 600;

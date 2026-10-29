@@ -73,8 +73,9 @@ public sealed class HotkeyActionConfig
     public const string ToggleMic = "toggle_mic";
     public const string CalibrateEn = "calibrate_en";
     public const string CalibrateTh = "calibrate_th";
+    public const string HistoryPicker = "history_picker";
 
-    public static readonly string[] AllTypes = { SwitchNode, ToggleLock, ToggleStream, ToggleMic, CalibrateEn, CalibrateTh };
+    public static readonly string[] AllTypes = { SwitchNode, ToggleLock, ToggleStream, ToggleMic, CalibrateEn, CalibrateTh, HistoryPicker };
 
     [JsonPropertyName("type")]
     public string Type { get; set; } = SwitchNode;
