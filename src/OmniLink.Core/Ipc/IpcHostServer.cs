@@ -230,6 +230,29 @@ public sealed class IpcHostServer : IDisposable
                 return IpcProtocol.Ok(new { ok });
             }
 
+            case "status.deep":
+            {
+                // A5: สถานะเชิงลึกสำหรับ dashboard ที่ UI ใน engine-mode อ่านตรงจาก facade ไม่ได้
+                var proc = System.Diagnostics.Process.GetCurrentProcess();
+                var deep = new
+                {
+                    pid = Environment.ProcessId,
+                    uptime_ms = (long)(DateTime.UtcNow - System.Diagnostics.Process.GetCurrentProcess().StartTime.ToUniversalTime()).TotalMilliseconds,
+                    ram_mb = Environment.WorkingSet / 1024 / 1024,
+                    threads = proc.Threads.Count,
+                    priority = proc.PriorityClass.ToString(),
+                    active_node = _kvm.ActiveNodeId,
+                    master_lang = _kvm.MasterLangGroup,
+                    virtual_ltrb = new[] { _kvm.VirtualLeft, _kvm.VirtualTop, _kvm.VirtualRight, _kvm.VirtualBottom },
+                    nodes = _kvm.SessionViews.Values.Select(s => new
+                    {
+                        id = s.Config.NodeId, connected = s.Connected, agent = s.AgentVersion,
+                        ping_ms = s.PingMs, lifecycle = s.LifecycleState.ToString(), policy = s.Config.Policy,
+                    }).ToList(),
+                };
+                return IpcProtocol.Ok(deep);
+            }
+
             case "config.replace":
             {
                 var incoming = args?.GetProperty("config").Deserialize<OmniConfig>(IpcProtocol.JsonOptions);
