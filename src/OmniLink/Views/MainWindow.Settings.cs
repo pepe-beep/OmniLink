@@ -32,6 +32,7 @@ public partial class MainWindow
         _settingsPages.Add(new ClipboardPage(this));
         _settingsPages.Add(new LoggingPage(this));
         _settingsPages.Add(new AdvancedPage(this));
+        _settingsPages.Add(new StatusPage(this)); // A5: สถานะระบบ
         _settingsPages.Add(new DangerPage(this));
 
         RebuildSettingsRail();

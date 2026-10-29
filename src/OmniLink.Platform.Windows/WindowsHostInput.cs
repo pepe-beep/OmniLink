@@ -43,10 +43,17 @@ public sealed class WindowsHostInput : IHostInputGateway
         _msProcDelegate = MouseHookCallback;
     }
 
+    /// <summary>A5: instance ล่าสุดของ process (หน้า StatusPage อ่านจาก facade)</summary>
+    internal static WindowsHostInput? LastCreated { get; private set; }
+
+    /// <summary>A5: จำนวน rehook ที่ watchdog ทำ (hook health)</summary>
+    public long RehookCount => Interlocked.Read(ref _rehookCount);
+
     public void Start(Func<KeyHookData, bool>? onKey, Func<MouseHookData, bool> onMouse)
     {
         _onKey = onKey;
         _onMouse = onMouse;
+        LastCreated = this;
         if (_hookThread is null)
         {
             _hookThread = new Thread(HookThreadLoop)
