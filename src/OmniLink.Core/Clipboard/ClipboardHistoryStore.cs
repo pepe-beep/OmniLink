@@ -43,6 +43,9 @@ public sealed class ClipboardHistoryStore
     private readonly string _historyDir;
     private readonly Action<string>? _log;
 
+    /// <summary>C2d: store เดียวของเครื่อง — UI/protocol/-picker ใช้ instance นี้ร่วมกัน (precedent: OmniEventHub.Default)</summary>
+    public static ClipboardHistoryStore Default { get; } = new();
+
     public ClipboardHistoryStore(string? runStateDir = null, Action<string>? log = null)
     {
         var dir = runStateDir ?? OmniPaths.RunStateDir;
@@ -187,6 +190,33 @@ public sealed class ClipboardHistoryStore
     }
 
     // ── persist (C2: ring ใน runstate/clipboard_history.json — AtomicFile INV-9) ──
+
+    /// <summary>C2d: metadata list สำหรับ history_list (ไม่รวมเนื้อหาเต็ม)</summary>
+    public List<(string Id, string Mime, string Preview, long Ts, string Source)> GetHistoryMetadata()
+    {
+        lock (_lock)
+        {
+            return _entries.Select(e => (e.Id, e.MimeType, e.PreviewText, e.TimestampUtc, e.SourceNodeId)).ToList();
+        }
+    }
+
+    /// <summary>C2d: เนื้อหาเต็มของรายการตาม id — null = ไม่พบ</summary>
+    public (string Mime, byte[] Data)? GetHistoryEntry(string id)
+    {
+        ClipboardHistoryEntry? entry;
+        lock (_lock)
+        {
+            entry = _entries.FirstOrDefault(e => e.Id == id);
+        }
+        if (entry is null) return null;
+        if (IsImage(entry))
+        {
+            var png = GetPng(entry);
+            return png is { Length: > 0 } ? ("image/png", png) : null;
+        }
+        var text = GetText(entry);
+        return text is null ? null : (entry.MimeType, Encoding.UTF8.GetBytes(text));
+    }
 
     private static bool IsImage(ClipboardHistoryEntry e) => e.MimeType == "image/png";
 

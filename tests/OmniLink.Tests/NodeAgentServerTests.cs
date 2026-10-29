@@ -424,6 +424,50 @@ public class NodeAgentServerTests : IDisposable
         finally { ssl.Dispose(); }
     }
 
+    [Fact]
+    public void SubHistory_RequestAndGet_RoundTrip()
+    {
+        var clip = new RecordingClipboard();
+        var (ssl, server) = AuthenticatedConnection(clip);
+        try
+        {
+            // เติมประวัติผ่าน clipboard fast-path (ฝั่ง sub รับจาก host = เข้า store เดียวกัน)
+            ssl.Write(Frame(new { type = "clipboard", text = "hist-alpha" }));
+            ssl.Write(Frame(new { type = "clipboard", text = "hist-beta" }));
+            ssl.Flush();
+            Assert.True(SpinUntil(() => OmniLink.Core.Clipboard.ClipboardHistoryStore.Default.GetEntries().Count >= 2, 5000),
+                "sub ต้องเก็บ text 2 รายการเข้า store เดียวกัน");
+
+            // history_request → history_list (metadata)
+            ssl.Write(Frame(new { type = "history_request" }));
+            ssl.Flush();
+            var (t1, r1) = ReadMessage(ssl);
+            Assert.Equal("history_list", t1);
+            var list = r1.GetProperty("entries");
+            Assert.True(list.GetArrayLength() >= 2, "ต้องมีอย่างน้อย 2 รายการ");
+            var firstId = list[0].GetProperty("id").GetString()!;
+            var preview = list[0].GetProperty("preview").GetString()!;
+            Assert.Equal("hist-beta", preview); // ใหม่สุดหัวแถว
+
+            // history_get → history_entry (เนื้อหาเต็ม)
+            ssl.Write(Frame(new { type = "history_get", id = firstId }));
+            ssl.Flush();
+            var (t2, r2) = ReadMessage(ssl);
+            Assert.Equal("history_entry", t2);
+            Assert.Equal(firstId, r2.GetProperty("id").GetString());
+            Assert.Equal("text/plain", r2.GetProperty("mime").GetString());
+            Assert.Equal("hist-beta", Encoding.UTF8.GetString(OmniImage.FromBase64(r2.GetProperty("data").GetString()!)));
+
+            // history_get id ไม่มี → missing
+            ssl.Write(Frame(new { type = "history_get", id = "no-such-id" }));
+            ssl.Flush();
+            var (t3, r3) = ReadMessage(ssl);
+            Assert.Equal("history_entry", t3);
+            Assert.True(r3.GetProperty("missing").GetBoolean());
+        }
+        finally { ssl.Dispose(); }
+    }
+
     private static bool SpinUntil(Func<bool> cond, int timeoutMs)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();

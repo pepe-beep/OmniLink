@@ -24,6 +24,12 @@ public interface IHostLinkCallbacks
     }
 
     void OnFileOfferReceived(string nodeId, string manifestJson) { }
+
+    /// <summary>C2d: node ขอรายการ metadata ของ clipboard history (host/sub ตอบ history_list)</summary>
+    void OnHistoryRequestReceived(string nodeId) { }
+
+    /// <summary>C2d: node ขอเนื้อหาเต็มรายการเดียว (host/sub ตอบ history_entry)</summary>
+    void OnHistoryGetReceived(string nodeId, string id) { }
     void OnFileAcceptReceived(string nodeId, string transferId) { }
     void OnFileChunkReceived(string nodeId, string transferId, int fileIndex, long offset, string base64Data) { }
     void OnFileDoneReceived(string nodeId, string transferId, int fileIndex) { }

@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using OmniLink.Core.Abstractions;
 using OmniLink.Core.Events;
+using OmniLink.Core.Clipboard;
 using OmniLink.Core.FileExchange;
 using OmniLink.Core.Security;
 
@@ -739,6 +740,7 @@ public sealed class NodeAgentServer : IDisposable
                     if (ok)
                     {
                         _lastClipHash = ClipboardRouter.ClipHash("text", text); // A1: กัน echo
+                        ClipboardHistoryStore.Default.AddTextEntry(text, "host"); // C2: เข้าประวัติ
                         OmniLog.Write("sub", $"[sub] รับ clipboard จาก host len={text.Length}");
                     }
                 }
@@ -753,6 +755,7 @@ public sealed class NodeAgentServer : IDisposable
                         if (hash != _lastClipHash && (_clipboard?.SetPng(png) ?? false))
                         {
                             _lastClipHash = hash;
+                            ClipboardHistoryStore.Default.AddImage(png, "host"); // C2
                             OmniLog.Write("sub", $"[sub] รับรูปจาก host len={png.Length}B");
                         }
                     }
@@ -786,6 +789,7 @@ public sealed class NodeAgentServer : IDisposable
                         if (hash != _lastClipHash && (_clipboard?.SetPng(png) ?? false))
                         {
                             _lastClipHash = hash;
+                            ClipboardHistoryStore.Default.AddImage(png, "host"); // C2
                             OmniLog.Write("sub", $"[sub] รับรูป (ACK-gate) len={png.Length}B");
                         }
                     }
@@ -794,7 +798,11 @@ public sealed class NodeAgentServer : IDisposable
                 {
                     var text = Encoding.UTF8.GetString(OmniImage.FromBase64(data));
                     var ok = _clipboard?.SetText(text) ?? false;
-                    if (ok) _lastClipHash = ClipboardRouter.ClipHash("text", text);
+                    if (ok)
+                    {
+                        _lastClipHash = ClipboardRouter.ClipHash("text", text);
+                        ClipboardHistoryStore.Default.AddTextEntry(text, "host"); // C2
+                    }
                 }
                 break;
             }
@@ -869,6 +877,39 @@ public sealed class NodeAgentServer : IDisposable
                         }
                     }
                 }
+                break;
+            }
+
+            case "history_request":
+            {
+                // C2d: ลูกขอ metadata ประวัติ (จาก store เดียวของเครื่อง)
+                var entries = ClipboardHistoryStore.Default.GetHistoryMetadata();
+                SendToHost(new
+                {
+                    type = "history_list",
+                    entries = entries.Select(e => new { id = e.Id, mime = e.Mime, preview = e.Preview, ts = e.Ts, source = e.Source }).ToList(),
+                });
+                break;
+            }
+
+            case "history_get":
+            {
+                var hid = root.TryGetProperty("id", out var hg) ? hg.GetString() : null;
+                if (string.IsNullOrEmpty(hid)) break;
+                var entry = ClipboardHistoryStore.Default.GetHistoryEntry(hid);
+                if (entry is null)
+                {
+                    SendToHost(new { type = "history_entry", id = hid, missing = true });
+                    break;
+                }
+                var (mime, data) = entry.Value;
+                var b64 = Convert.ToBase64String(data);
+                if (b64.Length > 100_000)
+                {
+                    SendToHost(new { type = "history_entry", id = hid, missing = true, reason = "too_big" });
+                    break;
+                }
+                SendToHost(new { type = "history_entry", id = hid, mime, data = b64 });
                 break;
             }
 

@@ -75,7 +75,7 @@ public partial class MainWindow : Window, ISettingsHost
         _dashboard = string.Equals(_config.UiRole, "dashboard", StringComparison.OrdinalIgnoreCase);
         _clipboardBridge = new WindowsClipboardBridge();
 
-        _clipboardHistory = new ClipboardHistoryStore(OmniPaths.RunStateDir, m => OmniLog.Warn(m));
+        _clipboardHistory = ClipboardHistoryStore.Default; // C2d: instance เดียวของเครื่อง
         HistoryVM = new HistoryViewModel(_clipboardHistory);
         DataContext = this;
 

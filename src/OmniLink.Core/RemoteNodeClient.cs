@@ -514,6 +514,22 @@ public sealed class RemoteNodeClient : IDisposable
                 return;
             }
 
+            if (mtype == "history_request")
+            {
+                _callbacks.OnHistoryRequestReceived(Config.NodeId);
+                return;
+            }
+
+            if (mtype == "history_get")
+            {
+                var hid = root.TryGetProperty("id", out var hp) ? hp.GetString() : null;
+                if (!string.IsNullOrEmpty(hid))
+                {
+                    _callbacks.OnHistoryGetReceived(Config.NodeId, hid);
+                }
+                return;
+            }
+
             if (mtype == "file_offer")
             {
                 var manifestJson = root.TryGetProperty("manifest", out var mp) ? mp.GetString() : null;

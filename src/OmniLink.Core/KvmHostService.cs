@@ -786,6 +786,42 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     public void CalibrateAllLanguages(int targetGroup) => _lang.CalibrateAllLanguages(targetGroup);
     public void TriggerLanguageToggle() => _lang.TriggerLanguageToggle();
 
+    void IHostLinkCallbacks.OnHistoryRequestReceived(string nodeId)
+    {
+        if (!Sessions.TryGetValue(nodeId, out var sess)) return;
+        var entries = ClipboardHistoryStore.Default.GetHistoryMetadata();
+        try
+        {
+            sess.SendTcp(new
+            {
+                type = "history_list",
+                entries = entries.Select(e => new { id = e.Id, mime = e.Mime, preview = e.Preview, ts = e.Ts, source = e.Source }).ToList(),
+            });
+        }
+        catch (Exception ex) { OmniLog.Warn("[history] list: " + ex.Message); }
+    }
+
+    void IHostLinkCallbacks.OnHistoryGetReceived(string nodeId, string id)
+    {
+        if (!Sessions.TryGetValue(nodeId, out var sess)) return;
+        var entry = ClipboardHistoryStore.Default.GetHistoryEntry(id);
+        if (entry is null)
+        {
+            try { sess.SendTcp(new { type = "history_entry", id, missing = true }); } catch { }
+            return;
+        }
+        var (mime, data) = entry.Value;
+        var b64 = Convert.ToBase64String(data);
+        if (b64.Length > 100_000)
+        {
+            // เกินกรอบ TCP — เฟสถัดไปทำ ACK-gate (จดในแผน W1)
+            try { sess.SendTcp(new { type = "history_entry", id, missing = true, reason = "too_big" }); } catch { }
+            OmniLog.Write("history", $"[history] รายการใหญ่เกินส่งตรง ({b64.Length} b64) — รอ ACK-gate");
+            return;
+        }
+        try { sess.SendTcp(new { type = "history_entry", id, mime, data = b64 }); } catch { }
+    }
+
     public void PushClipboardToActiveNode()
     {
         var id = ActiveNodeId;
