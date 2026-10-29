@@ -69,6 +69,7 @@ public class IpcLoopbackTests
         public bool SendNodeCommand(string ip, object payload) => true;
         public string? GetLocalEndpointIpForNode(string ip) => "127.0.0.1";
         public void PushClipboardToActiveNode() { }
+        public void SendFilesToNode(string nodeId, IReadOnlyList<string> paths) { }
         public void Dispose() { }
     }
 

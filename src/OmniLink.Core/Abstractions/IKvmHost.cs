@@ -54,4 +54,7 @@ public interface IKvmHost : IDisposable
 
     /// <summary>C2: ดัน clipboard ปัจจุบันไป node ที่กำลังควบคุม (dashboard mode = no-op — push เกิดตอนสลับจอ)</summary>
     void PushClipboardToActiveNode();
+
+    /// <summary>C3 Quick Share: ส่งไฟล์จากเครื่องนี้ไป node ที่ระบุ (dashboard mode = no-op)</summary>
+    void SendFilesToNode(string nodeId, IReadOnlyList<string> paths);
 }

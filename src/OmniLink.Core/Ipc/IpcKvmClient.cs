@@ -356,6 +356,9 @@ public sealed class IpcKvmClient : IKvmHost
     /// <summary>C2: dashboard mode — push ตอนสลับจอเองอยู่แล้ว (engine ทำให้)</summary>
     public void PushClipboardToActiveNode() { }
 
+    /// <summary>C3: dashboard mode — ส่งไฟล์เป็นของฝั่ง engine (no-op)</summary>
+    public void SendFilesToNode(string nodeId, IReadOnlyList<string> paths) { }
+
     /// <summary>S3: dashboard ยังต้อง "อ่าน/สั่ง" เสียง (engine เป็นคนรัน gst จริง)</summary>
     public bool AudioStreamRunning => S.Audio?.StreamRunning ?? false;
     public bool AudioMicRunning => S.Audio?.MicRunning ?? false;

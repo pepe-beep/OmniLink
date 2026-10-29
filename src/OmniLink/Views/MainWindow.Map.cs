@@ -473,6 +473,42 @@ public partial class MainWindow
             Tag = "card|" + node.NodeId,
             ToolTip = node.DisplayName,
         };
+
+        // C3 Quick Share: ลากไฟล์วางการ์ด = ส่งไป node นั้น · คลิกขวา = เลือกไฟล์
+        card.AllowDrop = true;
+        card.Drop += (_, e) =>
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop) &&
+                e.Data.GetData(DataFormats.FileDrop) is string[] dropped && dropped.Length > 0)
+            {
+                e.Handled = true;
+                SendFilesToNodeWithBanner(node.NodeId, dropped);
+            }
+        };
+        card.MouseRightButtonUp += (_, e) =>
+        {
+            e.Handled = true;
+            var menu = new ContextMenu();
+            var sendItem = new MenuItem
+            {
+                Header = Loc.T("map.card.sendfiles", "ส่งไฟล์ไปเครื่องนี้..."),
+            };
+            sendItem.Click += (_, _) =>
+            {
+                var dlg = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = Loc.T("map.card.sendfiles", "ส่งไฟล์ไปเครื่องนี้..."),
+                    Multiselect = true,
+                };
+                if (dlg.ShowDialog(this) == true)
+                {
+                    SendFilesToNodeWithBanner(node.NodeId, dlg.FileNames);
+                }
+            };
+            menu.Items.Add(sendItem);
+            menu.IsOpen = true;
+        };
+
         var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
 
         var titleRow = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };

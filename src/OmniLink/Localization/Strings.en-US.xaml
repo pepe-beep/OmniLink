@@ -154,6 +154,8 @@
     <sys:String x:Key="Loc.status.nodes">Nodes</sys:String>
     <sys:String x:Key="Loc.status.clipboard">Clipboard / Topology</sys:String>
     <sys:String x:Key="Loc.status.nodes.empty">(no nodes in config)</sys:String>
+    <sys:String x:Key="Loc.map.card.sendfiles">Send files to this machine...</sys:String>
+    <sys:String x:Key="Loc.map.card.sending">Sending {0} file(s) to {1}...</sys:String>
     <sys:String x:Key="Loc.sub.stopped">Sub mode turned off</sys:String>
     <sys:String x:Key="Loc.settings.theme.title">Color theme</sys:String>
     <sys:String x:Key="Loc.settings.theme.desc">Change the app color scheme (windows are always solid — no transparency effects)</sys:String>

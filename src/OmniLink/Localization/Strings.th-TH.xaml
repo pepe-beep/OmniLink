@@ -154,6 +154,8 @@
     <sys:String x:Key="Loc.status.nodes">เครื่องลูก</sys:String>
     <sys:String x:Key="Loc.status.clipboard">คลิปบอร์ด/โทโพโลยี</sys:String>
     <sys:String x:Key="Loc.status.nodes.empty">(ไม่มี node ใน config)</sys:String>
+    <sys:String x:Key="Loc.map.card.sendfiles">ส่งไฟล์ไปเครื่องนี้...</sys:String>
+    <sys:String x:Key="Loc.map.card.sending">กำลังส่ง {0} ไฟล์ไป {1}...</sys:String>
     <sys:String x:Key="Loc.sub.stopped">ปิดโหมด sub แล้ว</sys:String>
     <sys:String x:Key="Loc.settings.theme.title">ธีมสี</sys:String>
     <sys:String x:Key="Loc.settings.theme.desc">เปลี่ยนโทนสีของโปรแกรม (หน้าต่างทึบตลอด — ไม่มีเอฟเฟกต์โปร่งแสง)</sys:String>

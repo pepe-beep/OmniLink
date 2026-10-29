@@ -452,6 +452,24 @@ public partial class MainWindow : Window, ISettingsHost
     /// <summary>C2: picker เป็น window ลูก — เรียกผ่าน method นี้ (suppress การจับกลับหลังตั้ง clipboard)</summary>
     public void SuppressClipboardCaptureForPicker() => SuppressClipboardCapture();
 
+    /// <summary>C3 Quick Share: ส่งไฟล์ + banner — จาก drag-drop บนการ์ด / context menu</summary>
+    private void SendFilesToNodeWithBanner(string nodeId, IReadOnlyList<string> paths)
+    {
+        SetBanner(Loc.T("map.card.sending", "กำลังส่ง {0} ไฟล์ไป {1}...", paths.Count, nodeId));
+        Task.Run(() =>
+        {
+            try
+            {
+                _kvm.SendFilesToNode(nodeId, paths);
+            }
+            catch (Exception ex)
+            {
+                OmniLog.Warn("[quick-share] " + ex.Message);
+            }
+            Dispatcher.BeginInvoke(ScheduleUiRefresh);
+        });
+    }
+
     private void SuppressClipboardCapture()
     {
         _clipSuppressUntilTick = Environment.TickCount64 + 600;

@@ -822,6 +822,28 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         try { sess.SendTcp(new { type = "history_entry", id, mime, data = b64 }); } catch { }
     }
 
+    public void SendFilesToNode(string nodeId, IReadOnlyList<string> paths)
+    {
+        if (paths.Count == 0 || !Sessions.TryGetValue(nodeId, out var sess) || !sess.Connected)
+        {
+            OmniLog.Write("file", $"[quick-share] ปฏิเสธ — node {nodeId} offline หรือไม่มีไฟล์");
+            return;
+        }
+        var manifest = FileExchange.FileManifest.Create(paths);
+        if (manifest.Files.Count == 0)
+        {
+            OmniLog.Write("file", "[quick-share] manifest ว่าง (ไฟล์อ่านไม่ได้)");
+            return;
+        }
+        FileTransfer.Streamer.RegisterOutbound(manifest, paths.ToList());
+        FileTransfer.RegisterNodeSender(nodeId, msg => sess.SendTcp(msg));
+        if (sess.SendTcp(new { type = "file_offer", manifest = manifest.ToJson() }))
+        {
+            OmniLog.Write("file", $"[quick-share] file_offer {manifest.Files.Count} files ({manifest.TotalBytes / 1024}KB) → {nodeId} id={manifest.Id}");
+            try { _eventHub.Publish(new StatusBannerEvent(Loc.T("banner.files.sending", "กำลังเสนอส่งไฟล์ {0} ไฟล์ ({1} KB) ไปเครื่องลูก...", manifest.Files.Count, manifest.TotalBytes / 1024))); } catch { }
+        }
+    }
+
     public void PushClipboardToActiveNode()
     {
         var id = ActiveNodeId;
