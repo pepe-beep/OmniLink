@@ -68,6 +68,7 @@ public class IpcLoopbackTests
         public bool RemoveNode(string nodeId) { Removed.Add(nodeId); return true; }
         public bool SendNodeCommand(string ip, object payload) => true;
         public string? GetLocalEndpointIpForNode(string ip) => "127.0.0.1";
+        public void PushClipboardToActiveNode() { }
         public void Dispose() { }
     }
 

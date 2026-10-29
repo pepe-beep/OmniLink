@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using OmniLink.Core;
+using OmniLink.Core.Clipboard;
 using OmniLink.Core.Events;
 using OmniLink.ViewModels;
 using Xunit;
@@ -39,7 +41,10 @@ public class ViewModelTests
     [Fact]
     public void HistoryViewModel_AddAndClear_UpdatesEntries()
     {
-        var vm = new HistoryViewModel();
+        // C2: store จริง persist ที่ runstate — test ต้อง isolate ด้วย temp dir
+        var dir = Path.Combine(Path.GetTempPath(), "omnilink-vmtest-" + Guid.NewGuid().ToString("N")[..8]);
+        Directory.CreateDirectory(dir);
+        var vm = new HistoryViewModel(new ClipboardHistoryStore(dir));
         Assert.Equal(0, vm.TotalCount);
 
         vm.AddEntry("text/plain", "Sample clip 1", null, "node-1");
