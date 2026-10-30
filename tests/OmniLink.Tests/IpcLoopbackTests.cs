@@ -91,14 +91,15 @@ public class IpcLoopbackTests
     }
 
     [Fact]
-    public void Handshake_State_And_Commands_RoundTrip()
+    public async Task Handshake_State_And_Commands_RoundTrip()
     {
         var (host, server, client) = StartPair(out _);
         try
         {
             var gotState = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             client.StateChanged += () => gotState.TrySetResult();
-            Assert.True(gotState.Task.Wait(5_000), "ไม่ได้รับ state.changed หลัง handshake");
+            var winner = await Task.WhenAny(gotState.Task, Task.Delay(5_000));
+            Assert.True(winner == gotState.Task, "ไม่ได้รับ state.changed หลัง handshake");
 
             Assert.True(client.IsConnected);
             Assert.Equal("n1", client.ActiveNodeId);
@@ -137,7 +138,7 @@ public class IpcLoopbackTests
     }
 
     [Fact]
-    public void Banner_Event_Flows_Engine_Hub_To_Dashboard_Hub()
+    public async Task Banner_Event_Flows_Engine_Hub_To_Dashboard_Hub()
     {
         var (_, server, client) = StartPair(out _);
         try
@@ -147,8 +148,8 @@ public class IpcLoopbackTests
             {
                 // engine ประกาศ banner ผ่าน hub ฝั่งตัวเอง (เหมือน KvmHostService ทำจริง)
                 OmniEventHub.Default.Publish(new StatusBannerEvent("ทดสอบ banner ข้ามท่อ"));
-                Assert.True(got.Task.Wait(5_000), "banner ไม่ถึง dashboard");
-                Assert.Equal("ทดสอบ banner ข้ามท่อ", got.Task.Result);
+                var msg = await got.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                Assert.Equal("ทดสอบ banner ข้ามท่อ", msg);
             }
         }
         finally
@@ -192,7 +193,7 @@ public class IpcLoopbackTests
             Thread.Sleep(300);
             Assert.False(client.IsConnected);
             client.SwitchToNode("n1", 0.5); // offline = กลืน ไม่แครช
-            Assert.Equal(0, client.SessionViews.Count);
+            Assert.Empty(client.SessionViews);
             Assert.Null(client.ActiveNodeId);
         }
         finally

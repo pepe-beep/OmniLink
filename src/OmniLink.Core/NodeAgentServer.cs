@@ -185,7 +185,7 @@ public sealed class NodeAgentServer : IDisposable
         {
             OmniLog.Warn("[sub] สร้าง/อ่าน token ไม่สำเร็จ: " + ex.Message);
         }
-        _udpKey = OmniPacketAuth.DeriveUdpKey(_authToken);
+        _udpKey = string.IsNullOrWhiteSpace(_authToken) ? null : OmniPacketAuth.DeriveUdpKey(_authToken);
 
         // PIN (หมุนใหม่ทุกครั้งที่จับคู่สำเร็จ)
         try
@@ -209,7 +209,11 @@ public sealed class NodeAgentServer : IDisposable
             var pfx = StatePath("sub_cert.pfx");
             if (File.Exists(pfx))
             {
+                #if NET9_0_OR_GREATER
+                _cert = X509CertificateLoader.LoadPkcs12FromFile(pfx, null, KeyStorageFlags);
+#else
                 _cert = new X509Certificate2(pfx, (string?)null, KeyStorageFlags);
+#endif
             }
             else
             {
@@ -219,7 +223,11 @@ public sealed class NodeAgentServer : IDisposable
                 File.WriteAllBytes(pfx, fresh.Export(X509ContentType.Pfx));
                 // กับดัก Windows/SChannel: cert จาก CreateSelfSigned ถือ key แบบ ephemeral ซึ่งฝั่ง TLS-server
                 // ใช้ไม่ได้ ("platform does not support ephemeral keys") — import ใหม่พร้อม PersistKeySet เสมอ
+                #if NET9_0_OR_GREATER
+                _cert = X509CertificateLoader.LoadPkcs12FromFile(pfx, null, KeyStorageFlags);
+#else
                 _cert = new X509Certificate2(pfx, (string?)null, KeyStorageFlags);
+#endif
             }
             CertFingerprint = OmniPacketAuth.CertificateFingerprint(_cert.Export(X509ContentType.Cert));
         }
@@ -534,7 +542,7 @@ public sealed class NodeAgentServer : IDisposable
 
         // จับคู่สำเร็จ: ออก token ใหม่ + หมุน PIN + แจ้ง fingerprint ของ cert จริง (TOFU)
         _authToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32)).ToLowerInvariant();
-        _udpKey = OmniPacketAuth.DeriveUdpKey(_authToken);
+        _udpKey = string.IsNullOrWhiteSpace(_authToken) ? null : OmniPacketAuth.DeriveUdpKey(_authToken);
         try { File.WriteAllText(StatePath("sub_auth_token"), _authToken); } catch { }
         PairingPin = NewPin();
         try { File.WriteAllText(StatePath("sub_pairing_pin"), PairingPin); } catch { }

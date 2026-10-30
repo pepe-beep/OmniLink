@@ -64,6 +64,8 @@ def main():
     # ── ชั้น 2: Python agent unit ──
     run("Python agent edge machine", [sys.executable, "tests/unit_agent/test_agent_edge_machine.py"])
     run("Python agent file exchange", [sys.executable, "-m", "unittest", "tests/unit_agent/test_agent_file_exchange.py"])
+    run("Python agent win32", [sys.executable, "-m", "unittest", "tests/unit_agent/test_agent_win32.py"])
+    run("Python agent policy", [sys.executable, "-m", "unittest", "tests/unit_agent/test_policy_matrix.py"])
 
     # ── ชั้น 3: live protocol ──
     if live:

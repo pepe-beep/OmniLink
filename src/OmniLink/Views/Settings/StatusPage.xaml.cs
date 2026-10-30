@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using OmniLink.Core;
 using OmniLink.Core.Clipboard;
-using OmniLink.Core.Clipboard;
 using OmniLink.Core.Abstractions;
 
 namespace OmniLink.Views.Settings;
@@ -56,8 +55,8 @@ public partial class StatusPage : UserControl, ISettingsPage
                 $"threads       = {proc.Threads.Count}\n" +
                 $"priority      = {proc.PriorityClass}\n" +
                 $"hook rehooks  = {gateway?.RehookCount ?? -1}\n" +
-                $"edge_poll_hz  = {Host.Config.EdgePollHz}\n" +
-                $"switch_delay  = {Host.Config.SwitchDelayMs} ms";
+                $"edge_poll_hz  = {Host?.Config.EdgePollHz ?? 0}\n" +
+                $"switch_delay  = {Host?.Config.SwitchDelayMs ?? 0} ms";
 
             var lines = new List<string>();
             foreach (var kv in kvm.SessionViews.OrderBy(k => k.Key))

@@ -185,7 +185,7 @@ public sealed class RemoteNodeClient : IDisposable
             }
 
             // v1.8 SV-L1: wire v2 = [body][seq 8B][HMAC 16B] — agent ปฏิเสธ seq ที่ไม่ใหม่กว่าของ IP ตัวเอง
-            var seq = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // SV-L1: UnixMs — agent ใช้ freshness window ±5s
+            var seq = (ulong)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(); // SV-L1: Monotonic UnixMs (agent ตรวจสอบด้วย RFC 6479 64-bit sliding window bitmap)
             Span<byte> buf = packet.Length + OmniPacketAuth.SeqSize + OmniPacketAuth.TrailerSize <= 96
                 ? stackalloc byte[packet.Length + OmniPacketAuth.SeqSize + OmniPacketAuth.TrailerSize]
                 : new byte[packet.Length + OmniPacketAuth.SeqSize + OmniPacketAuth.TrailerSize];
@@ -602,7 +602,7 @@ public sealed class RemoteNodeClient : IDisposable
                 var edge = root.TryGetProperty("edge", out var ep) ? ep.GetString() ?? "left" : "left";
                 var normY = root.TryGetProperty("norm_y", out var yp) ? yp.GetDouble() : 0.5;
                 var normX = root.TryGetProperty("norm_x", out var xp) ? xp.GetDouble() : 0.5;
-                _callbacks.OnEdgeReturn(Config.NodeId, edge, normY, normX);
+                _callbacks.OnEdgeReturn(Config.NodeId, edge, normX, normY);
             }
             else if (mtype == "switch_request")
             {

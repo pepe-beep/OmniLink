@@ -18,6 +18,8 @@
     <sys:String x:Key="Loc.tab.settings">ตั้งค่า</sys:String>
 
     <!-- Tab 1: Devices -->
+    <sys:String x:Key="Loc.devices.empty">ยังไม่มีอุปกรณ์เชื่อมต่อ</sys:String>
+    <sys:String x:Key="Loc.devices.empty_hint">กด "สแกน LAN" หรือเพิ่มอุปกรณ์เพื่อเริ่มต้นใช้งาน</sys:String>
     <sys:String x:Key="Loc.devices.connected">อุปกรณ์ที่เชื่อมต่อ</sys:String>
     <sys:String x:Key="Loc.devices.scan">สแกน LAN</sys:String>
     <sys:String x:Key="Loc.devices.switch">สลับเมาส์ไปเครื่องนี้</sys:String>

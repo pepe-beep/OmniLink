@@ -18,6 +18,8 @@
     <sys:String x:Key="Loc.tab.settings">Settings</sys:String>
 
     <!-- Tab 1: Devices -->
+    <sys:String x:Key="Loc.devices.empty">No devices connected</sys:String>
+    <sys:String x:Key="Loc.devices.empty_hint">Click "Scan LAN" or add a device to get started</sys:String>
     <sys:String x:Key="Loc.devices.connected">Connected Devices</sys:String>
     <sys:String x:Key="Loc.devices.scan">Scan LAN</sys:String>
     <sys:String x:Key="Loc.devices.switch">Switch Mouse to Node</sys:String>

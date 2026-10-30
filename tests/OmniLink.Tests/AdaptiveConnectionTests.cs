@@ -16,7 +16,7 @@ public class AdaptiveConnectionTests
     {
         public void OnConnected(string nodeId) { }
         public void OnDisconnected(string nodeId) { }
-        public void OnEdgeReturn(string nodeId, string edge, double normY, double normX = 0.5) { }
+        public void OnEdgeReturn(string nodeId, string edge, double normX = 0.5, double normY = 0.5) { }
         public void OnClipboardReceived(string mimeType, byte[] data) { }
         public void OnStateChanged(string nodeId, string state) { }
     }

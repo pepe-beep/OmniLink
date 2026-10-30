@@ -18,12 +18,13 @@
 
 **โมเดลภัยคุกคามที่รับไว้:** ผู้ไม่หวังดีใน **LAN เดียวกัน** พยายาม (1) สวมสิทธิ์ควบคุมเมาส์/คีย์บอร์ด (2) ดักฟัง/แก้ประเด็นข้อมูล (3) จับคู่โดยไม่ได้รับอนุญาต
 
-**ตัวป้องกันที่ใช้งานจริง (ปิดแล้วใน v1.6+):**
+**ตัวป้องกันที่ใช้งานจริง (ปรับปรุงตาม Audit REV4-GOLDEN):**
 
 | ช่องทาง | การป้องกัน |
 |---|---|
-| TCP (control/input relay) | TLS 1.2+ self-signed cert · host pin fingerprint ต่อ node (TOFU) |
-| UDP (input packets) | HMAC-SHA256 trailer (key จาก auth token) + replay window (seq = UnixMs ±5s) |
+| TCP (control/input relay) | TLS 1.2+ self-signed cert · host pin fingerprint ต่อ node (TOFU) · รองรับ PowerShell fallback อัตโนมัติ |
+| UDP (input packets) | HMAC-SHA256 trailer (truncated 16B) + Anti-Replay Protection ตาม RFC 6479 64-bit Sliding Window Bitmap + Monotonic Sequence Tracking |
+| การตรวจสอบ Token | Enforce Fail-Closed: ปฏิเสธทันทีหาก Auth Token ว่างเปล่าหรือเป็น empty/whitespace (ทั้ง C# Core และ Python Node Agent) |
 | การจับคู่ | PIN 6 หลัก CSPRNG + rate-limit (10 ครั้ง/10 นาที + บล็อก 5 นาที) + fingerprint โชว์คู่กันบนจอ |
 | ความลับ | auth token ต่อ node ไม่ปรากฏใน log · จับคู่ใหม่ = PIN ใหม่ |
 | นโยบายต่อ node | `policy` full/clipboard/view — ฝั่งรับ enforce ด้วยตัวเอง (`_packet_allowed` ปฏิเสธเอง) |

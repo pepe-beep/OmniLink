@@ -459,7 +459,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         switch (cmd.Type)
         {
             case InputPipeline.CmdType.EdgeReturn:
-                OnEdgeReturnFromClient(cmd.NodeId, cmd.Edge, cmd.NormY, cmd.NormX);
+                OnEdgeReturnFromClient(cmd.NodeId, cmd.Edge, cmd.NormX, cmd.NormY);
                 break;
             case InputPipeline.CmdType.SwitchRequest:
                 if (ActiveNodeId != cmd.NodeId) break; // สถานะหลุดกลางทาง — ทิ้งตามพฤติกรรม edge_return เดิม
@@ -532,7 +532,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
     }
 
     #region IHostLinkCallbacks Implementation
-    void IHostLinkCallbacks.OnEdgeReturn(string nodeId, string edge, double normY, double normX)
+    void IHostLinkCallbacks.OnEdgeReturn(string nodeId, string edge, double normX, double normY)
     {
         _pipeline.Post(InputPipeline.CmdType.EdgeReturn, nodeId, edge, normX, normY); // godclass-K6b
     }
@@ -1091,7 +1091,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         _onUiUpdate();
     }
 
-    private void OnEdgeReturnFromClient(string nodeId, string edge, double normY, double normX = 0.5)
+    private void OnEdgeReturnFromClient(string nodeId, string edge, double normX = 0.5, double normY = 0.5)
     {
         // INCIDENT#2: log ตั้งแต่บรรทัดแรก — ให้เห็นว่าข้อความ "มาถึง" host หรือไม่
         // และถ้าไม่ match ก็รู้ทันทีว่าทิ้งเพราะอะไร (เดิม return เงียบ)
@@ -1307,7 +1307,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
                             try { leaveSess.SendTcp(new { type = "leave_screen" }); } catch { }
                             try { leaveSess.SendUdp(OmniProtocol.PackReleaseAll()); } catch { }
                         });
-                        _pipeline.Post(InputPipeline.CmdType.EdgeReturn, activeId, "left", 0, 0.5); // godclass-K6b
+                        _pipeline.Post(InputPipeline.CmdType.EdgeReturn, activeId, "left", 0.5, 0.5); // godclass-K6b
                         return true;
                     }
 
@@ -1654,7 +1654,7 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
 
     private void EdgePollTick(object? state)
     {
-        if (!Volatile.Read(ref _running)) return;
+        if (!_running) return;
         if (TryPollEdgePosition(out var ev))
         {
             _mouseEventQueue.Writer.TryWrite(ev);

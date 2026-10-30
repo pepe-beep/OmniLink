@@ -17,8 +17,16 @@ public static class OmniPacketAuth
     private const string KeyDomain = "omnilink-udp-v2|";
 
     /// <summary>คีย์ต่อ session จาก auth token — สองฝั่ง derive เหมือนกันจาก token เดียวกัน</summary>
-    public static byte[] DeriveUdpKey(string? token) =>
-        SHA256.HashData(Encoding.UTF8.GetBytes(KeyDomain + (token ?? "")));
+    public static byte[] DeriveUdpKey(string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            throw new ArgumentException("Cannot derive UDP key from null or empty token", nameof(token));
+        }
+        return SHA256.HashData(Encoding.UTF8.GetBytes(KeyDomain + token));
+    }
+
+
 
     /// <summary>
     /// เขียน body ตามด้วย HMAC trailer ลงใน dest (dest.Length ต้อง >= body.Length + TrailerSize)

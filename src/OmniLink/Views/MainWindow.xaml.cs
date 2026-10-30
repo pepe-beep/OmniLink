@@ -309,9 +309,15 @@ public partial class MainWindow : Window, ISettingsHost
                 {
                     HistoryVM.AddEntry("image/png", "", png, "client");
                     SuppressClipboardCapture(); // C2
-                    _clipboardBridge.SetPng(png);
+                    if (png is not null)
+                    {
+                        _clipboardBridge.SetPng(png);
+                    }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    OmniLog.Warn($"[clipboard] ตั้งค่าภาพคลิปบอร์ดล้มเหลว: {ex.Message}");
+                }
             });
         };
         _kvm.HostFileDropGetter = (out bool isCut) => _clipboardBridge.GetFileDropList(out isCut);
@@ -325,7 +331,10 @@ public partial class MainWindow : Window, ISettingsHost
                     _clipboardBridge.SetFileDropList(files, isCut);
                     HistoryVM.AddEntry("application/x-file-list", string.Join("\n", files), null, "client");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    OmniLog.Warn($"[clipboard] ตั้งค่ารายการไฟล์คลิปบอร์ดล้มเหลว: {ex.Message}");
+                }
             });
         };
 

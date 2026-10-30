@@ -298,17 +298,24 @@ public sealed class OmniConfig
         return cfg;
     }
 
+    private static readonly object _saveLock = new();
+    private static readonly JsonSerializerOptions _jsonOpts = new() { WriteIndented = true };
+
     public void Save()
     {
         try
         {
-            SchemaVersion = 2;
+            string json;
+            lock (_saveLock)
+            {
+                SchemaVersion = 2;
             if (string.IsNullOrWhiteSpace(AuthToken))
             {
                 AuthToken = GenerateToken();
             }
-            var opts = new JsonSerializerOptions { WriteIndented = true };
-            var json = JsonSerializer.Serialize(this, opts);
+
+                json = JsonSerializer.Serialize(this, _jsonOpts);
+            }
             AtomicFile.WriteAllText(OmniPaths.ConfigPath, json, writeUtf8Bom: false);
         }
         catch (Exception ex)

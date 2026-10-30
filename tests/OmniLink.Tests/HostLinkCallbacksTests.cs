@@ -13,9 +13,9 @@ public class HostLinkCallbacksTests
     {
         public readonly List<string> Events = new();
 
-        public void OnEdgeReturn(string nodeId, string edge, double normY, double normX = 0.5)
+        public void OnEdgeReturn(string nodeId, string edge, double normX = 0.5, double normY = 0.5)
         {
-            Events.Add($"EdgeReturn:{nodeId}:{edge}:{normY}:{normX}");
+            Events.Add($"EdgeReturn:{nodeId}:{edge}:{normX}:{normY}");
         }
 
         public void OnConnected(string nodeId)

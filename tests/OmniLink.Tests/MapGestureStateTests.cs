@@ -98,6 +98,7 @@ public class MapGestureStateTests
         var g = new MapGestureState();
         g.Press(P(100, 100), M(1.7, 40, -30), threshold: false);
         var m = g.Move(P(160, 150), leftDown: true);
+        Assert.True(m.HasValue, "Move ระหว่างกดต้องคืน viewport ใหม่");
         Assert.Equal(MapViewportMath.Pan(M(1.7, 40, -30), 60, 50), m.Value);
     }
 

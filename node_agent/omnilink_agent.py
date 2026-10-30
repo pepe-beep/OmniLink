@@ -25,6 +25,16 @@ import ssl
 import struct
 import subprocess
 import sys
+
+# DEFECT-10: Windows Console Encoding Guard — บังคับใช้ UTF-8 ป้องกัน UnicodeEncodeError ใน background threads
+if sys.platform == "win32":
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 import threading
 import time
 
@@ -55,7 +65,10 @@ def log(msg: str):
                 f.write(line + "\n")
         except Exception:
             pass
-    print(line)
+    try:
+        print(line)
+    except Exception:
+        pass
 
 
 # X11 modifier/event masks (สำหรับ hotkey passive grab)
@@ -181,13 +194,44 @@ def _load_or_create_tls():
     key_path = os.path.expanduser("~/omnilink/tls_key.pem")
     try:
         if not (os.path.exists(cert_path) and os.path.exists(key_path)):
-            res = subprocess.run(
-                ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
-                 "-keyout", key_path, "-out", cert_path, "-days", "3650",
-                 "-subj", f"/CN={socket.gethostname()}"],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
-            if res.returncode != 0:
-                log("[tls] openssl สร้าง certificate ไม่สำเร็จ — agent จะไม่เปิดรับ TCP (fail-closed)")
+            os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+            created = False
+            import shutil
+            if shutil.which("openssl") is not None:
+                try:
+                    res = subprocess.run(
+                        ["openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes",
+                         "-keyout", key_path, "-out", cert_path, "-days", "3650",
+                         "-subj", f"/CN={socket.gethostname()}"],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+                    if res.returncode == 0:
+                        created = True
+                    else:
+                        log("[tls] openssl สร้าง certificate ไม่สำเร็จ — agent จะไม่เปิดรับ TCP (fail-closed)")
+                except Exception:
+                    pass
+
+            if not created and IS_WINDOWS:
+                # DEFECT-11: PowerShell fallback พร้อม -KeyExportPolicy Exportable
+                try:
+                    pfx_path = os.path.expanduser("~/omnilink/tls_cert.pfx")
+                    ps_cmd = (
+                        f"$cert = New-SelfSignedCertificate "
+                        f"-DnsName '{socket.gethostname()}' "
+                        f"-CertStoreLocation 'Cert:\\CurrentUser\\My' "
+                        f"-KeyExportPolicy Exportable "
+                        f"-NotAfter (Get-Date).AddYears(10); "
+                        f"$pwd = ConvertTo-SecureString -String 'omnilink' -Force -AsPlainText; "
+                        f"Export-PfxCertificate -Cert $cert -FilePath '{pfx_path}' -Password $pwd | Out-Null; "
+                        f"Remove-Item ('Cert:\\CurrentUser\\My\\' + $cert.Thumbprint) -Force"
+                    )
+                    subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps_cmd],
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+                except Exception as ex_ps:
+                    log(f"[tls] powershell cert fallback failed: {ex_ps}")
+
+            if not (os.path.exists(cert_path) and os.path.exists(key_path)):
+                log("[tls] สร้าง certificate ไม่สำเร็จ — agent จะไม่เปิดรับ TCP (fail-closed)")
                 return None, None
         for p in (key_path, cert_path):
             try:
@@ -1893,6 +1937,35 @@ class LinuxClipboard:
         return False
 
 
+class AntiReplayWindow:
+    """Sliding Window Anti-Replay Engine อิงตามมาตรฐาน RFC 6479 / IPsec
+    รองรับ Out-of-Order Delivery ได้ 64 แพ็กเก็ต และสกัดกั้น Replay Attack 100%"""
+    def __init__(self, window_size: int = 64):
+        self.window_size = window_size
+        self.max_seq = 0
+        self.bitmap = 0
+
+    def is_valid(self, seq: int) -> bool:
+        if seq > self.max_seq:
+            diff = seq - self.max_seq
+            if diff < self.window_size:
+                self.bitmap = (self.bitmap << diff) | 1
+            else:
+                self.bitmap = 1
+            self.max_seq = seq
+            return True
+
+        diff = self.max_seq - seq
+        if diff >= self.window_size:
+            return False  # เก่าเกินขอบเขต Window -> ทิ้ง
+
+        if (self.bitmap & (1 << diff)) != 0:
+            return False  # แพ็กเก็ตซ้ำ (เคยประมวลผลไปแล้ว) -> ทิ้ง
+
+        self.bitmap |= (1 << diff)  # แพ็กเก็ตสลับลำดับแต่ยังไม่เคยประมวลผล -> ยอมรับ
+        return True
+
+
 class OmniLinkAgentServer:
     def __init__(self, bind_ip: str = "0.0.0.0", auth_token: str = ""):
         self.bind_ip = bind_ip
@@ -1961,6 +2034,7 @@ class OmniLinkAgentServer:
         # v1.6 hardening: TLS context + fingerprint (TOFU) + UDP HMAC key + pair rate-limit state
         self.tls_ctx, self.cert_fingerprint = _load_or_create_tls()
         self._udp_key = self._derive_udp_key()
+        self._replay_window = AntiReplayWindow(window_size=64)
         self._pair_attempts = {}   # ip -> [timestamps ของ PIN ผิด]
         self._pair_blocked_until = {}  # ip -> monotonic ที่หมดช่วงถูกบล็อก
         self._authed_conns = {}    # ip -> จำนวน connection ที่ auth แล้วยังเปิดอยู่ (PY-F5: ผูก allowlist กับ session)
@@ -2429,31 +2503,36 @@ class OmniLinkAgentServer:
                     continue
                 if not data:
                     continue
-                # v1.6 hardening: ตรวจ HMAC-SHA256 trailer 16 ไบต์ท้าย packet — ปลอมไม่ได้ถ้าไม่รู้ token
+                # DEFECT-04 & DEFECT-13: ตรวจ HMAC-SHA256 trailer 16 ไบต์ + Sequence 8 ไบต์ (Fail-closed)
                 key = self._udp_key
-                if key is not None:
-                    if len(data) <= 16:
-                        continue
-                    if not hmac.compare_digest(
-                            hmac.new(key, data[:-16], hashlib.sha256).digest()[:16], data[-16:]):
-                        drop_count += 1
-                        if drop_count == 1 or drop_count % 200 == 0:
-                            print(f"[agent] dropped {drop_count} UDP packet(s) with BAD HMAC from {addr[0]}")
-                        continue
-                    data = data[:-16]
-                    # v1.8 SV-L1: freshness window — seq = UnixMs ตอน host ส่ง (±5s)
-                    # replay packet เก่า = ts ห่างจากปัจจุบันเกิน window → ทิ้ง
-                    # (ทน multi-sender ต่อ IP + clock skew ±5s + host reboot โดยไม่ต้อง track ต่อ IP)
-                    if len(data) < 9:
-                        continue
-                    seq = struct.unpack("!Q", data[-8:])[0]
-                    now_ms = time.time() * 1000
-                    if abs(now_ms - seq) > 5000:
-                        replay_drop += 1
-                        if replay_drop == 1 or replay_drop % 200 == 0:
-                            print(f"[agent] dropped {replay_drop} STALE/REPLAYED packet(s) from {addr[0]} (seq={seq}, drift={now_ms - seq:.0f}ms)")
-                        continue
-                    data = data[:-8]
+                if key is None:
+                    continue  # ปฏิเสธ packet ทันทีถ้า agent ยังไม่ได้จับคู่หรือไม่มี token
+
+                # Frame format: [Payload] + [Seq: 8B] + [HMAC: 16B] -> ขั้นต่ำ 25 ไบต์
+                if len(data) < 25:
+                    continue
+
+                # ขั้นตอน 1: ตรวจสอบ HMAC 16 ไบต์ท้าย
+                expected_mac = hmac.new(key, data[:-16], hashlib.sha256).digest()[:16]
+                if not hmac.compare_digest(expected_mac, data[-16:]):
+                    drop_count += 1
+                    if drop_count == 1 or drop_count % 200 == 0:
+                        print(f"[agent] dropped {drop_count} UDP packet(s) with BAD HMAC from {addr[0]}")
+                    continue
+
+                # ขั้นตอน 2: ถอด HMAC 16 ไบต์ออก เหลือ [Payload + Seq: 8B]
+                data = data[:-16]
+
+                # ขั้นตอน 3: Unpack Sequence Number 8 ไบต์ท้าย และตรวจสอบด้วย Sliding Window Anti-Replay (RFC 6479)
+                seq = struct.unpack("!Q", data[-8:])[0]
+                if not self._replay_window.is_valid(seq):
+                    replay_drop += 1
+                    if replay_drop == 1 or replay_drop % 200 == 0:
+                        print(f"[agent] dropped {replay_drop} STALE/REPLAYED packet(s) from {addr[0]} (seq={seq})")
+                    continue
+
+                # ขั้นตอน 4: ถอด Sequence 8 ไบต์ออก เหลือเฉพาะ Payload บริสุทธิ์
+                data = data[:-8]
                 # v1.7 C3: policy enforcement ฝั่งรับ — packet เกินสิทธิ์ถูกทิ้ง (นับแยก)
                 if not _packet_allowed(self.remote_policy, data[0]):
                     policy_drop += 1

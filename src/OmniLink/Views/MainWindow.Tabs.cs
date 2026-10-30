@@ -64,7 +64,14 @@ public partial class MainWindow
         Task.Run(() =>
         {
             SetBanner(Loc.T("banner.audio.resetting", "กำลังรีเซ็ตระบบเสียงทั้งขา Stream และ Mic..."));
-            _audio.ResetBoth();
+            if (_kvm is IpcKvmClient c)
+            {
+                c.AudioOp("audio.reset_both");
+            }
+            else
+            {
+                _audio?.ResetBoth();
+            }
             SetBanner(Loc.T("banner.audio.resetdone", "รีเซ็ตระบบเสียงทั้งสองทิศทางเรียบร้อยแล้ว"));
             ScheduleUiRefresh();
         });
@@ -95,7 +102,7 @@ public partial class MainWindow
                 _initializingControls = false;
             });
 
-            if (wasRunning) _audio.StartMic();
+            if (wasRunning) AudioStartMic();
             SetBanner(Loc.T("banner.mic.found", "พบไมโครโฟนทั้งหมด {0} รายการ", devs.Count));
             ScheduleUiRefresh();
         });
@@ -109,11 +116,11 @@ public partial class MainWindow
             _config.MicDeviceId = info.Id;
             _config.MicDeviceName = info.Name;
             ScheduleConfigSave();
-            if (_audio.IsMicRunning)
+            if (AudioMicRunningNow)
             {
                 Task.Run(() =>
                 {
-                    _audio.StartMic();
+                    AudioStartMic();
                     ScheduleUiRefresh();
                 });
             }

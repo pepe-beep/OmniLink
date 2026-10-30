@@ -19,7 +19,7 @@ internal static class Program
     private static KvmHostService? _kvm;
     private static OmniLink.Core.NodeAgentServer? _sub;
     private static System.Threading.Timer? _statusTimer;
-    private static AudioHubService? _audio;          // Windows parity wiring เท่านั้น (Linux = null)
+    private static AudioHubService? _audio = null;          // Windows parity wiring เท่านั้น (Linux = null)
     private static IpcHostServer? _ipc;              // S2: ท่อควบคุมของ dashboard
 #if OMNILINK_WINDOWS
     private static OmniDiscoveryService? _discovery;

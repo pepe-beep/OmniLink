@@ -170,8 +170,8 @@ public class SwitchingSemanticsTests
     {
         // เอกสารสถาปัตยกรรม: fullscreen/lock blocks อยู่ใน KvmHostService (hook layer)
         // strategy ต้องไม่รู้จักทั้งสอง — ป้องกันการย้าย logic ไปกองรวมกัน
-        Assert.False(typeof(IEdgeSwitchStrategy).GetMethods().Any(m =>
+        Assert.DoesNotContain(typeof(IEdgeSwitchStrategy).GetMethods(), m =>
             m.Name.Contains("Fullscreen", StringComparison.OrdinalIgnoreCase) ||
-            m.Name.Contains("Lock", StringComparison.OrdinalIgnoreCase)));
+            m.Name.Contains("Lock", StringComparison.OrdinalIgnoreCase));
     }
 }

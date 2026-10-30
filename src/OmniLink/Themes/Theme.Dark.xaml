@@ -38,14 +38,14 @@
     <SolidColorBrush x:Key="StatusIdleBgBrush" Color="#18808080"/>
     <SolidColorBrush x:Key="StatusWarningBrush" Color="#D97706"/>
     <SolidColorBrush x:Key="StatusWarningBgBrush" Color="#18D97706"/>
-    <SolidColorBrush x:Key="StatusErrorBrush" Color="#E11D48"/>
+    <SolidColorBrush x:Key="StatusErrorBrush" Color="#FB7185"/>
     <SolidColorBrush x:Key="StatusErrorBgBrush" Color="#18E11D48"/>
 
     <!-- 5. Typography -->
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="#94A3B8"/>
-    <SolidColorBrush x:Key="TextMutedBrush" Color="#64748B"/>
-    <SolidColorBrush x:Key="TextDimBrush" Color="#475569"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="TextDimBrush" Color="#7E8B9B"/>
 
     <!-- Backward-Compatibility Aliases -->
     <SolidColorBrush x:Key="AeroGlassCanvasBrush" Color="#1C1F26"/>
@@ -63,7 +63,7 @@
     <SolidColorBrush x:Key="JewelEmeraldGlowBrush" Color="#27AE60"/>
     <SolidColorBrush x:Key="JewelAmberBrush" Color="#D97706"/>
     <SolidColorBrush x:Key="JewelAmberDeepBrush" Color="#20D97706"/>
-    <SolidColorBrush x:Key="JewelRubyBrush" Color="#E11D48"/>
+    <SolidColorBrush x:Key="JewelRubyBrush" Color="#FB7185"/>
     <SolidColorBrush x:Key="JewelRubyDeepBrush" Color="#20E11D48"/>
     <SolidColorBrush x:Key="AppleTextWhite" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="AppleTextSlateLight" Color="#94A3B8"/>
@@ -73,5 +73,5 @@
     <SolidColorBrush x:Key="AppleAccentBlue" Color="#0078D4"/>
     <SolidColorBrush x:Key="AppleAccentEmerald" Color="#27AE60"/>
     <SolidColorBrush x:Key="AppleAccentAmber" Color="#D97706"/>
-    <SolidColorBrush x:Key="AppleAccentRed" Color="#E11D48"/>
+    <SolidColorBrush x:Key="AppleAccentRed" Color="#FB7185"/>
 </ResourceDictionary>

@@ -6,7 +6,7 @@ namespace OmniLink.Core.Abstractions;
 /// </summary>
 public interface IHostLinkCallbacks
 {
-    void OnEdgeReturn(string nodeId, string edge, double normY, double normX = 0.5);
+    void OnEdgeReturn(string nodeId, string edge, double normX = 0.5, double normY = 0.5);
 
     /// <summary>v1.9.1: agent ขอสลับไป node อื่น (chain topology) — edge/norm เอาไว้วางตำแหน่งเคอร์เซอร์บนเครื่องปลายทาง</summary>
     void OnSwitchRequestReceived(string nodeId, string target, string edge, double normX, double normY) { }

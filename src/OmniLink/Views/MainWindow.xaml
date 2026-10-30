@@ -78,10 +78,10 @@
                                 Background="{StaticResource FluentSubtleFillBrush}" BorderBrush="{StaticResource FluentBorderSubtleBrush}" BorderThickness="1"
                                 ToolTip="{DynamicResource Loc.top.bar.kbd.tip}">
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="BtnLangSegmentEn" Content="ENG" Padding="12,3" MinHeight="26"
+                                <Button x:Name="BtnLangSegmentEn" AutomationProperties.Name="Switch keyboard layout to English" Content="ENG" Padding="12,3" MinHeight="26"
                                         FontWeight="SemiBold" FontSize="11.5" BorderThickness="0" Cursor="Hand"
                                         Click="OnCalibrateEnClick"/>
-                                <Button x:Name="BtnLangSegmentTh" Content="ไทย" Padding="12,3" MinHeight="26"
+                                <Button x:Name="BtnLangSegmentTh" AutomationProperties.Name="Switch keyboard layout to Thai" Content="ไทย" Padding="12,3" MinHeight="26"
                                         FontWeight="SemiBold" FontSize="11.5" BorderThickness="0" Cursor="Hand"
                                         Click="OnCalibrateThClick"/>
                             </StackPanel>
@@ -142,7 +142,7 @@
                             </Grid.RowDefinitions>
 
                             <DockPanel Grid.Row="0" Margin="2,0,0,8">
-                                <ui:Button x:Name="BtnQuickScan" DockPanel.Dock="Right" Content="{DynamicResource Loc.devices.scan}"
+                                <ui:Button x:Name="BtnQuickScan" AutomationProperties.Name="Scan LAN for devices" DockPanel.Dock="Right" Content="{DynamicResource Loc.devices.scan}"
                                            Appearance="Secondary" Icon="{ui:SymbolIcon Search24}"
                                            Padding="10,4" MinHeight="28" FontSize="11.5"
                                            Click="OnQuickScanClick"/>
@@ -150,7 +150,8 @@
                             </DockPanel>
 
                             <!-- Device List -->
-                            <ListBox Grid.Row="1" x:Name="NodeListBox" HorizontalContentAlignment="Stretch"
+                            <Grid Grid.Row="1">
+                                <ListBox x:Name="NodeListBox" HorizontalContentAlignment="Stretch"
                                      SelectionChanged="OnNodeSelectionChanged"
                                      PreviewMouseLeftButtonDown="OnNodeListBoxPreviewMouseDown"
                                      PreviewMouseMove="OnNodeListBoxPreviewMouseMove"
@@ -163,7 +164,19 @@
                                         <Setter Property="Margin" Value="0,3"/>
                                         <Setter Property="Background" Value="Transparent"/>
                                         <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                        <Setter Property="FocusVisualStyle">
+                                            <Setter.Value>
+                                                <Style>
+                                                    <Setter Property="Control.Template">
+                                                        <Setter.Value>
+                                                            <ControlTemplate>
+                                                                <Rectangle Stroke="{StaticResource FluentBorderFocusedBrush}" StrokeThickness="2" RadiusX="6" RadiusY="6" Margin="-1"/>
+                                                            </ControlTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Style>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ListBoxItem">
@@ -181,6 +194,9 @@
                                                         <Trigger Property="IsSelected" Value="True">
                                                             <Setter TargetName="ItemBorder" Property="Background" Value="{StaticResource FluentCardSelectedBrush}"/>
                                                             <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource FluentAccentPrimaryBrush}"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{StaticResource FluentBorderFocusedBrush}"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -210,6 +226,35 @@
                                 </ListBox.ItemTemplate>
                             </ListBox>
 
+                                <!-- Empty State Placeholder (DEFECT-16) -->
+                                <Border Background="{StaticResource FluentCardDeepBrush}"
+                                        BorderBrush="{StaticResource FluentBorderSubtleBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="16"
+                                        Margin="0,3"
+                                        VerticalAlignment="Top"
+                                        IsHitTestVisible="False">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasItems, ElementName=NodeListBox}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <ui:SymbolIcon Symbol="DesktopCursor24" FontSize="32" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,12,0,8"/>
+                                        <TextBlock Text="{DynamicResource Loc.devices.empty}" TextWrapping="Wrap" TextAlignment="Center"
+                                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Loc.devices.empty_hint}" TextWrapping="Wrap" TextAlignment="Center"
+                                                   FontSize="10.5" Foreground="{StaticResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,4,0,12"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
                             <!-- Node Actions — v1.9: header chip บอกชัดว่า "กำลังจัดการเครื่องไหน" -->
                             <StackPanel Grid.Row="2" Margin="0,10,0,0">
                                 <Border CornerRadius="6" Padding="10,6" Background="{StaticResource FluentSubtleFillPressedBrush}" BorderBrush="{StaticResource FluentBorderSubtleBrush}" BorderThickness="1" Margin="0,0,0,8">
@@ -221,7 +266,7 @@
                                     </StackPanel>
                                 </Border>
 
-                                <ui:Button x:Name="BtnFocusSelectedNode" Content="{DynamicResource Loc.devices.switch}"
+                                <ui:Button x:Name="BtnFocusSelectedNode" AutomationProperties.Name="Switch mouse to selected device" Content="{DynamicResource Loc.devices.switch}"
                                            Appearance="Primary" Icon="{ui:SymbolIcon DesktopCursor24}"
                                            Padding="12,8" MinHeight="36" FontWeight="SemiBold"
                                            HorizontalAlignment="Stretch" Click="OnJumpToSelectedNodeClick"/>
@@ -233,15 +278,15 @@
                                         <ColumnDefinition Width="6"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <ui:Button Grid.Column="0" x:Name="BtnRenameNode" Content="{DynamicResource Loc.devices.rename}"
+                                    <ui:Button Grid.Column="0" x:Name="BtnRenameNode" AutomationProperties.Name="Rename selected device" Content="{DynamicResource Loc.devices.rename}"
                                                Appearance="Secondary" Icon="{ui:SymbolIcon Edit24}"
                                                Padding="4,6" MinHeight="32" FontSize="11" FontWeight="SemiBold"
                                                HorizontalAlignment="Stretch" Click="OnRenameNodeClick"/>
-                                    <ui:Button Grid.Column="2" x:Name="BtnResetNodeName" Content="{DynamicResource Loc.devices.reset}"
+                                    <ui:Button Grid.Column="2" x:Name="BtnResetNodeName" AutomationProperties.Name="Reset device name" Content="{DynamicResource Loc.devices.reset}"
                                                Appearance="Secondary" Icon="{ui:SymbolIcon ArrowReset24}"
                                                Padding="4,6" MinHeight="32" FontSize="11" FontWeight="SemiBold"
                                                HorizontalAlignment="Stretch" Click="OnResetNodeNameClick"/>
-                                    <ui:Button Grid.Column="4" x:Name="BtnDeleteNode" Content="{DynamicResource Loc.devices.remove}"
+                                    <ui:Button Grid.Column="4" x:Name="BtnDeleteNode" AutomationProperties.Name="Remove selected device" Content="{DynamicResource Loc.devices.remove}"
                                                Appearance="Danger" Icon="{ui:SymbolIcon Delete24}"
                                                Padding="4,6" MinHeight="32" FontSize="11" FontWeight="SemiBold"
                                                HorizontalAlignment="Stretch" Click="OnDeleteNodeClick"/>
@@ -307,7 +352,7 @@
                                     </Border>
                                 </Expander>
 
-                                <ui:Button x:Name="BtnDeployAgents" Content="{DynamicResource Loc.devices.deploy}"
+                                <ui:Button x:Name="BtnDeployAgents" AutomationProperties.Name="Deploy Node Agent" Content="{DynamicResource Loc.devices.deploy}"
                                            Appearance="Secondary" Icon="{ui:SymbolIcon ArrowSync24}"
                                            Padding="12,8" MinHeight="34" Margin="0,6,0,0" FontWeight="SemiBold"
                                            ToolTip="{DynamicResource Loc.devices.deploy.tip}"
@@ -360,7 +405,7 @@
                                     <!-- v1.9.1: ผัง topology ไดนามิก — ลูกศรรอบทุกเครื่อง = จุดวางเครื่องใหม่ (chain ได้ไม่จำกัด) -->
                                     <Grid Grid.Row="1" Margin="4,4" ClipToBounds="True" x:Name="MapHostGrid" Background="Transparent">
                                         <Canvas x:Name="TopologyCanvas" MinHeight="280" Background="Transparent"/>
-                                        <ui:Button x:Name="BtnResetMapView" Content="{DynamicResource Loc.map.resetview}"
+                                        <ui:Button x:Name="BtnResetMapView" AutomationProperties.Name="Reset map view" Content="{DynamicResource Loc.map.resetview}"
                                                    Appearance="Secondary" Padding="10,3" MinHeight="26" FontSize="10.5"
                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8,8"
                                                    ToolTip="{DynamicResource Loc.map.resetview.tip}" Click="OnResetMapViewClick"/>
@@ -436,7 +481,7 @@
                                                 </StackPanel>
                                             </Border>
 
-                                            <Button Grid.Row="3" x:Name="BtnToggleStream" Content="{DynamicResource Loc.audio.stream.start}" Style="{StaticResource ApplePrimaryButton}" HorizontalAlignment="Stretch" Margin="0,16,0,0" Click="OnToggleStreamClick"/>
+                                            <Button Grid.Row="3" x:Name="BtnToggleStream" AutomationProperties.Name="Toggle audio stream" Content="{DynamicResource Loc.audio.stream.start}" Style="{StaticResource ApplePrimaryButton}" HorizontalAlignment="Stretch" Margin="0,16,0,0" Click="OnToggleStreamClick"/>
                                         </Grid>
                                     </Border>
 
@@ -468,7 +513,7 @@
                                                 <TextBlock Text="{DynamicResource Loc.audio.mic.tech}" FontSize="10.5" Foreground="{StaticResource TextMutedBrush}" Margin="0,6,0,0"/>
                                             </StackPanel>
 
-                                            <Button Grid.Row="3" x:Name="BtnToggleMic" Content="{DynamicResource Loc.audio.mic.start}" Style="{StaticResource AppleSecondaryButton}" HorizontalAlignment="Stretch" Margin="0,16,0,0" Click="OnToggleMicClick"/>
+                                            <Button Grid.Row="3" x:Name="BtnToggleMic" AutomationProperties.Name="Toggle microphone" Content="{DynamicResource Loc.audio.mic.start}" Style="{StaticResource AppleSecondaryButton}" HorizontalAlignment="Stretch" Margin="0,16,0,0" Click="OnToggleMicClick"/>
                                         </Grid>
                                     </Border>
                                 </Grid>
@@ -478,7 +523,7 @@
                         <!-- Audio Reset Utility Bar -->
                         <Border Grid.Row="1" Style="{StaticResource FluentCardBorderStyle}" Padding="14,10" Margin="0,10,0,0">
                             <DockPanel>
-                                <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.audio.reset}" Style="{StaticResource AppleSecondaryButton}" Padding="12,4" MinHeight="28" Click="OnResetBothAudioClick"/>
+                                <Button DockPanel.Dock="Right" Content="{DynamicResource Loc.audio.reset}" AutomationProperties.Name="Reset audio system" Style="{StaticResource AppleSecondaryButton}" Padding="12,4" MinHeight="28" Click="OnResetBothAudioClick"/>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{DynamicResource Loc.audio.trouble.title}" FontWeight="SemiBold" FontSize="12" Foreground="{StaticResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{DynamicResource Loc.audio.trouble.desc}" FontSize="11" Foreground="{StaticResource TextMutedBrush}"/>
@@ -506,7 +551,7 @@
                                 </Grid.RowDefinitions>
 
                                 <DockPanel Grid.Row="0" Margin="0,0,0,8">
-                                    <ui:Button DockPanel.Dock="Right" x:Name="BtnOpenTransferFolder" Content="{DynamicResource Loc.files.openfolder}" Appearance="Secondary" Icon="{ui:SymbolIcon FolderOpen24}" Padding="10,4" MinHeight="26" FontSize="11" Visibility="Collapsed" Click="OnOpenTransferFolderClick"/>
+                                    <ui:Button DockPanel.Dock="Right" x:Name="BtnOpenTransferFolder" AutomationProperties.Name="Open file transfer folder" Content="{DynamicResource Loc.files.openfolder}" Appearance="Secondary" Icon="{ui:SymbolIcon FolderOpen24}" Padding="10,4" MinHeight="26" FontSize="11" Visibility="Collapsed" Click="OnOpenTransferFolderClick"/>
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <ui:SymbolIcon Symbol="ArrowDownload24" Foreground="{StaticResource FluentAccentLightBrush}" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                         <TextBlock Text="{DynamicResource Loc.files.title}" FontWeight="Bold" FontSize="13" Foreground="{StaticResource TextPrimaryBrush}" VerticalAlignment="Center"/>
@@ -533,8 +578,8 @@
 
                                 <DockPanel Grid.Row="0" Margin="0,0,0,12">
                                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                        <ui:Button Content="{DynamicResource Loc.common.refresh}" Appearance="Secondary" Icon="{ui:SymbolIcon ArrowSync24}" Padding="10,4" MinHeight="28" FontSize="11.5" Margin="0,0,6,0" Click="OnRefreshClipboardHistoryClick"/>
-                                        <ui:Button Content="{DynamicResource Loc.clip.clear}" Appearance="Secondary" Icon="{ui:SymbolIcon Delete24}" Padding="10,4" MinHeight="28" FontSize="11.5" Click="OnClearClipboardHistoryClick"/>
+                                        <ui:Button Content="{DynamicResource Loc.common.refresh}" AutomationProperties.Name="Refresh clipboard history" Appearance="Secondary" Icon="{ui:SymbolIcon ArrowSync24}" Padding="10,4" MinHeight="28" FontSize="11.5" Margin="0,0,6,0" Click="OnRefreshClipboardHistoryClick"/>
+                                        <ui:Button Content="{DynamicResource Loc.clip.clear}" AutomationProperties.Name="Clear clipboard history" Appearance="Secondary" Icon="{ui:SymbolIcon Delete24}" Padding="10,4" MinHeight="28" FontSize="11.5" Click="OnClearClipboardHistoryClick"/>
                                     </StackPanel>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{DynamicResource Loc.clip.title}" FontSize="13.5" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
@@ -652,10 +697,10 @@
                             </Border>
                             <DockPanel Grid.Row="1" Margin="0,10,0,0">
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                                    <Button x:Name="BtnResetPage" Content="{DynamicResource Loc.settings.reset}"
+                                    <Button x:Name="BtnResetPage" AutomationProperties.Name="Reset settings page" Content="{DynamicResource Loc.settings.reset}"
                                             Style="{StaticResource AppleSecondaryButton}" Padding="14,5" MinHeight="30" Margin="0,0,6,0"
                                             IsEnabled="False" ToolTip="{DynamicResource Loc.settings.reset.tip}" Click="OnResetPageClick"/>
-                                    <Button x:Name="BtnRestorePage" Content="{DynamicResource Loc.settings.restore}"
+                                    <Button x:Name="BtnRestorePage" AutomationProperties.Name="Restore settings page" Content="{DynamicResource Loc.settings.restore}"
                                             Style="{StaticResource AppleSecondaryButton}" Padding="14,5" MinHeight="30"
                                             ToolTip="{DynamicResource Loc.settings.restore.tip}" Click="OnRestorePageClick"/>
                                 </StackPanel>
