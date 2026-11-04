@@ -3234,7 +3234,21 @@ class OmniLinkAgentServer:
                     f = open(part_path, mode)
                     if offset > 0:
                         f.seek(offset)
-                    hasher = hashlib.sha256()
+                    # F4b resume: .part เดิม = เนื้อหาที่เคยรับแล้ว → อ่านเข้า hasher ก่อน
+                    # append เพื่อให้ sha ตอน file_done ครอบทั้งไฟล์
+                    if offset > 0 and os.path.getsize(part_path) >= offset:
+                        pre_hasher = hashlib.sha256()
+                        with open(part_path, "rb") as pf:
+                            for chunk_pf in iter(lambda: pf.read(65536), b""):
+                                pre_hasher.update(chunk_pf)
+                        hasher = pre_hasher
+                    else:
+                        hasher = hashlib.sha256()
+                        if offset > 0:
+                            # .part สั้นกว่า offset ที่ host ส่งมา = ไฟล์เสียหาย — เริ่มใหม่
+                            f.close()
+                            f = open(part_path, "wb")
+                            f.seek(0)
                     sess["states"][idx] = {
                         "file": f,
                         "hasher": hasher,

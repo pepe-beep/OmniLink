@@ -31,6 +31,9 @@ public interface IHostLinkCallbacks
     /// <summary>C2d: node ขอเนื้อหาเต็มรายการเดียว (host/sub ตอบ history_entry)</summary>
     void OnHistoryGetReceived(string nodeId, string id) { }
     void OnFileAcceptReceived(string nodeId, string transferId) { }
+
+    /// <summary>F4b: node ตอบ accept พร้อม resume offsets (idx → offset ของ .part ค้าง)</summary>
+    void OnFileAcceptWithResumeReceived(string nodeId, string transferId, System.Collections.Generic.Dictionary<int, long> resumeOffsets) { }
     void OnFileChunkReceived(string nodeId, string transferId, int fileIndex, long offset, string base64Data) { }
     void OnFileDoneReceived(string nodeId, string transferId, int fileIndex) { }
     void OnFileResultReceived(string nodeId, string transferId, int fileIndex, string status) { }

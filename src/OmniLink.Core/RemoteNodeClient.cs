@@ -545,6 +545,24 @@ public sealed class RemoteNodeClient : IDisposable
                 var transferId = root.TryGetProperty("id", out var ip) ? ip.GetString() : null;
                 if (!string.IsNullOrEmpty(transferId))
                 {
+                    // F4b: node แนบ resume offsets มาด้วย (มี .part ค้างจากการโอนครั้งก่อน)
+                    if (root.TryGetProperty("resume", out var resumeEl) && resumeEl.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        var resumeMap = new System.Collections.Generic.Dictionary<int, long>();
+                        foreach (var item in resumeEl.EnumerateArray())
+                        {
+                            try
+                            {
+                                resumeMap[item.GetProperty("idx").GetInt32()] = item.GetProperty("offset").GetInt64();
+                            }
+                            catch { }
+                        }
+                        if (resumeMap.Count > 0)
+                        {
+                            _callbacks.OnFileAcceptWithResumeReceived(Config.NodeId, transferId, resumeMap);
+                            return;
+                        }
+                    }
                     _callbacks.OnFileAcceptReceived(Config.NodeId, transferId);
                 }
                 return;

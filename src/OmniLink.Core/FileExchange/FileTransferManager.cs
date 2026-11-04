@@ -57,9 +57,15 @@ public sealed class FileTransferManager : IFileTransport
 
     public async Task<bool> StartStreamingOutboundAsync(string targetNodeId, string transferId, CancellationToken ct = default)
     {
+        return await StartStreamingOutboundAsync(targetNodeId, transferId, ct, null);
+    }
+
+    /// <summary>F4b: resume — ส่งต่อจาก offset ที่ node แจ้ง (ข้ามส่วนที่เคยรับ)</summary>
+    public async Task<bool> StartStreamingOutboundAsync(string targetNodeId, string transferId, CancellationToken ct, System.Collections.Generic.Dictionary<int, long>? resumeOffsets)
+    {
         if (_nodeSenders.TryGetValue(targetNodeId, out var sendFunc))
         {
-            return await _streamer.StreamOutboundAsync(transferId, sendFunc, ct);
+            return await _streamer.StreamOutboundAsync(transferId, sendFunc, ct, resumeOffsets);
         }
         return false;
     }

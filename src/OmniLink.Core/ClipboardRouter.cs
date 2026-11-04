@@ -133,6 +133,15 @@ internal sealed class ClipboardRouter
         });
     }
 
+    /// <summary>F4b: node ขอ resume ต่อจาก offset — host ส่งเฉพาะส่วนที่เหลือ</summary>
+    public void OnFileAcceptWithResumeReceived(string nodeId, string transferId, System.Collections.Generic.Dictionary<int, long> resumeOffsets)
+    {
+        Task.Run(async () =>
+        {
+            await _fileTransfer.StartStreamingOutboundAsync(nodeId, transferId, default, resumeOffsets);
+        });
+    }
+
     public void OnFileChunkReceived(string nodeId, string transferId, int fileIndex, long offset, string base64Data)
     {
         // SV-M6 fix: ความผิดพลาดจาก disk / race กับ CancelTransfer ห้ามหลุดไปทำ TCP reader ตาย

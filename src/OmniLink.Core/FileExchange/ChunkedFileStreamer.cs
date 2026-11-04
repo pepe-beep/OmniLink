@@ -429,7 +429,8 @@ public sealed class ChunkedFileStreamer
     public async Task<bool> StreamOutboundAsync(
         string transferId,
         Func<object, bool> sendTcpFunc,
-        CancellationToken externalCt = default)
+        CancellationToken externalCt = default,
+        System.Collections.Generic.Dictionary<int, long>? resumeOffsets = null)
     {
         if (!_outboundSessions.TryGetValue(transferId, out var session))
         {
@@ -467,6 +468,14 @@ public sealed class ChunkedFileStreamer
 
                 using var fs = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, ChunkSize, FileOptions.SequentialScan);
                 long offset = 0;
+                // F4b: node แจ้งว่ามี .part ค้าง N bytes → เลื่อนไปส่งต่อจาก offset นั้น
+                if (resumeOffsets is not null && resumeOffsets.TryGetValue(fileIdx, out var resumeAt) && resumeAt > 0 && resumeAt < fs.Length)
+                {
+                    fs.Seek(resumeAt, SeekOrigin.Begin);
+                    offset = resumeAt;
+                    totalBytesSent += resumeAt;
+                    OmniLog.Warn($"[file] RESUME {fileEntry.RelativePath} จาก offset {resumeAt} (ข้าม {resumeAt / 1024} KB)");
+                }
                 int bytesRead;
 
                 while ((bytesRead = await fs.ReadAsync(buffer.AsMemory(0, ChunkSize), ct)) > 0)
