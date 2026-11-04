@@ -1946,11 +1946,13 @@ class LinuxClipboard:
         return False
 
     def _set_files_gtk(self, paths: list, is_cut: bool) -> bool:
-        """ตั้ง clipboard ผ่าน GTK — owner เดียว ครบ targets (gnome-copied-files +
-        uri-list + UTF8_STRING) เหมือนที่ Nautilus copy เองประกาศ ใช้ Gtk/GLib ของ
-        status UI ที่ main loop วิ่งอยู่แล้ว"""
+        """F1: ตั้ง clipboard ผ่าน GTK — owner เดียว ครบ targets ตามที่ Nautilus copy
+        เองประกาศ (ตรวจสดบน L440): x-special/gnome-copied-files +
+        application/x-gnome-copied-files + text/uri-list + UTF8_STRING
+        (TARGETS/MULTIPLE/TIMESTAMP จัดการโดย GTK เองเมื่อใช้ set_with_data)"""
         try:
             Gtk, GLib = self.ui._ensure_gtk()
+            from gi.repository import Gdk
             import pathlib
             uris = []
             for p in paths:
@@ -1964,14 +1966,26 @@ class LinuxClipboard:
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
             payload = {"action": action, "uris": uris}
 
+            targets = [
+                Gtk.TargetEntry.new("x-special/gnome-copied-files", 0, 0),
+                Gtk.TargetEntry.new("application/x-gnome-copied-files", 0, 1),
+                Gtk.TargetEntry.new("text/uri-list", 0, 2),
+                Gtk.TargetEntry.new("UTF8_STRING", 0, 3),
+            ]
+
             def _get(_clipboard, selectiondata, _info, _data):
                 try:
-                    if selectiondata.get_target().name() == "x-special/gnome-copied-files":
-                        selectiondata.set(selectiondata.get_target(), 8,
-                                          payload["action"] + b"\n" + "\n".join(payload["uris"]).encode() + b"\n")
+                    t = selectiondata.get_target().name()
+                    nl = b"\n"
+                    crlf = b"\r\n"
+                    if t in ("x-special/gnome-copied-files", "application/x-gnome-copied-files"):
+                        selectiondata.set(Gdk.Atom.intern(t, False), 8,
+                                          payload["action"] + nl + nl.join(payload["uris"]).encode() + nl)
+                    elif t == "text/uri-list":
+                        selectiondata.set(Gdk.Atom.intern(t, False), 8,
+                                          crlf.join(payload["uris"]) + crlf)
                     else:
-                        selectiondata.set(selectiondata.get_target(), 8,
-                                          ("\r\n".join(payload["uris"]) + "\r\n").encode())
+                        selectiondata.set_text("\n".join(payload["uris"]), -1)
                 except Exception as ex:
                     log(f"[clip] gtk get_func: {ex}")
 
@@ -1992,7 +2006,6 @@ class LinuxClipboard:
         except Exception as ex:
             log(f"[clip] gtk set_files: {ex}")
             return False
-
 
 class AntiReplayWindow:
     """Sliding Window Anti-Replay Engine อิงตามมาตรฐาน RFC 6479 / IPsec
