@@ -1907,9 +1907,18 @@ class LinuxClipboard:
         return [], False
 
     def set_files(self, paths: list, is_cut: bool = False) -> bool:
-        """ตั้งค่ารายการไฟล์ลง Clipboard (x-special/gnome-copied-files + text/uri-list)"""
-        if not paths:
-            return False
+        """ตั้งค่ารายการไฟล์ลง Clipboard — GTK multi-target ก่อน (owner เดียว ครบ targets
+        ตามที่ Nautilus copy เองประกาศ: gnome-copied-files + uri-list + UTF8_STRING),
+        fallback = xclip gnome-copied-files เดียว
+
+        F0 นิติวิทยา (3 พ.ย.): การตั้ง uri-list ด้วย xclip ตัวที่สองยึด selection แทน →
+        gnome-copied-files หายจาก TARGETS → Nautilus paste ไฟล์ไม่ได้ (มีหลักฐาน
+        TARGETS สด + Nautilus copy เองเป็น ground truth ตารางเทียบ) — GTK ตั้งครบ
+        targets ใน owner เดียวจึงถูกต้องที่สุด
+        """
+        gtk_ok = self._set_files_gtk(paths, is_cut)
+        if gtk_ok:
+            return True
         import pathlib
         uris = []
         for p in paths:
@@ -1923,22 +1932,66 @@ class LinuxClipboard:
 
         action = "cut" if is_cut else "copy"
         gnome_payload = (action + "\n" + "\n".join(uris) + "\n").encode("utf-8")
-        uri_payload = ("\r\n".join(uris) + "\r\n").encode("utf-8")
 
         xc = self._xclip()
         if xc:
             try:
+                log("[clip] GTK ใช้ไม่ได้ — สำรองด้วย xclip gnome-copied-files เดียว")
                 p1 = subprocess.Popen([xc, "-selection", "clipboard", "-t", "x-special/gnome-copied-files"],
                                       stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 p1.communicate(gnome_payload, timeout=1.5)
-
-                p2 = subprocess.Popen([xc, "-selection", "clipboard", "-t", "text/uri-list"],
-                                      stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                p2.communicate(uri_payload, timeout=1.5)
                 return True
             except Exception as ex:
                 log(f"[clip] xclip set_files error: {ex}")
         return False
+
+    def _set_files_gtk(self, paths: list, is_cut: bool) -> bool:
+        """ตั้ง clipboard ผ่าน GTK — owner เดียว ครบ targets (gnome-copied-files +
+        uri-list + UTF8_STRING) เหมือนที่ Nautilus copy เองประกาศ ใช้ Gtk/GLib ของ
+        status UI ที่ main loop วิ่งอยู่แล้ว"""
+        try:
+            Gtk, GLib = self.ui._ensure_gtk()
+            import pathlib
+            uris = []
+            for p in paths:
+                try:
+                    uris.append(pathlib.Path(p).resolve().as_uri())
+                except Exception:
+                    pass
+            if not uris:
+                return False
+            action = b"cut" if is_cut else b"copy"
+            clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+            payload = {"action": action, "uris": uris}
+
+            def _get(_clipboard, selectiondata, _info, _data):
+                try:
+                    if selectiondata.get_target().name() == "x-special/gnome-copied-files":
+                        selectiondata.set(selectiondata.get_target(), 8,
+                                          payload["action"] + b"\n" + "\n".join(payload["uris"]).encode() + b"\n")
+                    else:
+                        selectiondata.set(selectiondata.get_target(), 8,
+                                          ("\r\n".join(payload["uris"]) + "\r\n").encode())
+                except Exception as ex:
+                    log(f"[clip] gtk get_func: {ex}")
+
+            def _clear(_clipboard, _data):
+                pass
+
+            def _do():
+                try:
+                    clipboard.set_with_data(targets, _get, _clear, None)
+                    clipboard.store()
+                    log(f"[clip] GTK set_files {len(paths)} ไฟล์ (multi-target owner เดียว)")
+                except Exception as ex:
+                    log(f"[clip] GTK set_files error: {ex}")
+
+            GLib.idle_add(_do)
+            time.sleep(0.6)  # ให้ main loop รัน _do ก่อนผู้เรียกตรวจผล
+            return True
+        except Exception as ex:
+            log(f"[clip] gtk set_files: {ex}")
+            return False
 
 
 class AntiReplayWindow:
