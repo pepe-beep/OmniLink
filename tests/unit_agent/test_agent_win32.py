@@ -8,6 +8,7 @@ import ctypes
 import os
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -41,12 +42,28 @@ class TestWin32Controller(unittest.TestCase):
         self.assertTrue(0 <= y <= self.ctl.height)
 
     def test_move_abs_moves_real_cursor(self):
+        # กฎห้องแล็บ (29-31 ต.ค.): test นี้แข่งกับ "มือจริงของผู้ใช้" — ห้ามถือว่าตำแหน่งตรง 3px ทันที
+        # แก้ตามกฎ 6 ข้อ: จำตำแหน่งเดิม → ยิง + ตรวจซ้ำ (retry 3) ด้วย tolerance ตาม DPI
+        # → คืนตำแหน่งเดิมเสมอ (แม้ assert fail)
+        saved_x, saved_y = self.ctl.query_pointer()
         target_x = self.ctl.width // 4
         target_y = self.ctl.height // 2
-        self.ctl.move_abs(target_x, target_y)
-        x, y = self.ctl.query_pointer()
-        self.assertLessEqual(abs(x - target_x), 3, f"warp จริงไม่ตรง: {x} vs {target_x}")
-        self.assertLessEqual(abs(y - target_y), 3, f"warp จริงไม่ตรง: {y} vs {target_y}")
+        tolerance = 8  # สเกล/DPI ของ monitor หลักอาจกลืนบาง pixel — 8px พอสำหรับ smoke-level
+        try:
+            ok = False
+            detail = ""
+            for attempt in range(1, 4):
+                self.ctl.move_abs(target_x, target_y)
+                time.sleep(0.15)  # settle ให้ OS คำนวณ cursor จริง
+                x, y = self.ctl.query_pointer()
+                if abs(x - target_x) <= tolerance and abs(y - target_y) <= tolerance:
+                    ok = True
+                    detail = f"ตรงเป้าใน attempt {attempt}: ({x},{y})"
+                    break
+                detail = f"attempt {attempt}: ({x},{y}) vs target ({target_x},{target_y})"
+            self.assertTrue(ok, f"warp จริงไม่ตรงหลัง 3 ครั้ง: {detail}")
+        finally:
+            self.ctl.move_abs(saved_x, saved_y)  # คืนเมาส์ผู้ใช้เสมอ (กฎ 4)
 
     def test_keycode_map_core_keys(self):
         # modifier พิเศษจากตาราง
