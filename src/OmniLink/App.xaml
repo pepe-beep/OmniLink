@@ -6,6 +6,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- U1: Design tokens — ฟอนต์ครอบครัว B (ไทยเต็มรูปแบบ) · ธีมให้ค่าสีตามโหมด -->
+                <ResourceDictionary Source="/Design/Tokens.xaml"/>
                 <ui:ThemesDictionary Theme="Dark"/>
                 <ui:ControlsDictionary />
                 <ResourceDictionary Source="pack://application:,,,/OmniLink;component/Themes/Theme.Dark.xaml"/>

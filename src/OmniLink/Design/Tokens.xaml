@@ -1,0 +1,13 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- ═══ Design Tokens — OmniLink (U0/U1, อนุมัติ 3 พ.ย.) ═══
+         บ้านเดียวของ: ฟอนต์ (ครอบครัว B — รองรับไทยเต็ม) · semantic brushes ที่ธีมทั้งสามให้ค่าตามโหมด
+         ธีมมืด = Projection Booth (C: ดำ + ทอง #D9A441) · ธีมสว่าง = Drafting Paper (B: กระดาษ + อำพัน #B4530A)
+         WCAG วัดจริงจดใน Theme.Dark/Light/Black — ห้าม hardcode hex นอก Themes/ -->
+
+    <!-- ฟอนต์ครอบครัว B: ไทยเต็มรูปแบบ + mono สำหรับ telemetry -->
+    <FontFamily x:Key="OmniLinkFontFamily">Noto Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
+    <FontFamily x:Key="OmniLinkMonoFontFamily">Cascadia Code, JetBrains Mono, Consolas</FontFamily>
+    <sys:Double x:Key="OmniLinkFontSizeBase">13</sys:Double>
+</ResourceDictionary>

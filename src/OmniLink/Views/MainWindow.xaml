@@ -10,7 +10,9 @@
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         SnapsToDevicePixels="True"
-        UseLayoutRounding="True">
+        UseLayoutRounding="True"
+        FontFamily="{DynamicResource OmniLinkFontFamily}"
+        FontSize="13">
 
     <Window.Resources>
         <!-- Fluent TabItem Style (Clean Underline Indicator) -->
