@@ -1743,6 +1743,95 @@ class ClientStatusUi:
         except Exception:
             pass
 
+    # ─── F2: ไฟล์รับล่าสุด — ring 50 + toast action + เมนู indicator ───
+    RECEIVED_RING = os.path.expanduser("~/.omnilink/received.json")
+
+    def _received_load(self):
+        try:
+            with open(self.RECEIVED_RING, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+
+    def _received_save(self, ring):
+        try:
+            os.makedirs(os.path.dirname(self.RECEIVED_RING), exist_ok=True)
+            with open(self.RECEIVED_RING, "w", encoding="utf-8") as f:
+                json.dump(ring[-50:], f, ensure_ascii=False, indent=1)
+        except Exception as ex:
+            log("[received] save: " + str(ex))
+
+    def notify_files(self, paths, sender="host"):
+        """F2: toast แจ้งไฟล์รับ + action เปิดโฟลเดอร์/เปิดไฟล์ + บันทึก ring + อัปเดตเมนู"""
+        try:
+            for p in paths:
+                log("[received] " + p)
+            ring = self._received_load()
+            now = int(time.time())
+            for p in paths:
+                ring.append({"path": p, "ts": now, "from": sender})
+            self._received_save(ring)
+
+            import gi
+            gi.require_version("Notify", "0.7")
+            from gi.repository import Notify
+            Notify.init("OmniLink")
+            n = Notify.Notification.new(
+                "OmniLink — ไฟล์รับแล้ว",
+                f"{len(paths)} ไฟล์ จาก {sender} — คลิกเพื่อเปิดโฟลเดอร์",
+                "folder-download")
+            recv_dir = os.path.dirname(paths[0]) if paths else None
+            if recv_dir:
+                n.add_action("open", "เปิดโฟลเดอร์",
+                             lambda *_: subprocess.Popen(["xdg-open", recv_dir]))
+                if len(paths) == 1:
+                    n.add_action("open1", "เปิดไฟล์",
+                                 lambda *_: subprocess.Popen(["xdg-open", paths[0]]))
+            n.show()
+            self._refresh_indicator_menu()
+        except Exception as ex:
+            log("[received] notify: " + str(ex))
+
+    def _received_open_latest(self, _menu_item=None):
+        ring = self._received_load()
+        if ring:
+            recv_dir = os.path.dirname(ring[-1]["path"])
+            subprocess.Popen(["xdg-open", recv_dir])
+
+    def _refresh_indicator_menu(self):
+        """F2: เพิ่ม/อัปเดตเมนู 'ไฟล์รับล่าสุด' บน indicator (AppIndicator path เท่านั้น)"""
+        try:
+            ind = getattr(self, "indicator", None)
+            if ind is None:
+                return
+            Gtk, GLib = self._ensure_gtk()
+            menu = Gtk.Menu()
+            hint = Gtk.MenuItem()
+            hint.set_label(self._menu_label())
+            hint.set_sensitive(False)
+            menu.append(hint)
+            ring = self._received_load()
+            if ring:
+                sub = Gtk.Menu()
+                for item in ring[-5:]:
+                    mi = Gtk.MenuItem()
+                    mi.set_label(os.path.basename(item["path"]) + "  (" +
+                                 time.strftime("%H:%M", time.localtime(item["ts"])) + ")")
+                    mi.connect("activate", lambda _m, path=item["path"]: subprocess.Popen(["xdg-open", path]))
+                    sub.append(mi)
+                open_item = Gtk.MenuItem()
+                open_item.set_label("เปิดโฟลเดอร์รับไฟล์")
+                open_item.connect("activate", self._received_open_latest)
+                sub.append(open_item)
+                files_root = Gtk.MenuItem()
+                files_root.set_label("ไฟล์รับล่าสุด")
+                files_root.set_submenu(sub)
+                menu.append(files_root)
+            menu.show_all()
+            ind.set_menu(menu)
+        except Exception as ex:
+            log("[received] refresh menu: " + str(ex))
+
     def notify_pin(self, pin: str):
         try:
             import gi
@@ -3200,23 +3289,24 @@ class OmniLinkAgentServer:
                 if completed:
                     self.clip.set_files(completed, is_cut=is_cut)
                     log(f"[file] Transfer complete! Saved {len(completed)} files to {sess['target_dir']}")
+                    # F2: toast action + ring + เมนูไฟล์รับล่าสุด (แทน notify-send เฉย ๆ)
                     try:
-                        subprocess.Popen(["notify-send", "OmniLink", f"ได้รับ {len(completed)} ไฟล์เรียบร้อยแล้ว (วางด้วย Ctrl+V)"])
-                    except Exception:
-                        pass
+                        self.ui.notify_files(completed, "host")
+                    except Exception as ex_nf:
+                        log("[received] notify_files: " + str(ex_nf))
 
         elif mtype == "file_delete_remote":
             # F4: ลบไฟล์ที่เคยรับจาก host — เฉพาะ path ใต้โฟลเดอร์รับไฟล์ของเรา (กัน path traversal)
             if not self._authed_hosts:
                 log("[file] delete_remote ปฏิเสธ — ยังไม่ auth")
-                break
+                return
             target = msg.get("path", "")
             import os as _os
             recv_root = _os.path.expanduser("~/Downloads/OmniLink")
             real = _os.path.realpath(target) if target else ""
             if not real.startswith(_os.path.realpath(recv_root) + _os.sep):
                 log(f"[file] delete_remote ปฏิเสธ path นอกโฟลเดอร์รับ: {target}")
-                break
+                return
             try:
                 _os.remove(real)
                 log(f"[file] delete_remote ลบแล้ว: {real}")
@@ -3226,7 +3316,7 @@ class OmniLinkAgentServer:
             except Exception as ex_del:
                 log(f"[file] delete_remote error: {ex_del}")
                 self.send_tcp_message({"type": "file_delete_remote_ack", "path": real, "ok": False, "err": str(ex_del)})
-            break
+            return
 
         elif mtype == "lock":
             self.screen_locked = bool(msg.get("on", False))
