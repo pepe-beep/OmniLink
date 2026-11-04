@@ -3205,6 +3205,29 @@ class OmniLinkAgentServer:
                     except Exception:
                         pass
 
+        elif mtype == "file_delete_remote":
+            # F4: ลบไฟล์ที่เคยรับจาก host — เฉพาะ path ใต้โฟลเดอร์รับไฟล์ของเรา (กัน path traversal)
+            if not self._authed_hosts:
+                log("[file] delete_remote ปฏิเสธ — ยังไม่ auth")
+                break
+            target = msg.get("path", "")
+            import os as _os
+            recv_root = _os.path.expanduser("~/Downloads/OmniLink")
+            real = _os.path.realpath(target) if target else ""
+            if not real.startswith(_os.path.realpath(recv_root) + _os.sep):
+                log(f"[file] delete_remote ปฏิเสธ path นอกโฟลเดอร์รับ: {target}")
+                break
+            try:
+                _os.remove(real)
+                log(f"[file] delete_remote ลบแล้ว: {real}")
+                self.send_tcp_message({"type": "file_delete_remote_ack", "path": real, "ok": True})
+            except FileNotFoundError:
+                self.send_tcp_message({"type": "file_delete_remote_ack", "path": real, "ok": False, "err": "not_found"})
+            except Exception as ex_del:
+                log(f"[file] delete_remote error: {ex_del}")
+                self.send_tcp_message({"type": "file_delete_remote_ack", "path": real, "ok": False, "err": str(ex_del)})
+            break
+
         elif mtype == "lock":
             self.screen_locked = bool(msg.get("on", False))
             if self.screen_locked:

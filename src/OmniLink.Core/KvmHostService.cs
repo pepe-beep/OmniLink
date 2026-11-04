@@ -844,6 +844,18 @@ public sealed class KvmHostService : IDisposable, IHostLinkCallbacks, Abstractio
         }
     }
 
+    /// <summary>F4: ส่งคำสั่งลบไฟล์ที่ปลายทาง (ต้องมี session อยู่ — เขียน audit log ก่อนส่ง)</summary>
+    public bool DeleteRemoteFile(string nodeId, string remotePath)
+    {
+        if (!Sessions.TryGetValue(nodeId, out var sess) || !sess.Connected)
+        {
+            OmniLog.Write("file", $"[delete-remote] ปฏิเสธ — node {nodeId} offline");
+            return false;
+        }
+        OmniLog.Write("file", $"[delete-remote] สั่งลบ {remotePath} ที่ {nodeId} (audit)");
+        return sess.SendTcp(new { type = "file_delete_remote", path = remotePath });
+    }
+
     public void PushClipboardToActiveNode()
     {
         var id = ActiveNodeId;
